@@ -1,1 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>18 Living｜A Gentle Journal</title>
 
+<style>
+/* =====================================================
+   18 Living — 文青風數位手帳
+   設計語彙：奶茶色 / 米白 / 燕麥 / 霧粉 / 鼠尾草綠 / 暖灰 / 咖啡
+   風格參考：MIDORI、Traveler's Notebook、Hobonichi、MUJI、北歐
+   全部樣式皆為本機內建字型與 CSS 效果，無任何外部 CDN 依賴。
+   ===================================================== */
+
+:root{
+  /* ---- 色彩代碼（低彩度 / 紙感） ---- */
+  --cream:      #F7F1E6;   /* 米白：整體背景 */
+  --paper:      #FBF8F1;   /* 紙張：卡片/頁面底色 */
+  --paper-warm: #F3EAD9;   /* 略深紙色：分隔區塊 */
+  --oat:        #EAD9BC;   /* 燕麥色：邊框、次要元素 */
+  --latte:      #D9C4A3;   /* 奶茶色：主色調 */
+  --khaki:      #C4B08A;   /* 卡其：強調線條 */
+  --blush:      #E7D3CC;   /* 霧粉：柔和點綴 */
+  --sage:       #A9BB9C;   /* 鼠尾草綠：輔助點綴 */
+  --warmgray:   #96897A;   /* 暖灰：次要文字 */
+  --coffee:     #6E5A45;   /* 咖啡色：主要強調色 */
+  --ink:        #4A3F34;   /* 深咖啡：主要文字 */
+  --ink-soft:   #7A6C5C;   /* 柔和文字色 */
+
+  --shadow-soft: 0 10px 28px rgba(110, 90, 69, 0.12), 0 2px 6px rgba(110,90,69,.08);
+  --shadow-lift: 0 16px 40px rgba(110, 90, 69, 0.18);
+  --radius-lg: 26px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+
+  --font-display: "Noto Serif TC","Songti TC","PMingLiU","Georgia",serif;
+  --font-body: "PingFang TC","Hiragino Sans","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+}
+
+*{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(217,196,163,0.25), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(169,187,156,0.18), transparent 40%),
+    var(--cream);
+  background-attachment: fixed;
+  overflow:hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button{ font-family: inherit; }
+textarea, input{ font-family: inherit; }
+
+/* 紙張紋理（純 CSS 微點紋，無需外部圖檔） */
+.paper-texture{
+  background-image:
+    radial-gradient(rgba(110,90,69,0.035) 1px, transparent 1px);
+  background-size: 9px 9px;
+}
+
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-thumb{ background: var(--oat); border-radius:8px; }
+::-webkit-scrollbar-track{ background: transparent; }
+
+button, input, textarea, select{ outline: none; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, .day-cell:focus-visible{
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+/* =====================================================
+   畫面切換容器
+   ===================================================== */
+#app{ position:relative; width:100%; height:100%; }
+.screen{
+  position:absolute; inset:0;
+  opacity:0; pointer-events:none;
+  transition: opacity .55s ease, transform .55s ease;
+}
+.screen.active{ opacity:1; pointer-events:auto; }
+
+/* =====================================================
+   封面（首頁）— 翻開手帳的儀式感
+   ===================================================== */
+#cover-screen{
+  display:flex; align-items:center; justify-content:center;
+  transform: translateY(0);
+}
+#cover-screen:not(.active){ transform: translateY(-16px); }
+.cover-inner{
+  text-align:center;
+  max-width: 560px;
+  padding: 48px 40px;
+  animation: coverFade 1s ease both;
+}
+@keyframes coverFade{ from{ opacity:0; transform: translateY(14px);} to{opacity:1; transform:translateY(0);} }
+.cover-mark{
+  width:46px; height:46px; margin:0 auto 18px;
+  border:1.5px solid var(--khaki); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; color: var(--coffee);
+}
+.cover-title{
+  font-family: var(--font-display);
+  font-size: clamp(38px, 7vw, 58px);
+  letter-spacing: 0.03em;
+  margin: 0;
+  color: var(--coffee);
+  font-weight: 600;
+}
+.cover-sub{
+  margin: 6px 0 26px;
+  letter-spacing: 0.28em;
+  font-size: 12.5px;
+  color: var(--warmgray);
+  text-transform: uppercase;
+}
+.cover-tagline{
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--ink-soft);
+  margin: 0 0 30px;
+}
+.cover-quote-box{
+  border-top: 1px solid var(--oat);
+  border-bottom: 1px solid var(--oat);
+  padding: 18px 10px;
+  margin-bottom: 34px;
+  min-height: 30px;
+}
+.cover-quote{
+  margin:0; font-size:14.5px; color: var(--ink-soft); line-height:1.9;
+}
+.btn-open{
+  border:none; cursor:pointer;
+  background: var(--coffee); color: var(--paper);
+  padding: 15px 40px; border-radius: 999px;
+  font-size:16px; letter-spacing:.06em;
+  box-shadow: var(--shadow-soft);
+  transition: transform .25s ease, box-shadow .25s ease;
+  display:inline-block; text-decoration:none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-open:active{ transform: scale(.96); }
+.cover-hint{
+  margin-top:16px; font-size:12px; color:var(--warmgray);
+}
+
+/* =====================================================
+   主體 App Shell
+   ===================================================== */
+#main-app{ display:flex; height:100%; }
+.tab-strip{
+  flex: 0 0 108px;
+  display:flex; flex-direction:column;
+  align-items:center;
+  padding: 26px 0;
+  gap: 6px;
+  background: linear-gradient(180deg, var(--paper-warm), var(--oat) 130%);
+  border-right: 1px solid rgba(110,90,69,0.12);
+}
+.tab-brand{
+  font-family: var(--font-display);
+  font-size: 19px; color: var(--coffee);
+  margin-bottom: 22px; text-align:center; line-height:1.3;
+}
+.tab-brand small{ display:block; font-size:9px; letter-spacing:.18em; color:var(--warmgray); font-family:var(--font-body); }
+.tab{
+  width: 84px;
+  border:none; background: transparent; cursor:pointer;
+  color: var(--ink-soft);
+  padding: 12px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  transition: background .25s ease, color .25s ease, transform .2s ease;
+}
+.tab .tab-icon{ font-size:19px; }
+.tab.active{ background: var(--paper); color: var(--coffee); box-shadow: var(--shadow-soft); font-weight:600; }
+.tab:active{ transform: scale(.96); }
+
+.view-container{
+  flex:1; min-width:0; height:100%;
+  overflow:hidden; position:relative;
+}
+.view{
+  position:absolute; inset:0; overflow-y:auto;
+  padding: 30px clamp(18px,4vw,54px) 60px;
+  opacity:0; transform: translateX(10px);
+  pointer-events:none;
+  transition: opacity .4s ease, transform .4s ease;
+}
+.view.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+
+.view-title{
+  font-family: var(--font-display);
+  font-size: 26px; color: var(--coffee); margin: 4px 0 4px;
+}
+.view-desc{ color: var(--warmgray); font-size:13px; margin:0 0 22px; }
+
+/* =====================================================
+   今日頁面（表單像手帳內頁）
+   ===================================================== */
+.journal-page{
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: clamp(20px,3vw,40px);
+  max-width: 900px;
+  position: relative;
+}
+.journal-page::before{
+  content:"";
+  position:absolute; left:0; top:22px; bottom:22px; width:3px;
+  background: linear-gradient(180deg, transparent, var(--khaki), transparent);
+  border-radius:3px; opacity:.5;
+}
+.page-header-row{
+  display:flex; flex-wrap:wrap; align-items:center; gap:16px 26px;
+  margin-bottom: 22px; padding-bottom:18px;
+  border-bottom: 1px dashed var(--oat);
+}
+.date-field{ display:flex; flex-direction:column; gap:4px; }
+.date-field label{ font-size:11.5px; color:var(--warmgray); letter-spacing:.08em; }
+.date-field input[type=date]{
+  border:1px solid var(--oat); background:var(--cream);
+  border-radius:12px; padding:10px 12px; font-size:16px; color:var(--ink);
+}
+.weekday-badge{
+  font-family: var(--font-display);
+  font-size:15px; color: var(--coffee);
+  background: var(--blush); padding:8px 16px; border-radius:999px;
+}
+.draft-status{
+  margin-left:auto; font-size:11.5px; color: var(--sage-dark, #7C9270);
+  display:flex; align-items:center; gap:6px;
+}
+.draft-status .dot{ width:6px; height:6px; border-radius:50%; background:var(--sage); }
+
+.field-block{ margin-bottom: 22px; }
+.field-block > label, .field-label{
+  display:block; font-size:13px; color: var(--coffee);
+  font-weight:600; margin-bottom:9px; letter-spacing:.02em;
+}
+.field-block .field-hint{ font-size:11.5px; color:var(--warmgray); font-weight:400; margin-left:6px; }
+
+.picker-row{ display:flex; flex-wrap:wrap; gap:9px; }
+.emoji-btn{
+  border:1.5px solid var(--oat); background:var(--cream);
+  border-radius:14px; min-width:48px; height:48px; padding:0 12px;
+  font-size:21px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: all .2s ease;
+}
+.emoji-btn.selected{
+  border-color: var(--coffee); background: var(--blush);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(110,90,69,.16);
+}
+.emoji-btn:active{ transform: scale(.94); }
+
+input[type=text].line-input, input.line-input{
+  width:100%; border:none; border-bottom: 1.5px solid var(--oat);
+  background: transparent; font-size:20px; font-family: var(--font-display);
+  color: var(--ink); padding: 8px 4px; transition: border-color .25s ease;
+}
+input.line-input:focus{ border-color: var(--coffee); }
+input.line-input::placeholder{ color: var(--warmgray); font-family: var(--font-body); font-size:15px; }
+
+textarea.soft-textarea{
+  width:100%; border:1px solid var(--oat); background: var(--cream);
+  border-radius: var(--radius-sm); padding:14px 16px;
+  font-size:15.5px; line-height:1.9; color: var(--ink);
+  resize: vertical; min-height: 54px;
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+textarea.soft-textarea:focus{ border-color: var(--coffee); box-shadow: 0 0 0 3px rgba(199,177,138,.25); }
+textarea.story-textarea{ min-height: 150px; }
+
+.two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 20px 26px; }
+@media (max-width: 760px){ .two-col{ grid-template-columns: 1fr; } }
+
+.sticker-grid{ display:flex; flex-wrap:wrap; gap:9px; }
+.sticker-chip{
+  border:1.5px solid var(--oat); background:var(--cream);
+  border-radius:999px; padding:9px 15px; font-size:13.5px; cursor:pointer;
+  display:flex; align-items:center; gap:6px; color:var(--ink-soft);
+  transition: all .2s ease;
+}
+.sticker-chip .e{ font-size:16px; }
+.sticker-chip.selected{
+  background: var(--sage); border-color: var(--sage); color:#fff; font-weight:600;
+  transform: translateY(-1px);
+}
+.sticker-chip:active{ transform: scale(.95); }
+
+.photo-zone{
+  border: 1.5px dashed var(--oat); border-radius: var(--radius-sm);
+  padding: 16px; background: var(--cream);
+}
+.photo-upload-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1.5px solid var(--khaki); background: var(--paper);
+  padding: 11px 18px; border-radius:999px; cursor:pointer; font-size:13.5px; color:var(--coffee);
+}
+.photo-preview-grid{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.photo-thumb{ position:relative; width:82px; height:82px; border-radius:12px; overflow:hidden; box-shadow: var(--shadow-soft); }
+.photo-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.photo-thumb .remove-photo{
+  position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%;
+  background: rgba(74,63,52,.75); color:#fff; border:none; font-size:12px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.photo-hint{ font-size:11.5px; color: var(--warmgray); margin-top:10px; }
+
+.gentle-note{
+  background: linear-gradient(135deg, var(--blush), var(--paper-warm));
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-size: 13.5px; color: var(--coffee);
+  margin: 26px 0 6px;
+  font-family: var(--font-display);
+  text-align:center;
+}
+
+.action-row{ display:flex; flex-wrap:wrap; gap:12px; margin-top: 28px; }
+.btn{
+  border:none; cursor:pointer; border-radius:999px;
+  padding: 13px 26px; font-size:14.5px; letter-spacing:.03em;
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s;
+  min-height: 46px;
+}
+.btn:active{ transform: scale(.96); }
+.btn-primary{ background: var(--coffee); color: var(--paper); box-shadow: var(--shadow-soft); }
+.btn-secondary{ background: var(--paper); border:1.5px solid var(--khaki); color: var(--coffee); }
+.btn-ghost{ background:transparent; color: var(--warmgray); border:1.5px solid transparent; }
+.btn-danger{ background: transparent; color:#a15b4c; border:1.5px solid #d8b3a8; }
+.btn-danger:hover{ background:#fbeeea; }
+
+/* =====================================================
+   卡片（書櫃 / 搜尋 / 月曆列表 共用）
+   ===================================================== */
+.entry-card{
+  background: var(--paper); border-radius: var(--radius-md);
+  padding: 16px 18px; box-shadow: var(--shadow-soft);
+  cursor:pointer; transition: transform .22s ease, box-shadow .22s ease;
+  border: 1px solid rgba(110,90,69,.06);
+}
+.entry-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.entry-card:active{ transform: scale(.99); }
+.entry-card-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.entry-date{ font-size:12px; color: var(--warmgray); letter-spacing:.03em; }
+.entry-mood{ font-size:19px; }
+.entry-title{ font-family: var(--font-display); font-size:17px; margin:0 0 6px; color: var(--ink); }
+.entry-summary{ font-size:13px; color: var(--ink-soft); line-height:1.7; margin:0 0 10px;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.entry-stickers{ display:flex; flex-wrap:wrap; gap:6px; }
+.chip-mini{ font-size:11px; background: var(--paper-warm); border-radius:999px; padding:3px 9px; color: var(--ink-soft); }
+
+.card-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
+.empty-state{
+  text-align:center; padding: 60px 20px; color: var(--warmgray);
+}
+.empty-state .e{ font-size:34px; display:block; margin-bottom:10px; }
+
+/* =====================================================
+   書櫃（依年份 / 月份分層）
+   ===================================================== */
+.shelf-year{
+  margin-bottom: 18px;
+  background: var(--paper); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft); overflow:hidden;
+}
+.shelf-year > summary{
+  list-style:none; cursor:pointer; padding: 18px 22px;
+  font-family: var(--font-display); font-size:20px; color:var(--coffee);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.shelf-year > summary::-webkit-details-marker{ display:none; }
+.shelf-year > summary .count{ font-size:12px; color: var(--warmgray); font-family: var(--font-body); }
+.shelf-year > summary::after{ content:"⌄"; font-size:16px; color:var(--warmgray); transition: transform .25s ease; }
+.shelf-year[open] > summary::after{ transform: rotate(180deg); }
+.shelf-month{ padding: 0 22px 16px; }
+.shelf-month > summary{
+  list-style:none; cursor:pointer; padding: 10px 0; font-size:14.5px; color: var(--ink-soft);
+  border-top: 1px dashed var(--oat);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.shelf-month > summary::-webkit-details-marker{ display:none; }
+.shelf-month-list{ display:flex; flex-direction:column; gap:10px; padding: 8px 0 4px; }
+.shelf-entry-row{
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+  padding:10px 12px; border-radius:12px; transition: background .2s ease;
+}
+.shelf-entry-row:hover{ background: var(--paper-warm); }
+.shelf-entry-row .d{ font-size:12.5px; color:var(--warmgray); width:66px; flex-shrink:0; }
+.shelf-entry-row .m{ font-size:17px; }
+.shelf-entry-row .t{ font-size:14px; color:var(--ink); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* =====================================================
+   月曆
+   ===================================================== */
+.calendar-card{
+  background: var(--paper); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+  padding: clamp(18px,3vw,34px); max-width: 720px;
+}
+.calendar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.calendar-title{ font-family: var(--font-display); font-size:21px; color: var(--coffee); }
+.calendar-nav{ display:flex; gap:8px; }
+.icon-btn{
+  width:38px; height:38px; border-radius:50%; border:1.5px solid var(--oat);
+  background: var(--cream); cursor:pointer; font-size:15px; color: var(--coffee);
+  display:flex; align-items:center; justify-content:center;
+}
+.icon-btn:active{ transform: scale(.92); }
+.calendar-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:6px; }
+.calendar-grid .wd{ text-align:center; font-size:11.5px; color:var(--warmgray); padding-bottom:8px; }
+.day-cell{
+  aspect-ratio: 1/1; border-radius:14px; border:1px solid transparent;
+  background: var(--cream); cursor:pointer; position:relative;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:13.5px; color: var(--ink-soft); transition: all .2s ease;
+}
+.day-cell.empty{ background:transparent; cursor:default; }
+.day-cell.today{ border-color: var(--coffee); font-weight:700; color:var(--coffee); }
+.day-cell.has-entry{ background: var(--blush); color: var(--ink); }
+.day-cell:hover:not(.empty){ transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+.day-cell .dot{ width:5px; height:5px; border-radius:50%; background: var(--coffee); margin-top:3px; }
+
+/* =====================================================
+   搜尋
+   ===================================================== */
+.search-bar{
+  display:flex; align-items:center; gap:10px;
+  background: var(--paper); border-radius: 999px; padding: 8px 8px 8px 20px;
+  box-shadow: var(--shadow-soft); max-width:560px; margin-bottom:18px;
+}
+.search-bar input{ flex:1; border:none; background:transparent; font-size:15.5px; padding:8px 0; }
+.search-bar .icon{ color: var(--warmgray); }
+.search-bar button{
+  border:none; background: var(--coffee); color:#fff; border-radius:999px;
+  padding: 10px 18px; font-size:13px; cursor:pointer;
+}
+.filter-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+
+/* =====================================================
+   備份／設定
+   ===================================================== */
+.settings-card{
+  background: var(--paper); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+  padding: 28px; max-width: 620px; margin-bottom:18px;
+}
+.settings-card h3{ font-family: var(--font-display); color: var(--coffee); margin:0 0 6px; font-size:18px; }
+.settings-card p{ font-size:13.5px; color: var(--ink-soft); line-height:1.8; margin: 0 0 16px; }
+.reminder-box{
+  background: var(--paper-warm); border-left:3px solid var(--sage);
+  border-radius: 10px; padding: 14px 18px; font-size:13px; color:var(--ink-soft); line-height:1.8;
+}
+.file-input-hidden{ display:none; }
+
+/* =====================================================
+   彈窗（完整日記預覽 / 確認提示）
+   ===================================================== */
+.modal-overlay{
+  position:fixed; inset:0; background: rgba(74,63,52,0.38);
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  opacity:0; pointer-events:none; transition: opacity .3s ease; z-index:50;
+}
+.modal-overlay.active{ opacity:1; pointer-events:auto; }
+.modal-page{
+  background: var(--paper); border-radius: var(--radius-lg);
+  max-width: 640px; width:100%; max-height:86vh; overflow-y:auto;
+  padding: clamp(22px,3vw,40px);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(18px) scale(.98); transition: transform .35s ease;
+}
+.modal-overlay.active .modal-page{ transform: translateY(0) scale(1); }
+.modal-close-row{ display:flex; justify-content:flex-end; }
+.modal-close{
+  border:none; background:transparent; font-size:22px; color:var(--warmgray); cursor:pointer;
+}
+.modal-title-row{ display:flex; align-items:center; gap:12px; margin-bottom:4px; }
+.modal-title{ font-family: var(--font-display); font-size:24px; color: var(--coffee); margin:0; }
+.modal-meta{ font-size:12.5px; color: var(--warmgray); margin-bottom:18px; }
+.modal-section{ margin-bottom:18px; }
+.modal-section .label{ font-size:12px; color:var(--coffee); font-weight:600; margin-bottom:5px; }
+.modal-section .content{ font-size:14.5px; color:var(--ink); line-height:1.9; white-space:pre-wrap; }
+.modal-photos{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+.modal-photos img{ width:100px; height:100px; object-fit:cover; border-radius:12px; box-shadow: var(--shadow-soft); }
+.modal-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; padding-top:18px; border-top:1px dashed var(--oat); }
+
+.confirm-box{ max-width: 380px; text-align:center; }
+.confirm-box p{ font-size:14.5px; color: var(--ink-soft); line-height:1.8; margin: 6px 0 22px; }
+.confirm-box .actions{ display:flex; gap:10px; justify-content:center; }
+
+/* Toast */
+#toast{
+  position:fixed; left:50%; bottom:26px; transform: translateX(-50%) translateY(20px);
+  background: var(--coffee); color: var(--paper); padding: 12px 22px; border-radius: 999px;
+  font-size:13.5px; box-shadow: var(--shadow-lift); opacity:0; pointer-events:none;
+  transition: all .35s ease; z-index:100;
+}
+#toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+/* =====================================================
+   RWD：iPad 直式 / 手機 → 上下排列、頂部橫向分頁
+   ===================================================== */
+@media (max-width: 880px){
+  #main-app{ flex-direction:column; }
+  .tab-strip{
+    flex-direction:row; flex:0 0 auto; width:100%;
+    overflow-x:auto; padding: 14px 12px; justify-content:flex-start; gap:8px;
+  }
+  .tab-brand{ display:none; }
+  .tab{ width:auto; flex-direction:row; padding:10px 14px; white-space:nowrap; }
+  .view{ padding: 22px 16px 50px; }
+}
+
+/* =====================================================
+   純 CSS 備援：即使 JavaScript 完全沒有執行，
+   點擊 #open-diary-btn（錨點連結）觸發網址 hash 變成 #main-app 時，
+   也能單靠 CSS :target 讓主頁面顯示出來、封面隱藏。
+   （Safari 15.4 以上支援 :has()，屬於雙重保險，不影響原本 JS 邏輯）
+   ===================================================== */
+#main-app:target{ opacity:1 !important; pointer-events:auto !important; }
+@supports selector(:has(*)){
+  #app:has(#main-app:target) #cover-screen{ opacity:0 !important; pointer-events:none !important; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ 封面首頁 ============ -->
+  <section id="cover-screen" class="screen active">
+    <div class="cover-inner">
+      <div class="cover-mark">18</div>
+      <h1 class="cover-title">18 Living</h1>
+      <p class="cover-sub">A Gentle Journal</p>
+      <p class="cover-tagline">把一天放下，也把自己接住。</p>
+      <div class="cover-quote-box">
+        <p class="cover-quote" id="cover-quote">今天不用完美，願意記錄下來，就已經很好了。</p>
+      </div>
+      <!-- 使用 <a href="#main-app"> 而非單純 <button>：
+           即使 JavaScript 因任何原因未能執行，點擊仍會透過瀏覽器原生的錨點跳轉，
+           搭配下方 CSS 的 :target 規則，讓畫面依然能切換到主頁面，作為雙重保險。
+           同時保留 onclick 內嵌屬性與外部 addEventListener 兩種綁定方式，增加可靠度。 -->
+      <a class="btn-open" id="open-diary-btn" href="#main-app"
+         onclick="try{document.getElementById('cover-screen').classList.remove('active');document.getElementById('main-app').classList.add('active');if(typeof switchView==='function'){switchView('today');}}catch(e){}">翻開手帳</a>
+      <p class="cover-hint">資料只存在這台裝置的瀏覽器裡，記得偶爾備份 🤍</p>
+    </div>
+  </section>
+
+  <!-- ============ 主體 App ============ -->
+  <div id="main-app" class="screen">
+
+    <nav class="tab-strip">
+      <div class="tab-brand">18 Living<small>GENTLE JOURNAL</small></div>
+      <button class="tab active" data-view="today"><span class="tab-icon">📖</span>今日</button>
+      <button class="tab" data-view="calendar"><span class="tab-icon">🗓️</span>月曆</button>
+      <button class="tab" data-view="shelf"><span class="tab-icon">📚</span>書櫃</button>
+      <button class="tab" data-view="search"><span class="tab-icon">🔍</span>搜尋</button>
+      <button class="tab" data-view="settings"><span class="tab-icon">🤍</span>備份</button>
+    </nav>
+
+    <main class="view-container">
+
+      <!-- ---------- 今日頁面 ---------- -->
+      <section id="view-today" class="view active">
+        <h2 class="view-title">今日這一頁</h2>
+        <p class="view-desc">選擇日期，寫下屬於這一天的心情與故事。</p>
+
+        <div class="journal-page">
+          <div class="page-header-row">
+            <div class="date-field">
+              <label for="date-input">日期</label>
+              <input type="date" id="date-input">
+            </div>
+            <div class="weekday-badge" id="weekday-badge">今天</div>
+            <div class="draft-status" id="draft-status"><span class="dot"></span>尚未輸入</div>
+          </div>
+
+          <div class="field-block">
+            <label>今天的天氣</label>
+            <div class="picker-row" id="weather-picker"></div>
+          </div>
+
+          <div class="field-block">
+            <label>今日心情</label>
+            <div class="picker-row" id="mood-picker"></div>
+          </div>
+
+          <div class="field-block">
+            <input type="text" class="line-input" id="title-input" placeholder="今日標題，例如：一個安靜的下午">
+          </div>
+
+          <div class="field-block">
+            <label>今天的小故事</label>
+            <textarea class="soft-textarea story-textarea" id="story-input" placeholder="今天發生了什麼？想到什麼就寫什麼，不用太有邏輯。"></textarea>
+          </div>
+
+          <div class="field-block">
+            <label>今天最想記住的一件事</label>
+            <textarea class="soft-textarea" id="memorable-input" placeholder="哪怕只是一個小瞬間"></textarea>
+          </div>
+
+          <div class="two-col">
+            <div class="field-block">
+              <label>今天值得感謝的事</label>
+              <textarea class="soft-textarea" id="gratitude-input" placeholder="一件小事也可以"></textarea>
+            </div>
+            <div class="field-block">
+              <label>今天我想對自己說</label>
+              <textarea class="soft-textarea" id="selfmessage-input" placeholder="辛苦了，或是任何一句話"></textarea>
+            </div>
+          </div>
+
+          <div class="field-block">
+            <label>明天想溫柔完成的小事</label>
+            <textarea class="soft-textarea" id="tomorrow-input" placeholder="不必是大事，一件就好"></textarea>
+          </div>
+
+          <div class="field-block">
+            <input type="text" class="line-input" id="summary-input" placeholder="今日小結，用一句話記下今天的重點">
+          </div>
+
+          <div class="field-block">
+            <label>貼紙 <span class="field-hint">點一下加入 / 移除</span></label>
+            <div class="sticker-grid" id="sticker-picker"></div>
+          </div>
+
+          <div class="field-block">
+            <label>照片</label>
+            <div class="photo-zone">
+              <label class="photo-upload-btn">
+                📷 加入照片
+                <input type="file" id="photo-input" class="file-input-hidden" accept="image/*" multiple>
+              </label>
+              <div class="photo-preview-grid" id="photo-preview"></div>
+              <p class="photo-hint">小提醒：iPad 瀏覽器儲存空間有限，建議控制照片數量與大小。</p>
+            </div>
+          </div>
+
+          <div class="gentle-note">今天不用完美，願意記錄下來，就已經很好了。</div>
+
+          <div class="action-row">
+            <button class="btn btn-primary" id="save-entry-btn">💾 儲存這一頁</button>
+            <button class="btn btn-secondary" id="new-entry-btn">✏️ 開新的一頁</button>
+            <button class="btn btn-ghost" id="clear-draft-btn">清空草稿</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- 月曆 ---------- -->
+      <section id="view-calendar" class="view">
+        <h2 class="view-title">月曆</h2>
+        <p class="view-desc">有小圓點的日子，代表那天寫過日記。</p>
+        <div class="calendar-card">
+          <div class="calendar-head">
+            <div class="calendar-nav">
+              <button class="icon-btn" id="cal-prev">‹</button>
+            </div>
+            <div class="calendar-title" id="calendar-title">2026年 1月</div>
+            <div class="calendar-nav">
+              <button class="icon-btn" id="cal-next">›</button>
+            </div>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+      </section>
+
+      <!-- ---------- 書櫃 ---------- -->
+      <section id="view-shelf" class="view">
+        <h2 class="view-title">我的書櫃</h2>
+        <p class="view-desc">依年份、月份收著每一段日子。</p>
+        <div id="shelf-container"></div>
+      </section>
+
+      <!-- ---------- 搜尋 ---------- -->
+      <section id="view-search" class="view">
+        <h2 class="view-title">搜尋</h2>
+        <p class="view-desc">找一段被寫下來的時光。</p>
+        <div class="search-bar">
+          <span class="icon">🔍</span>
+          <input type="text" id="search-input" placeholder="搜尋標題或內容...">
+          <button id="search-btn">搜尋</button>
+        </div>
+        <div class="filter-row" id="search-sticker-filter"></div>
+        <div class="card-grid" id="search-results"></div>
+      </section>
+
+      <!-- ---------- 備份 / 設定 ---------- -->
+      <section id="view-settings" class="view">
+        <h2 class="view-title">備份與提醒</h2>
+        <p class="view-desc">好好收著這些日子。</p>
+
+        <div class="settings-card">
+          <h3>匯出日記</h3>
+          <p>把目前所有日記匯出成一份 JSON 檔案，可以存到雲端硬碟或電腦，作為備份。</p>
+          <button class="btn btn-primary" id="export-btn">⬇️ 匯出日記 JSON 檔</button>
+        </div>
+
+        <div class="settings-card">
+          <h3>匯入日記</h3>
+          <p>選擇先前匯出的 JSON 檔，會與目前的日記「合併」，不會整批覆蓋掉現有資料。</p>
+          <label class="photo-upload-btn" style="cursor:pointer;">
+            ⬆️ 選擇 JSON 檔匯入
+            <input type="file" id="import-input" class="file-input-hidden" accept="application/json">
+          </label>
+        </div>
+
+        <div class="settings-card">
+          <h3>小提醒</h3>
+          <div class="reminder-box">
+            💡 日記資料儲存在「這個瀏覽器」裡，請不要清除 Safari 的「網站資料 / 瀏覽紀錄」，以免日記遺失。<br><br>
+            建議養成定期「匯出備份」的習慣，尤其是在清理儲存空間、更新 iPad 或換裝置之前。<br><br>
+            今天不用完美，願意記錄下來，就已經很好了。
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ============ 完整日記預覽彈窗 ============ -->
+  <div class="modal-overlay" id="entry-modal">
+    <div class="modal-page">
+      <div class="modal-close-row"><button class="modal-close" id="modal-close-btn">✕</button></div>
+      <div class="modal-title-row">
+        <span id="modal-mood" style="font-size:26px;"></span>
+        <h3 class="modal-title" id="modal-title">未命名的一天</h3>
+      </div>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div id="modal-body"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="modal-edit-btn">✏️ 編輯這一頁</button>
+        <button class="btn btn-danger" id="modal-delete-btn">🗑️ 刪除這一頁</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 通用確認彈窗 ============ -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-page confirm-box">
+      <h3 class="modal-title" id="confirm-title" style="font-size:19px;">確定嗎？</h3>
+      <p id="confirm-message">此動作無法復原。</p>
+      <div class="actions">
+        <button class="btn btn-ghost" id="confirm-cancel-btn">取消</button>
+        <button class="btn btn-danger" id="confirm-ok-btn">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+/* =====================================================
+   18 Living — 主程式
+   全部資料儲存在 localStorage，離線可用，無任何外部依賴。
+   ===================================================== */
+(function(){
+  "use strict";
+
+  /* ---------------- 常數設定 ---------------- */
+  var STORAGE_KEY = "eighteenLiving_entries_v1";
+  var DRAFT_KEY   = "eighteenLiving_draft_v1";
+
+  var WEATHERS = ["☀️","⛅","☁️","🌧️","⛈️","❄️","🌫️"];
+  var MOODS    = ["😊","😌","🤍","🥹","😭","😴","😤","😍","😎","🌧️","🌤️"];
+  var STICKERS = [
+    {e:"☕",l:"Coffee"}, {e:"🌿",l:"Nature"}, {e:"📖",l:"Reading"}, {e:"💻",l:"Work"},
+    {e:"✨",l:"Create"}, {e:"🏡",l:"Home"}, {e:"🎵",l:"Music"}, {e:"🍰",l:"Dessert"},
+    {e:"🌙",l:"Night"}, {e:"🌸",l:"Happy"}, {e:"💛",l:"Gratitude"}, {e:"✈️",l:"Travel"}
+  ];
+
+  /* 內建 110 句療癒小語，開啟首頁時隨機顯示一句 */
+  var QUOTES = [
+    "今天不用完美，願意記錄下來，就已經很好了。","慢慢來，也是一種速度。","每一天都有值得被記住的地方。",
+    "留白，也是生活的一部分。","今天，也謝謝努力生活的自己。","累的時候，休息不是偷懶，是照顧自己。",
+    "你不需要趕上誰，只需要抵達自己的節奏。","心裡的重量，寫下來就輕一點。","平凡的一天，也是好好活著的證據。",
+    "溫柔對待自己，是一輩子的練習。","有些日子，撐過去就已經很勇敢。","陽光會斜斜地照進來，剛剛好。",
+    "不必急著長大，慢慢懂事也可以。","情緒不是麻煩，是提醒你該休息了。","一杯溫茶，也能安放一整天的疲憊。",
+    "你已經做得比自己以為的還要好。","今天的難過，明天不一定還在。","允許自己有一天什麼都不做。",
+    "生活很小，但你認真活過。","心情不好的日子，也值得被溫柔記下。","有時候，安靜也是一種力量。",
+    "不完美的一天，也是完整的一天。","你值得擁有溫柔的自己。","走得慢一點，才看得見沿途的風景。",
+    "今天也辛苦了，先深呼吸一下吧。","疲憊的時候，允許自己軟弱一下。","願你今天遇到的都是小小的溫柔。",
+    "每個努力生活的日子，都值得被珍藏。","有些傷口，時間會替你輕輕撫平。","你不孤單，只是這個階段安靜了一些。",
+    "好好吃飯，好好睡覺，就是很棒的一天。","心累的時候，先放過自己。","今天也謝謝自己，沒有輕易放棄。",
+    "生活的碎片，拼起來就是你的故事。","不需要每天都閃閃發光，平淡也很好。","願你被這個世界溫柔以待。",
+    "有些心情，說不出口，就寫下來吧。","今天的小小努力，明天會看見。","慢慢走，也會走到想去的地方。",
+    "一個人的時光，也可以很安穩。","好好休息，是為了走更遠的路。","你已經很努力在愛自己了。",
+    "每一次呼吸，都是重新開始的機會。","心情低落沒關係，明天太陽依舊會升起。","今天，願你能對自己多一點耐心。",
+    "生活偶爾亂糟糟，也是一種真實。","你不用假裝堅強，累了可以說。","溫柔的力量，往往比想像中更強大。",
+    "願你今天也能被自己好好照顧。","一切都會慢慢好起來的。","有你認真生活的樣子，很美。",
+    "今天的心情，不論好壞，都值得記錄。","別忘了，你已經走了很長一段路。","生活不必用力，用心就好。",
+    "願你今天的心裡，有一點點光。","難過的時候，允許自己哭一下。","每個平凡的日子，都是生活的養分。",
+    "今天也謝謝自己，願意繼續前進。","你的努力，時間都看得見。","心裡有雨也沒關係，總會放晴。",
+    "願你被溫柔對待，也溫柔待己。","慢一點沒關係，你依然在前進。","今天的小確幸，也值得被記住。",
+    "你不需要完美，只需要真實。","生活的重量，分擔一點會輕鬆許多。","願你今晚，能睡個安穩的覺。",
+    "每一次的堅持，都值得被看見。","心情不好時，先照顧好自己再說。","今天，也要記得對自己說聲辛苦了。",
+    "有些日子，安靜地過也很好。","你已經很棒了，別忘了肯定自己。","願你今天能感受到一點點幸福。",
+    "生活不是比賽，慢慢走也可以。","心裡累了，就休息一下再出發。","今天的你，已經很努力了。",
+    "願每個平凡的日子，都能被溫柔記住。","別小看每一個努力生活的自己。","生活裡的小事，其實都是大事。",
+    "願你在忙碌之中，也能記得呼吸。","今天過得辛苦，也請記得抱抱自己。","有些溫柔，是留給自己的。",
+    "願你今天，能對自己多一點溫柔。","心情低潮的日子，也是生活的一部分。","每一天，都在練習好好愛自己。",
+    "你走過的路，都會成為養分。","願你今天，能被喜歡的事情療癒。","慢慢來，你已經做得很好了。",
+    "心裡的話，說不出口就寫下來。","今天的努力，不會白費。","願你的生活，能多一點從容。",
+    "有些日子，撐住了就是勝利。","你值得擁有安靜而美好的日常。","心情不好，也可以只是心情不好。",
+    "願你今天的心，能柔軟一點。","生活很難，但你依然溫柔地活著。","今天也謝謝自己，好好走完了一天。",
+    "願你被這個世界，溫柔接住。","每一個小小的堅持，都很了不起。","心累的日子，記得對自己說辛苦了。",
+    "生活的答案，慢慢來就會知道。","願你今天的心情，都被好好安放。","你不用急著變好，慢慢來就好。",
+    "每一天，都值得被認真對待。","心裡的重量，寫下來會輕一些。","願你今天，能遇見一點小確幸。",
+    "生活再忙，也要記得對自己好一點。","你已經很努力，在成為更好的自己。","今天過得不容易，也請肯定自己。",
+    "願你的每一天，都有光照進來。","好好記錄，好好生活，好好愛自己。"
+  ];
+
+  /* ---------------- 狀態 ---------------- */
+  var state = {
+    entries: [],
+    currentEditId: null,
+    selectedWeather: "",
+    selectedMood: "",
+    selectedStickers: [],
+    photos: [],
+    searchStickerFilter: [],
+    calYear: 0,
+    calMonth: 0,
+    confirmCallback: null
+  };
+
+  /* ---------------- 工具函式 ---------------- */
+  function $(sel){ return document.querySelector(sel); }
+  function $all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function pad(n){ return n < 10 ? "0"+n : ""+n; }
+  function todayStr(){ var d = new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function uid(){ return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function escapeHTML(str){
+    if(!str) return "";
+    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function nl2br(str){ return escapeHTML(str).replace(/\n/g,"<br>"); }
+  function formatDateDisplay(dateStr){
+    if(!dateStr) return "";
+    var d = new Date(dateStr + "T00:00:00");
+    if(isNaN(d.getTime())) return dateStr;
+    return d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";
+  }
+  function weekdayOf(dateStr){
+    if(!dateStr) return "";
+    var d = new Date(dateStr + "T00:00:00");
+    if(isNaN(d.getTime())) return "";
+    var names = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    return names[d.getDay()];
+  }
+  function showToast(msg){
+    var t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
+  }
+
+  /* ---------------- localStorage 存取 ---------------- */
+  function loadEntries(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      state.entries = raw ? JSON.parse(raw) : [];
+    }catch(e){
+      console.error("讀取日記資料失敗", e);
+      state.entries = [];
+    }
+  }
+  function persistEntries(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
+    }catch(e){
+      console.error("儲存日記資料失敗", e);
+      showToast("⚠️ 儲存失敗，可能是空間不足（照片太多），請試著清理照片或匯出備份。");
+    }
+  }
+  function getEntryByDate(dateStr){
+    for(var i=0;i<state.entries.length;i++){ if(state.entries[i].date === dateStr) return state.entries[i]; }
+    return null;
+  }
+  function getEntryById(id){
+    for(var i=0;i<state.entries.length;i++){ if(state.entries[i].id === id) return state.entries[i]; }
+    return null;
+  }
+
+  /* ---------------- 確認彈窗（取代原生 confirm，維持風格） ---------------- */
+  function openConfirm(title, message, onOk){
+    $("#confirm-title").textContent = title;
+    $("#confirm-message").textContent = message;
+    state.confirmCallback = onOk;
+    $("#confirm-modal").classList.add("active");
+  }
+  function closeConfirm(){
+    $("#confirm-modal").classList.remove("active");
+    state.confirmCallback = null;
+  }
+  $("#confirm-cancel-btn").addEventListener("click", closeConfirm);
+  $("#confirm-ok-btn").addEventListener("click", function(){
+    var cb = state.confirmCallback;
+    closeConfirm();
+    if(cb) cb();
+  });
+
+  /* ---------------- 封面（首頁）---------------- */
+  function initCover(){
+    var q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    $("#cover-quote").textContent = q;
+    $("#open-diary-btn").addEventListener("click", function(){
+      $("#cover-screen").classList.remove("active");
+      $("#main-app").classList.add("active");
+      switchView("today");
+    });
+  }
+
+  /* ---------------- 分頁切換 ---------------- */
+  function switchView(name){
+    $all(".tab").forEach(function(t){ t.classList.toggle("active", t.dataset.view === name); });
+    $all(".view").forEach(function(v){ v.classList.toggle("active", v.id === "view-" + name); });
+    if(name === "calendar") renderCalendar();
+    if(name === "shelf") renderShelf();
+    if(name === "search") renderSearchFilters();
+  }
+  $all(".tab").forEach(function(t){
+    t.addEventListener("click", function(){ switchView(t.dataset.view); });
+  });
+
+  /* ---------------- 今日頁面：選擇器渲染 ---------------- */
+  function renderPickers(){
+    var wp = $("#weather-picker"); wp.innerHTML = "";
+    WEATHERS.forEach(function(w){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "emoji-btn"; b.textContent = w;
+      b.addEventListener("click", function(){
+        state.selectedWeather = (state.selectedWeather === w) ? "" : w;
+        renderPickers(); autosaveDraft();
+      });
+      if(state.selectedWeather === w) b.classList.add("selected");
+      wp.appendChild(b);
+    });
+
+    var mp = $("#mood-picker"); mp.innerHTML = "";
+    MOODS.forEach(function(m){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "emoji-btn"; b.textContent = m;
+      b.addEventListener("click", function(){
+        state.selectedMood = (state.selectedMood === m) ? "" : m;
+        renderPickers(); autosaveDraft();
+      });
+      if(state.selectedMood === m) b.classList.add("selected");
+      mp.appendChild(b);
+    });
+
+    var sp = $("#sticker-picker"); sp.innerHTML = "";
+    STICKERS.forEach(function(s){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "sticker-chip";
+      b.innerHTML = '<span class="e">'+s.e+'</span>'+s.l;
+      if(state.selectedStickers.indexOf(s.e) > -1) b.classList.add("selected");
+      b.addEventListener("click", function(){
+        var idx = state.selectedStickers.indexOf(s.e);
+        if(idx > -1) state.selectedStickers.splice(idx,1); else state.selectedStickers.push(s.e);
+        renderPickers(); autosaveDraft();
+      });
+      sp.appendChild(b);
+    });
+
+    renderPhotoPreview();
+  }
+
+  function renderPhotoPreview(){
+    var box = $("#photo-preview"); box.innerHTML = "";
+    state.photos.forEach(function(src, idx){
+      var d = document.createElement("div"); d.className = "photo-thumb";
+      var img = document.createElement("img"); img.src = src;
+      var rm = document.createElement("button"); rm.className = "remove-photo"; rm.textContent = "✕";
+      rm.addEventListener("click", function(){ state.photos.splice(idx,1); renderPhotoPreview(); autosaveDraft(); });
+      d.appendChild(img); d.appendChild(rm); box.appendChild(d);
+    });
+  }
+
+  $("#photo-input").addEventListener("change", function(e){
+    var files = Array.prototype.slice.call(e.target.files || []);
+    files.forEach(function(file){
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        state.photos.push(ev.target.result);
+        renderPhotoPreview();
+        autosaveDraft();
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  });
+
+  /* ---------------- 今日頁面：讀取 / 清空表單 ---------------- */
+  function clearForm(keepDate){
+    var keepDateVal = keepDate ? $("#date-input").value : todayStr();
+    state.currentEditId = null;
+    state.selectedWeather = ""; state.selectedMood = ""; state.selectedStickers = []; state.photos = [];
+    $("#date-input").value = keepDateVal;
+    $("#weekday-badge").textContent = weekdayOf(keepDateVal);
+    $("#title-input").value = "";
+    $("#story-input").value = "";
+    $("#memorable-input").value = "";
+    $("#gratitude-input").value = "";
+    $("#selfmessage-input").value = "";
+    $("#tomorrow-input").value = "";
+    $("#summary-input").value = "";
+    renderPickers();
+    updateDraftStatus("尚未輸入");
+  }
+
+  function loadEntryIntoForm(entry){
+    state.currentEditId = entry.id;
+    state.selectedWeather = entry.weather || "";
+    state.selectedMood = entry.mood || "";
+    state.selectedStickers = (entry.stickers || []).slice();
+    state.photos = (entry.photos || []).slice();
+    $("#date-input").value = entry.date;
+    $("#weekday-badge").textContent = weekdayOf(entry.date);
+    $("#title-input").value = entry.title || "";
+    $("#story-input").value = entry.story || "";
+    $("#memorable-input").value = entry.memorable || "";
+    $("#gratitude-input").value = entry.gratitude || "";
+    $("#selfmessage-input").value = entry.selfMessage || "";
+    $("#tomorrow-input").value = entry.tomorrow || "";
+    $("#summary-input").value = entry.summary || "";
+    renderPickers();
+    updateDraftStatus("正在編輯：" + formatDateDisplay(entry.date));
+  }
+
+  /* 日期變更：若當天已有日記，自動帶入（像翻到那一頁）；否則視為新的一頁 */
+  $("#date-input").addEventListener("change", function(){
+    var d = $("#date-input").value || todayStr();
+    var existing = getEntryByDate(d);
+    if(existing){
+      loadEntryIntoForm(existing);
+      showToast("這一天已經寫過日記，已為你帶出內容 📖");
+    }else{
+      state.currentEditId = null;
+      $("#weekday-badge").textContent = weekdayOf(d);
+      updateDraftStatus("尚未輸入");
+    }
+  });
+
+  /* ---------------- 自動儲存草稿 ---------------- */
+  function collectFormData(){
+    return {
+      date: $("#date-input").value || todayStr(),
+      weather: state.selectedWeather,
+      mood: state.selectedMood,
+      title: $("#title-input").value,
+      story: $("#story-input").value,
+      memorable: $("#memorable-input").value,
+      gratitude: $("#gratitude-input").value,
+      selfMessage: $("#selfmessage-input").value,
+      tomorrow: $("#tomorrow-input").value,
+      summary: $("#summary-input").value,
+      stickers: state.selectedStickers.slice(),
+      photos: state.photos.slice(),
+      editId: state.currentEditId
+    };
+  }
+  var draftTimer = null;
+  function autosaveDraft(){
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(function(){
+      try{
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(collectFormData()));
+        updateDraftStatus("草稿已自動儲存 " + pad(new Date().getHours()) + ":" + pad(new Date().getMinutes()));
+      }catch(e){ console.error("草稿儲存失敗", e); }
+    }, 500);
+  }
+  function updateDraftStatus(text){ $("#draft-status").innerHTML = '<span class="dot"></span>' + escapeHTML(text); }
+
+  function restoreDraftIfAny(){
+    try{
+      var raw = localStorage.getItem(DRAFT_KEY);
+      if(!raw) return;
+      var d = JSON.parse(raw);
+      if(!d) return;
+      var hasContent = d.title || d.story || d.memorable || d.gratitude || d.selfMessage || d.tomorrow || d.summary || (d.photos && d.photos.length);
+      if(!hasContent) return;
+      openConfirm("發現未儲存的草稿", "偵測到「" + formatDateDisplay(d.date) + "」有尚未儲存的草稿內容，要接續帶入嗎？", function(){
+        state.currentEditId = d.editId || null;
+        state.selectedWeather = d.weather || "";
+        state.selectedMood = d.mood || "";
+        state.selectedStickers = d.stickers || [];
+        state.photos = d.photos || [];
+        $("#date-input").value = d.date;
+        $("#weekday-badge").textContent = weekdayOf(d.date);
+        $("#title-input").value = d.title || "";
+        $("#story-input").value = d.story || "";
+        $("#memorable-input").value = d.memorable || "";
+        $("#gratitude-input").value = d.gratitude || "";
+        $("#selfmessage-input").value = d.selfMessage || "";
+        $("#tomorrow-input").value = d.tomorrow || "";
+        $("#summary-input").value = d.summary || "";
+        renderPickers();
+        updateDraftStatus("已帶回草稿內容");
+        showToast("已為你接續上次的草稿 🌿");
+      });
+    }catch(e){ console.error(e); }
+  }
+
+  /* 綁定表單欄位變更 -> 自動存草稿 */
+  ["title-input","story-input","memorable-input","gratitude-input","selfmessage-input","tomorrow-input","summary-input"]
+    .forEach(function(id){ $("#"+id).addEventListener("input", autosaveDraft); });
+
+  $("#clear-draft-btn").addEventListener("click", function(){
+    openConfirm("清空草稿", "確定要清空目前輸入但尚未儲存的內容嗎？", function(){
+      localStorage.removeItem(DRAFT_KEY);
+      clearForm(true);
+      showToast("草稿已清空");
+    });
+  });
+
+  /* ---------------- 新增 / 儲存 ---------------- */
+  $("#new-entry-btn").addEventListener("click", function(){
+    clearForm(false);
+    $("#date-input").value = todayStr();
+    $("#weekday-badge").textContent = weekdayOf(todayStr());
+    showToast("翻開了新的一頁 📖");
+  });
+
+  $("#save-entry-btn").addEventListener("click", function(){
+    var data = collectFormData();
+    if(!data.date){ showToast("請先選擇日期"); return; }
+
+    var now = new Date().toISOString();
+    var existing = state.currentEditId ? getEntryById(state.currentEditId) : getEntryByDate(data.date);
+
+    if(existing){
+      existing.date = data.date;
+      existing.weather = data.weather;
+      existing.mood = data.mood;
+      existing.title = data.title;
+      existing.story = data.story;
+      existing.memorable = data.memorable;
+      existing.gratitude = data.gratitude;
+      existing.selfMessage = data.selfMessage;
+      existing.tomorrow = data.tomorrow;
+      existing.summary = data.summary;
+      existing.stickers = data.stickers;
+      existing.photos = data.photos;
+      existing.updatedAt = now;
+      state.currentEditId = existing.id;
+    }else{
+      var entry = {
+        id: uid(),
+        date: data.date,
+        weather: data.weather,
+        mood: data.mood,
+        title: data.title,
+        story: data.story,
+        memorable: data.memorable,
+        gratitude: data.gratitude,
+        selfMessage: data.selfMessage,
+        tomorrow: data.tomorrow,
+        summary: data.summary,
+        stickers: data.stickers,
+        photos: data.photos,
+        createdAt: now,
+        updatedAt: now
+      };
+      state.entries.push(entry);
+      state.currentEditId = entry.id;
+    }
+
+    persistEntries();
+    localStorage.removeItem(DRAFT_KEY);
+    updateDraftStatus("已儲存 " + pad(new Date().getHours()) + ":" + pad(new Date().getMinutes()));
+    showToast("這一頁已經好好收起來了 🤍");
+  });
+
+  /* ---------------- 卡片元件 ---------------- */
+  function summaryExcerpt(entry){
+    var text = entry.summary || entry.story || entry.memorable || "";
+    text = text.replace(/\n/g," ");
+    return text.length > 46 ? text.slice(0,46) + "…" : (text || "這一天，還沒有留下太多文字。");
+  }
+  function renderEntryCardHTML(entry){
+    var stickersHTML = (entry.stickers||[]).map(function(s){ return '<span class="chip-mini">'+s+'</span>'; }).join("");
+    return ''
+      + '<article class="entry-card" data-id="'+entry.id+'">'
+      +   '<div class="entry-card-top">'
+      +     '<span class="entry-date">'+formatDateDisplay(entry.date)+' · '+weekdayOf(entry.date)+'</span>'
+      +     '<span class="entry-mood">'+(entry.mood||"")+'</span>'
+      +   '</div>'
+      +   '<h3 class="entry-title">'+escapeHTML(entry.title || "（未命名的一天）")+'</h3>'
+      +   '<p class="entry-summary">'+escapeHTML(summaryExcerpt(entry))+'</p>'
+      +   '<div class="entry-stickers">'+stickersHTML+'</div>'
+      + '</article>';
+  }
+  function bindCardClicks(container){
+    $all(".entry-card", ).length; // no-op guard
+    Array.prototype.slice.call(container.querySelectorAll(".entry-card")).forEach(function(card){
+      card.addEventListener("click", function(){ openEntryModal(card.dataset.id); });
+    });
+  }
+
+  /* ---------------- 月曆 ---------------- */
+  function renderCalendar(){
+    var now = new Date();
+    if(!state.calYear){ state.calYear = now.getFullYear(); state.calMonth = now.getMonth(); }
+    var y = state.calYear, m = state.calMonth;
+    $("#calendar-title").textContent = y + "年 " + (m+1) + "月";
+
+    var grid = $("#calendar-grid"); grid.innerHTML = "";
+    ["日","一","二","三","四","五","六"].forEach(function(w){
+      var el = document.createElement("div"); el.className = "wd"; el.textContent = w; grid.appendChild(el);
+    });
+
+    var firstDay = new Date(y, m, 1).getDay();
+    var daysInMonth = new Date(y, m+1, 0).getDate();
+    var todayString = todayStr();
+
+    var entryDates = {};
+    state.entries.forEach(function(e){ entryDates[e.date] = true; });
+
+    for(var i=0;i<firstDay;i++){
+      var empty = document.createElement("div"); empty.className = "day-cell empty"; grid.appendChild(empty);
+    }
+    for(var d=1; d<=daysInMonth; d++){
+      var dateStr = y + "-" + pad(m+1) + "-" + pad(d);
+      var cell = document.createElement("div");
+      cell.className = "day-cell" + (entryDates[dateStr] ? " has-entry" : "") + (dateStr === todayString ? " today" : "");
+      cell.tabIndex = 0;
+      cell.innerHTML = '<span>'+d+'</span>' + (entryDates[dateStr] ? '<span class="dot"></span>' : '');
+      (function(ds){
+        cell.addEventListener("click", function(){
+          var entry = getEntryByDate(ds);
+          if(entry){ openEntryModal(entry.id); }
+          else{
+            openConfirm("開始寫這一天", "「"+formatDateDisplay(ds)+"」還沒有日記，要前往書寫嗎？", function(){
+              switchView("today");
+              $("#date-input").value = ds;
+              state.currentEditId = null;
+              $("#weekday-badge").textContent = weekdayOf(ds);
+              $("#title-input, #story-input").value = "";
+              clearFormButKeepDate(ds);
+            });
+          }
+        });
+      })(dateStr);
+      grid.appendChild(cell);
+    }
+  }
+  function clearFormButKeepDate(ds){
+    state.selectedWeather = ""; state.selectedMood = ""; state.selectedStickers = []; state.photos = [];
+    $("#title-input").value = ""; $("#story-input").value = ""; $("#memorable-input").value = "";
+    $("#gratitude-input").value = ""; $("#selfmessage-input").value = ""; $("#tomorrow-input").value = ""; $("#summary-input").value = "";
+    $("#date-input").value = ds; $("#weekday-badge").textContent = weekdayOf(ds);
+    renderPickers();
+  }
+  $("#cal-prev").addEventListener("click", function(){
+    state.calMonth--; if(state.calMonth < 0){ state.calMonth = 11; state.calYear--; } renderCalendar();
+  });
+  $("#cal-next").addEventListener("click", function(){
+    state.calMonth++; if(state.calMonth > 11){ state.calMonth = 0; state.calYear++; } renderCalendar();
+  });
+
+  /* ---------------- 書櫃（依年份/月份） ---------------- */
+  function renderShelf(){
+    var box = $("#shelf-container");
+    if(state.entries.length === 0){
+      box.innerHTML = '<div class="empty-state"><span class="e">📗</span>書櫃還是空的，寫下第一篇日記吧。</div>';
+      return;
+    }
+    var sorted = state.entries.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+    var byYear = {};
+    sorted.forEach(function(e){
+      var y = e.date.slice(0,4), mo = e.date.slice(5,7);
+      byYear[y] = byYear[y] || {};
+      byYear[y][mo] = byYear[y][mo] || [];
+      byYear[y][mo].push(e);
+    });
+    var years = Object.keys(byYear).sort(function(a,b){ return b - a; });
+    var html = "";
+    years.forEach(function(y, yi){
+      var months = Object.keys(byYear[y]).sort(function(a,b){ return b - a; });
+      var totalCount = months.reduce(function(sum,mo){ return sum + byYear[y][mo].length; }, 0);
+      html += '<details class="shelf-year"'+(yi===0?' open':'')+'>';
+      html += '<summary>'+y+' 年<span class="count">'+totalCount+' 篇</span></summary>';
+      months.forEach(function(mo){
+        var list = byYear[y][mo];
+        html += '<details class="shelf-month" open>';
+        html += '<summary>'+parseInt(mo,10)+' 月<span>'+list.length+' 篇</span></summary>';
+        html += '<div class="shelf-month-list">';
+        list.forEach(function(e){
+          html += '<div class="shelf-entry-row" data-id="'+e.id+'">'
+                + '<span class="d">'+e.date.slice(8,10)+' 日</span>'
+                + '<span class="m">'+(e.mood||"🤍")+'</span>'
+                + '<span class="t">'+escapeHTML(e.title || summaryExcerpt(e))+'</span>'
+                + '</div>';
+        });
+        html += '</div></details>';
+      });
+      html += '</details>';
+    });
+    box.innerHTML = html;
+    Array.prototype.slice.call(box.querySelectorAll(".shelf-entry-row")).forEach(function(row){
+      row.addEventListener("click", function(){ openEntryModal(row.dataset.id); });
+    });
+  }
+
+  /* ---------------- 搜尋 ---------------- */
+  function renderSearchFilters(){
+    var box = $("#search-sticker-filter"); box.innerHTML = "";
+    STICKERS.forEach(function(s){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "sticker-chip";
+      b.innerHTML = '<span class="e">'+s.e+'</span>'+s.l;
+      if(state.searchStickerFilter.indexOf(s.e) > -1) b.classList.add("selected");
+      b.addEventListener("click", function(){
+        var idx = state.searchStickerFilter.indexOf(s.e);
+        if(idx > -1) state.searchStickerFilter.splice(idx,1); else state.searchStickerFilter.push(s.e);
+        renderSearchFilters(); runSearch();
+      });
+      box.appendChild(b);
+    });
+    runSearch();
+  }
+  function runSearch(){
+    var kw = ($("#search-input").value || "").trim().toLowerCase();
+    var filterStickers = state.searchStickerFilter;
+    var results = state.entries.filter(function(e){
+      var matchKw = true;
+      if(kw){
+        var haystack = [e.title, e.story, e.memorable, e.gratitude, e.selfMessage, e.tomorrow, e.summary]
+          .join(" ").toLowerCase();
+        matchKw = haystack.indexOf(kw) > -1;
+      }
+      var matchTag = true;
+      if(filterStickers.length){
+        matchTag = (e.stickers||[]).some(function(s){ return filterStickers.indexOf(s) > -1; });
+      }
+      return matchKw && matchTag;
+    }).sort(function(a,b){ return b.date.localeCompare(a.date); });
+
+    var out = $("#search-results");
+    if(results.length === 0){
+      out.innerHTML = '<div class="empty-state"><span class="e">🔍</span>沒有找到符合的日記，換個關鍵字試試？</div>';
+      return;
+    }
+    out.innerHTML = results.map(renderEntryCardHTML).join("");
+    bindCardClicks(out);
+  }
+  $("#search-btn").addEventListener("click", runSearch);
+  $("#search-input").addEventListener("input", runSearch);
+  $("#search-input").addEventListener("keydown", function(e){ if(e.key === "Enter") runSearch(); });
+
+  /* ---------------- 完整日記彈窗 ---------------- */
+  var modalCurrentId = null;
+  function openEntryModal(id){
+    var e = getEntryById(id);
+    if(!e) return;
+    modalCurrentId = id;
+    $("#modal-mood").textContent = e.mood || "🤍";
+    $("#modal-title").textContent = e.title || "未命名的一天";
+    $("#modal-meta").textContent = formatDateDisplay(e.date) + " · " + weekdayOf(e.date) + (e.weather ? " · " + e.weather : "");
+
+    var sections = [];
+    if(e.summary) sections.push(sectionHTML("今日小結", e.summary));
+    if(e.story) sections.push(sectionHTML("今天的小故事", e.story));
+    if(e.memorable) sections.push(sectionHTML("今天最想記住的一件事", e.memorable));
+    if(e.gratitude) sections.push(sectionHTML("今天值得感謝的事", e.gratitude));
+    if(e.selfMessage) sections.push(sectionHTML("今天我想對自己說", e.selfMessage));
+    if(e.tomorrow) sections.push(sectionHTML("明天想溫柔完成的小事", e.tomorrow));
+    if(e.stickers && e.stickers.length){
+      sections.push('<div class="modal-section"><div class="label">貼紙</div><div class="content">'+e.stickers.join(" ")+'</div></div>');
+    }
+    if(e.photos && e.photos.length){
+      var imgs = e.photos.map(function(p){ return '<img src="'+p+'">'; }).join("");
+      sections.push('<div class="modal-section"><div class="label">照片</div><div class="modal-photos">'+imgs+'</div></div>');
+    }
+    if(sections.length === 0){ sections.push('<div class="modal-section"><div class="content">這一天，還沒有留下太多文字。</div></div>'); }
+    $("#modal-body").innerHTML = sections.join("");
+    $("#entry-modal").classList.add("active");
+  }
+  function sectionHTML(label, content){
+    return '<div class="modal-section"><div class="label">'+label+'</div><div class="content">'+nl2br(content)+'</div></div>';
+  }
+  function closeEntryModal(){ $("#entry-modal").classList.remove("active"); modalCurrentId = null; }
+  $("#modal-close-btn").addEventListener("click", closeEntryModal);
+  $("#entry-modal").addEventListener("click", function(e){ if(e.target === $("#entry-modal")) closeEntryModal(); });
+
+  $("#modal-edit-btn").addEventListener("click", function(){
+    var e = getEntryById(modalCurrentId);
+    if(!e) return;
+    closeEntryModal();
+    switchView("today");
+    loadEntryIntoForm(e);
+    showToast("已帶入編輯，改完記得按「儲存」喔");
+  });
+  $("#modal-delete-btn").addEventListener("click", function(){
+    var id = modalCurrentId;
+    var e = getEntryById(id);
+    if(!e) return;
+    openConfirm("刪除這一頁", "確定要刪除「"+formatDateDisplay(e.date)+"」的日記嗎？此動作無法復原。", function(){
+      state.entries = state.entries.filter(function(x){ return x.id !== id; });
+      persistEntries();
+      closeEntryModal();
+      renderShelf(); renderCalendar(); runSearch();
+      if(state.currentEditId === id) clearForm(false);
+      showToast("已經刪除了這一頁");
+    });
+  });
+
+  /* ---------------- 匯出 / 匯入 ---------------- */
+  $("#export-btn").addEventListener("click", function(){
+    var data = JSON.stringify(state.entries, null, 2);
+    var blob = new Blob([data], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var now = new Date();
+    var filename = "18-living-diary-backup-" + now.getFullYear() + "-" + pad(now.getMonth()+1) + "-" + pad(now.getDate()) + ".json";
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("已匯出備份檔 🤍");
+  });
+
+  $("#import-input").addEventListener("change", function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var imported;
+      try{ imported = JSON.parse(ev.target.result); }
+      catch(err){ showToast("這個檔案讀不懂，請確認是正確的備份 JSON 檔"); return; }
+      if(!Array.isArray(imported)){ showToast("檔案格式不正確"); return; }
+
+      openConfirm("合併日記資料", "偵測到「"+imported.length+"」篇日記，將與目前的日記合併（相同日期會保留較新的版本），不會整批覆蓋現有資料，確定要繼續嗎？", function(){
+        var added = 0, updated = 0;
+        imported.forEach(function(item){
+          if(!item || !item.date) return;
+          var byId = item.id ? getEntryById(item.id) : null;
+          var byDate = getEntryByDate(item.date);
+          var existing = byId || byDate;
+          if(existing){
+            var existingTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+            var importTime = new Date(item.updatedAt || item.createdAt || 0).getTime();
+            if(importTime > existingTime){
+              Object.assign(existing, item, { id: existing.id });
+              updated++;
+            }
+          }else{
+            state.entries.push(Object.assign({}, item, { id: item.id || uid() }));
+            added++;
+          }
+        });
+        persistEntries();
+        renderShelf(); renderCalendar(); runSearch();
+        showToast("匯入完成：新增 "+added+" 篇、更新 "+updated+" 篇 🌿");
+      });
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  /* ---------------- 初始化 ---------------- */
+  function init(){
+    loadEntries();
+    initCover();
+    renderPickers();
+    $("#date-input").value = todayStr();
+    $("#weekday-badge").textContent = weekdayOf(todayStr());
+    var existingToday = getEntryByDate(todayStr());
+    if(existingToday){ loadEntryIntoForm(existingToday); }
+    restoreDraftIfAny();
+    renderCalendar();
+  }
+  init();
+
+})();
+</script>
+</body>
+</html>
