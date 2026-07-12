@@ -11,6 +11,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- Firebase 雲端同步（compat 版，免打包，離線／載入失敗時 App 仍可純本機使用） -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
   /* ============================================================
      18 Living — A Gentle Life Companion
@@ -566,6 +570,7 @@
       <div class="topbar-brand" data-go="home">18 Living</div>
       <div class="save-status" id="saveStatus"><span class="pulse"></span><span id="saveText">尚未儲存</span></div>
       <div class="topbar-actions">
+        <button class="btn tiny" id="btnCloud">☁️ 同步</button>
         <button class="btn tiny" id="btnExport">匯出</button>
         <button class="btn tiny" id="btnImport">匯入</button>
       </div>
@@ -1135,6 +1140,7 @@ function persist(){
   try{
     localStorage.setItem(STORE_KEY, JSON.stringify(DATA));
     updateSaveStatus(false);
+    if(window.CloudSync) window.CloudSync.schedulePush();  // 本機存好後，安排上傳雲端
     return true;
   }catch(e){
     // 寫入失敗：還原 lastSaved，並提示。DATA 記憶體內容維持，等使用者處理（例如移除照片）。
@@ -2245,12 +2251,277 @@ function seed(){
 }
 
 /* ================================================================
+   提供給雲端同步模組的介面
+   ================================================================ */
+// 目前正在顯示哪一頁（讓雲端資料拉下來後能重繪同一頁）
+function currentPageId(){
+  const el=document.querySelector(".page.active");
+  return el?el.id:"home";
+}
+// 用雲端資料覆蓋本機並重繪（不觸發再上傳，避免迴圈）
+function applyCloudData(incoming){
+  DATA = migrate(incoming);
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){}
+  updateSaveStatus(false);
+  applySeason(new Date().getMonth());
+  go(currentPageId());   // 重繪目前頁面
+}
+// 讓同步模組讀到目前資料
+function getData(){ return DATA; }
+
+/* ================================================================
    啟動
    ================================================================ */
 applySeason(new Date().getMonth());   // 依當月套用季節 accent
 renderHome();
 updateSaveStatus(false);
+if(window.CloudSync) window.CloudSync.init();   // 啟動雲端同步（若模組已載入）
 
+</script>
+<script>
+/* ================================================================
+   18 Living — 雲端同步模組（Firebase / Firestore）
+   設計：
+   - 用 email/密碼登入；iPad 與手機登入同一帳號 → 讀寫雲端同一份。
+   - 資料存 Firestore：users/{uid}/state/planner 文件，欄位 data 放整包 living18_v1。
+   - 完全不動舊的 diary/events/goals/notes。
+   - 離線或未登入時，App 照常純本機運作；登入後再同步。
+   ================================================================ */
+(function(){
+  "use strict";
+
+  // ← 你的 Firebase 專案設定（前端公開值，安全性靠 Firestore 規則）
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQDKQwEIQLuce_cFcMxv_0ES3wmXzrdMw",
+    authDomain: "livingplanner-45c01.firebaseapp.com",
+    databaseURL: "https://livingplanner-45c01-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "livingplanner-45c01",
+    storageBucket: "livingplanner-45c01.firebasestorage.app",
+    messagingSenderId: "777115848452",
+    appId: "1:777115848452:web:27f51c74b19e39b1e6ca51"
+  };
+
+  let auth=null, db=null, user=null;
+  let docRef=null;          // 目前使用者的資料文件參考
+  let unsub=null;           // 即時監聽解除函式
+  let pushTimer=null;       // 上傳防抖
+  let applyingRemote=false; // 正在套用雲端資料時，不要又觸發上傳
+  let ready=false;
+
+  const CloudSync = window.CloudSync = {};
+
+  /* 更新頂部同步按鈕的樣子 */
+  function setBtn(state){
+    const b=document.getElementById("btnCloud"); if(!b) return;
+    if(state==="off")     b.textContent="☁️ 同步";
+    if(state==="on")      b.textContent="☁️ 已連線";
+    if(state==="syncing") b.textContent="☁️ 同步中…";
+    if(state==="error")   b.textContent="☁️ 連線問題";
+  }
+
+  /* 啟動：初始化 Firebase、監聽登入狀態 */
+  CloudSync.init = function(){
+    if(typeof firebase==="undefined"){
+      // SDK 沒載入（離線或被擋）→ 保持純本機，不擋任何功能
+      const b=document.getElementById("btnCloud");
+      if(b) b.onclick=()=>window.toast&&toast("目前無法連上雲端，資料仍安全存在這台裝置");
+      return;
+    }
+    try{
+      firebase.initializeApp(firebaseConfig);
+      auth=firebase.auth();
+      db=firebase.firestore();
+      ready=true;
+    }catch(e){ console.warn("Firebase init 失敗",e); return; }
+
+    // 讓登入狀態在重開後保留
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+
+    document.getElementById("btnCloud").onclick=openCloudPanel;
+
+    auth.onAuthStateChanged(u=>{
+      user=u;
+      if(u){ onLoggedIn(); }
+      else { onLoggedOut(); }
+    });
+  };
+
+  function onLoggedOut(){
+    if(unsub){ unsub(); unsub=null; }
+    docRef=null; setBtn("off");
+  }
+
+  async function onLoggedIn(){
+    setBtn("syncing");
+    docRef = db.collection("users").doc(user.uid).collection("state").doc("planner");
+    try{
+      const snap = await docRef.get();
+      if(snap.exists && snap.data() && snap.data().data){
+        // 雲端已有資料 → 問使用者怎麼跟本機合併
+        await firstSyncDecision(snap.data().data);
+      }else{
+        // 雲端還沒有 → 把本機現有資料推上去當基準
+        await pushNow();
+      }
+      startListening();
+      setBtn("on");
+    }catch(e){
+      console.warn("首次同步失敗",e); setBtn("error");
+      window.toast&&toast("雲端讀取失敗，資料仍安全存在本機");
+    }
+  }
+
+  /* 首次登入且雲端已有資料：讓使用者選擇以哪邊為準（避免無聲覆蓋） */
+  function firstSyncDecision(cloudData){
+    return new Promise(resolve=>{
+      const overlay=document.getElementById("overlay");
+      const modalBox=document.getElementById("modal");
+      const localData=window.getData?getData():null;
+      const localCount = localData? Object.keys(localData.journal||{}).length : 0;
+      const cloudCount = cloudData? Object.keys(cloudData.journal||{}).length : 0;
+      modalBox.innerHTML=
+        '<h3>雲端已經有一份資料</h3>'+
+        '<p>這台裝置目前有 '+localCount+' 天的生活片段；雲端上有 '+cloudCount+' 天。<br>要以哪一邊為準？</p>'+
+        '<div class="modal-actions" style="flex-direction:column;gap:8px;">'+
+        '<button class="btn sage" id="cUseCloud" style="width:100%;">用雲端的（這台會被雲端內容取代）</button>'+
+        '<button class="btn" id="cUseLocal" style="width:100%;">用這台的（上傳並覆蓋雲端）</button>'+
+        '<button class="btn ghost" id="cMerge" style="width:100%;">兩邊合併（保留較新的日記）</button>'+
+        '</div>';
+      overlay.classList.add("show");
+      document.getElementById("cUseCloud").onclick=async()=>{
+        overlay.classList.remove("show"); modalBox.innerHTML="";
+        applyingRemote=true; window.applyCloudData(cloudData); applyingRemote=false;
+        resolve();
+      };
+      document.getElementById("cUseLocal").onclick=async()=>{
+        overlay.classList.remove("show"); modalBox.innerHTML="";
+        await pushNow(); resolve();
+      };
+      document.getElementById("cMerge").onclick=async()=>{
+        overlay.classList.remove("show"); modalBox.innerHTML="";
+        const merged=mergeStates(window.getData?getData():{}, cloudData);
+        applyingRemote=true; window.applyCloudData(merged); applyingRemote=false;
+        await pushNow(); resolve();
+      };
+    });
+  }
+
+  /* 合併兩份 state：容器逐鍵補齊，日記同日取較新（updated 大者） */
+  function mergeStates(localD, cloudD){
+    const out=JSON.parse(JSON.stringify(localD||{}));
+    ["today","week","weekMeta","reflect","reflectWeek","monthDesign"].forEach(coll=>{
+      out[coll]=out[coll]||{}; const src=(cloudD&&cloudD[coll])||{};
+      Object.keys(src).forEach(k=>{ if(!(k in out[coll])) out[coll][k]=src[k]; });
+    });
+    out.journal=out.journal||{};
+    const cj=(cloudD&&cloudD.journal)||{};
+    Object.keys(cj).forEach(k=>{
+      const mine=out.journal[k], theirs=cj[k];
+      if(!mine){ out.journal[k]=theirs; return; }
+      if((theirs.updated||0)>(mine.updated||0)) out.journal[k]=theirs; // 取較新
+    });
+    // 陣列類以 id 去重
+    out.wishes=out.wishes||[]; ((cloudD&&cloudD.wishes)||[]).forEach(w=>{ if(!out.wishes.some(x=>x.id===w.id)) out.wishes.push(w); });
+    out.scraps=out.scraps||[]; ((cloudD&&cloudD.scraps)||[]).forEach(s=>{ if(!out.scraps.some(x=>x.id===s.id)) out.scraps.push(s); });
+    return out;
+  }
+
+  /* 即時監聽雲端：別的裝置改了，這台自動拉下來 */
+  function startListening(){
+    if(unsub) unsub();
+    unsub = docRef.onSnapshot(snap=>{
+      if(applyingRemote) return;
+      if(snap.metadata.hasPendingWrites) return;  // 這是自己剛寫的，略過
+      const d=snap.data();
+      if(d && d.data){
+        applyingRemote=true;
+        window.applyCloudData(d.data);
+        applyingRemote=false;
+        setBtn("on");
+      }
+    }, err=>{ console.warn("監聽錯誤",err); setBtn("error"); });
+  }
+
+  /* 立刻上傳目前本機資料 */
+  async function pushNow(){
+    if(!docRef||!user) return;
+    const data=window.getData?getData():null; if(!data) return;
+    setBtn("syncing");
+    try{
+      await docRef.set({ data:data, updatedAt:firebase.firestore.FieldValue.serverTimestamp(), device:navigator.userAgent.slice(0,120) }, {merge:true});
+      setBtn("on");
+    }catch(e){ console.warn("上傳失敗",e); setBtn("error"); }
+  }
+
+  /* 防抖上傳：本機存檔後呼叫（persist 內會叫這個） */
+  CloudSync.schedulePush = function(){
+    if(!ready||!user||!docRef) return;   // 沒登入就純本機
+    if(applyingRemote) return;
+    clearTimeout(pushTimer);
+    setBtn("syncing");
+    pushTimer=setTimeout(pushNow, 900);
+  };
+
+  /* 同步面板：登入 / 登出 */
+  function openCloudPanel(){
+    const overlay=document.getElementById("overlay");
+    const modalBox=document.getElementById("modal");
+    if(user){
+      modalBox.innerHTML=
+        '<h3>雲端同步</h3>'+
+        '<p>目前登入：'+escapeSafe(user.email||"（匿名）")+'<br>這台裝置會和登入同一帳號的其他裝置自動同步。</p>'+
+        '<div class="modal-actions">'+
+        '<button class="btn ghost" id="cClose">關閉</button>'+
+        '<button class="btn" id="cPush">立即上傳</button>'+
+        '<button class="btn rose" id="cLogout">登出</button>'+
+        '</div>';
+      overlay.classList.add("show");
+      document.getElementById("cClose").onclick=closeCloud;
+      document.getElementById("cPush").onclick=()=>{ pushNow(); closeCloud(); window.toast&&toast("已上傳雲端"); };
+      document.getElementById("cLogout").onclick=()=>{ auth.signOut(); closeCloud(); window.toast&&toast("已登出，資料仍在本機"); };
+    }else{
+      modalBox.innerHTML=
+        '<h3>登入雲端同步</h3>'+
+        '<p>用同一組 email／密碼在 iPad 和手機登入，兩邊就會同步。</p>'+
+        '<input class="field" id="cEmail" type="email" placeholder="Email" autocomplete="username">'+
+        '<input class="field" id="cPass" type="password" placeholder="密碼" autocomplete="current-password">'+
+        '<div id="cErr" style="color:#9c5a52;font-size:13px;font-family:var(--font-sans);min-height:18px;margin:4px 2px;"></div>'+
+        '<div class="modal-actions" style="flex-wrap:wrap;">'+
+        '<button class="btn ghost" id="cClose">取消</button>'+
+        '<button class="btn" id="cSignup">註冊新帳號</button>'+
+        '<button class="btn sage" id="cLogin">登入</button>'+
+        '</div>';
+      overlay.classList.add("show");
+      const email=()=>document.getElementById("cEmail").value.trim();
+      const pass=()=>document.getElementById("cPass").value;
+      const err=(m)=>{ document.getElementById("cErr").textContent=m||""; };
+      document.getElementById("cClose").onclick=closeCloud;
+      document.getElementById("cLogin").onclick=()=>{
+        err(""); auth.signInWithEmailAndPassword(email(),pass())
+          .then(()=>{ closeCloud(); window.toast&&toast("登入成功，開始同步"); })
+          .catch(e=>err(friendlyErr(e)));
+      };
+      document.getElementById("cSignup").onclick=()=>{
+        err(""); auth.createUserWithEmailAndPassword(email(),pass())
+          .then(()=>{ closeCloud(); window.toast&&toast("帳號建立完成，開始同步"); })
+          .catch(e=>err(friendlyErr(e)));
+      };
+    }
+  }
+  function closeCloud(){ const o=document.getElementById("overlay"); o.classList.remove("show"); document.getElementById("modal").innerHTML=""; }
+
+  function friendlyErr(e){
+    const c=(e&&e.code)||"";
+    if(c.includes("wrong-password")||c.includes("invalid-credential")) return "密碼不對，再試一次。";
+    if(c.includes("user-not-found")) return "找不到這個帳號，可以按「註冊新帳號」。";
+    if(c.includes("email-already-in-use")) return "這個 email 已經註冊過了，直接登入即可。";
+    if(c.includes("invalid-email")) return "email 格式怪怪的。";
+    if(c.includes("weak-password")) return "密碼太短，至少 6 個字。";
+    if(c.includes("network")) return "網路不太穩，稍後再試。";
+    return "登入沒成功，稍後再試。";
+  }
+  function escapeSafe(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+})();
 </script>
 </body>
 </html>
