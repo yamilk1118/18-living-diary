@@ -6,12 +6,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>18 手帳｜18 Life Planner</title>
 
+<!-- ============ Firebase SDK（雲端同步用，需要網路連線）============
+     使用 compat 版本，語法與傳統 <script> 相容，不需要 type="module"。
+     若不需要雲端同步，可以移除這三個 <script> 標籤與下方登入相關程式碼，
+     即可回到純本機 localStorage 版本。 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
 /* =====================================================
    18 手帳 (18 Life Planner)
    混合式電子手帳：月曆/週曆排程、每日待辦、筆記、目標追蹤
    奶茶色系設計語彙，與 18 Living 系列一致
-   純 HTML / CSS / JS，無外部 CDN 依賴，可離線使用
+   資料透過 Firebase（Authentication + Firestore）雲端同步，
+   登入同一組帳號，任何裝置都能看到同一份資料。
    ===================================================== */
 
 :root{
@@ -55,7 +64,30 @@ button,input,textarea,select{ font-family:inherit; outline:none; }
 ::-webkit-scrollbar-thumb{ background:var(--oat); border-radius:8px; }
 
 /* ---------- App Shell ---------- */
-#app{ display:flex; height:100vh; }
+#app{ display:flex; height:100vh; display:none; }
+
+/* ---------- 登入畫面 ---------- */
+.auth-screen{
+  position:fixed; inset:0; z-index:200;
+  display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(217,196,163,.3), transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(169,187,156,.22), transparent 40%),
+    var(--cream);
+  padding:20px;
+}
+.auth-card{
+  background:var(--paper); border-radius:var(--radius-lg); box-shadow:var(--shadow-lift);
+  padding:clamp(28px,4vw,44px); max-width:400px; width:100%; text-align:center;
+}
+.auth-title{ font-family:var(--font-display); font-size:30px; color:var(--coffee); margin:0 0 6px; }
+.auth-sub{ font-size:13px; color:var(--warmgray); margin:0 0 26px; }
+.auth-card input{ margin-bottom:12px; text-align:left; }
+.auth-error{ font-size:12.5px; color:var(--danger); min-height:18px; margin-bottom:6px; text-align:left; }
+.auth-hint{ font-size:11.5px; color:var(--warmgray); margin-top:20px; line-height:1.7; }
+.auth-card .row{ justify-content:center; }
+.auth-loading{ font-size:13px; color:var(--warmgray); }
+
 .tab-strip{
   flex:0 0 104px; display:flex; flex-direction:column; align-items:center;
   padding:24px 0; gap:6px;
@@ -258,6 +290,23 @@ select.pill-select{
 </style>
 </head>
 <body>
+
+<!-- ============ 登入畫面 ============ -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <h1 class="auth-title">18 手帳</h1>
+    <p class="auth-sub">登入後，資料會同步到你的雲端帳號，任何裝置都能看到同一份內容。</p>
+    <input type="email" class="line-input" id="auth-email" placeholder="Email" autocomplete="email">
+    <input type="password" class="line-input" id="auth-password" placeholder="密碼（至少 6 碼）" autocomplete="current-password">
+    <div class="auth-error" id="auth-error"></div>
+    <div class="row">
+      <button class="btn btn-primary" id="auth-login-btn">登入</button>
+      <button class="btn btn-secondary" id="auth-signup-btn">註冊新帳號</button>
+    </div>
+    <div class="auth-loading" id="auth-loading" style="display:none;">處理中...</div>
+    <p class="auth-hint">第一次使用請先點「註冊新帳號」；之後在其他裝置只要用同一組 Email／密碼登入，就能看到同樣的資料。</p>
+  </div>
+</div>
 
 <div id="app">
   <nav class="tab-strip">
@@ -469,8 +518,13 @@ select.pill-select{
     <section id="view-backup" class="view">
       <h2 class="view-title">備份與提醒</h2>
       <div class="card">
+        <div class="section-label">目前登入的帳號</div>
+        <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:14px;" id="account-email-display"></p>
+        <button class="btn btn-danger" id="logout-btn">登出</button>
+      </div>
+      <div class="card">
         <div class="section-label">匯出手帳資料</div>
-        <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:14px;">把所有排程、待辦、筆記、目標匯出成一份 JSON 檔，作為備份。</p>
+        <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:14px;">把所有排程、待辦、筆記、目標匯出成一份 JSON 檔，作為額外備份。</p>
         <button class="btn btn-primary" id="export-btn">匯出 JSON 檔</button>
       </div>
       <div class="card">
@@ -484,8 +538,8 @@ select.pill-select{
       <div class="card">
         <div class="section-label">小提醒</div>
         <div class="reminder-box">
-          資料儲存在「這個瀏覽器」裡，請不要清除 Safari 的「網站資料」，以免內容遺失，建議定期匯出備份。<br><br>
-          如果這個檔案用「檔案」App 直接點開後無法互動（例如按鈕點不動），代表目前是在「快速預覽」模式，不是真正的 Safari——請改用「打開方式 → Safari」，或參考先前教學透過 GitHub Pages 開啟，會最穩定。
+          資料現在會同步儲存到雲端（Firebase），登入同一組帳號，不同裝置都能看到一樣的內容，需要網路連線才能讀取／儲存。<br><br>
+          建議還是定期使用「匯出 JSON 檔」留一份本機備份，多一層保險。
         </div>
       </div>
     </section>
@@ -537,7 +591,40 @@ select.pill-select{
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "eighteenPlanner_data_v1";
+  /* ---------------- Firebase 設定 ---------------- */
+  var firebaseConfig = {
+    apiKey: "AIzaSyDQDKQwEIQLuce_cFcMxv_0ES3wmXzrdMw",
+    authDomain: "livingplanner-45c01.firebaseapp.com",
+    projectId: "livingplanner-45c01",
+    storageBucket: "livingplanner-45c01.firebasestorage.app",
+    messagingSenderId: "777115848452",
+    appId: "1:777115848452:web:27f51c74b19e39b1e6ca51"
+  };
+
+  // 防呆：如果 Firebase SDK 因網路問題沒載入成功，不要讓整個網頁跟著壞掉，
+  // 改成在登入畫面顯示提示，其餘畫面仍可正常顯示（重新整理、恢復網路後即可正常使用）。
+  var firebaseReady = (typeof firebase !== "undefined");
+  var auth, db;
+  if(firebaseReady){
+    try{
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+    }catch(e){
+      console.error("Firebase 初始化失敗", e);
+      firebaseReady = false;
+    }
+  }
+  if(!firebaseReady){
+    document.addEventListener("DOMContentLoaded", function(){
+      var errBox = document.getElementById("auth-error");
+      if(errBox) errBox.textContent = "雲端服務載入失敗，請確認網路連線後重新整理頁面。";
+      var lb = document.getElementById("auth-login-btn"); if(lb) lb.disabled = true;
+      var sb = document.getElementById("auth-signup-btn"); if(sb) sb.disabled = true;
+    });
+  }
+
+  var STORAGE_KEY = "eighteenPlanner_data_v1"; // 僅作為本機快取備援用
   var WEATHERS = ["晴","多雲","陰","雨","雷雨","冷","起霧"];
   var MOODS = ["平靜","開心","疲憊","焦慮","感謝","迷惘","充實","想哭但還好","被生活摸頭","需要充電","很棒","慢慢來"];
   var DIARY_TAGS = ["生活","工作","18 SPA","創作","家庭","伴侶","身體","金錢","學習","夢想","低潮","感謝","療癒","小確幸"];
@@ -554,7 +641,8 @@ select.pill-select{
     diarySelectedMood: "",
     diarySelectedTags: [],
     diaryPhotos: [],
-    confirmCb: null
+    confirmCb: null,
+    currentUid: null
   };
 
   function $(sel){ return document.querySelector(sel); }
@@ -577,30 +665,64 @@ select.pill-select{
     clearTimeout(t._timer); t._timer=setTimeout(function(){ t.classList.remove("show"); }, 2200);
   }
 
-  /* ---------------- 儲存 ---------------- */
-  function loadData(){
+  /* ---------------- 儲存（雲端 Firestore，本機 localStorage 作為快取備援） ---------------- */
+  function applyDataToState(d){
+    if(!d) return;
+    state.events = d.events || [];
+    state.todos = d.todos || [];
+    state.notes = d.notes || [];
+    state.goals = d.goals || [];
+    state.diary = d.diary || [];
+  }
+  function loadLocalCache(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
-      var d = raw ? JSON.parse(raw) : null;
-      if(d){
-        state.events = d.events || [];
-        state.todos = d.todos || [];
-        state.notes = d.notes || [];
-        state.goals = d.goals || [];
-        state.diary = d.diary || [];
-      }
-    }catch(e){ console.error("讀取資料失敗", e); }
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
   }
-  function persist(){
+  function saveLocalCache(){
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         events: state.events, todos: state.todos, notes: state.notes, goals: state.goals, diary: state.diary
       }));
-    }catch(e){
-      console.error("儲存失敗", e);
-      showToast("儲存失敗，可能空間不足");
-    }
+    }catch(e){ /* 本機快取失敗不影響雲端功能，忽略即可 */ }
   }
+  // 從 Firestore 載入目前登入使用者的資料
+  function loadDataFromCloud(){
+    if(!state.currentUid) return Promise.resolve();
+    return db.collection("users").doc(state.currentUid).get().then(function(doc){
+      if(doc.exists){
+        applyDataToState(doc.data());
+      }else{
+        // 第一次登入，雲端還沒有資料：如果本機有舊的快取（例如從離線版沿用），就帶上去
+        var cached = loadLocalCache();
+        if(cached) applyDataToState(cached);
+      }
+      saveLocalCache();
+    }).catch(function(err){
+      console.error("讀取雲端資料失敗，改用本機快取", err);
+      var cached = loadLocalCache();
+      if(cached) applyDataToState(cached);
+      showToast("目前無法連上雲端，先使用本機備份資料");
+    });
+  }
+  var cloudSaveTimer = null;
+  function persist(){
+    // 立即寫入本機快取，介面不需要等雲端
+    saveLocalCache();
+    if(!state.currentUid) return;
+    clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = setTimeout(function(){
+      db.collection("users").doc(state.currentUid).set({
+        events: state.events, todos: state.todos, notes: state.notes, goals: state.goals, diary: state.diary,
+        updatedAt: new Date().toISOString()
+      }).catch(function(err){
+        console.error("雲端儲存失敗", err);
+        showToast("雲端儲存失敗，請確認網路連線");
+      });
+    }, 600);
+  }
+
 
   /* ---------------- 分頁切換 ---------------- */
   function switchView(name){
@@ -1234,9 +1356,8 @@ select.pill-select{
     e.target.value = "";
   });
 
-  /* ================= 初始化 ================= */
-  function init(){
-    loadData();
+  /* ================= 初始化（登入成功後才執行）================= */
+  function initApp(){
     state.todayDate = todayStr();
     state.weekStart = dstr(getMonday(todayStr()));
     $("#today-date-input").value = state.todayDate;
@@ -1248,7 +1369,77 @@ select.pill-select{
     renderWeek();
     renderMonth();
   }
-  init();
+
+  /* ================= 登入 / 註冊 / 登出 ================= */
+  function setAuthError(msg){ $("#auth-error").textContent = msg || ""; }
+  function setAuthLoading(on){
+    $("#auth-loading").style.display = on ? "block" : "none";
+    $("#auth-login-btn").disabled = on;
+    $("#auth-signup-btn").disabled = on;
+  }
+  function friendlyAuthError(err){
+    var code = err && err.code || "";
+    if(code.indexOf("wrong-password")>-1 || code.indexOf("invalid-credential")>-1) return "Email 或密碼不正確";
+    if(code.indexOf("user-not-found")>-1) return "找不到這個帳號，請先註冊";
+    if(code.indexOf("email-already-in-use")>-1) return "這個 Email 已經註冊過了，請直接登入";
+    if(code.indexOf("weak-password")>-1) return "密碼太短，至少需要 6 碼";
+    if(code.indexOf("invalid-email")>-1) return "Email 格式不正確";
+    if(code.indexOf("network-request-failed")>-1) return "目前連不上網路，請檢查連線";
+    return "發生錯誤，請再試一次";
+  }
+  $("#auth-login-btn").addEventListener("click", function(){
+    if(!firebaseReady){ setAuthError("雲端服務尚未就緒，請重新整理頁面"); return; }
+    var email = $("#auth-email").value.trim();
+    var pw = $("#auth-password").value;
+    if(!email || !pw){ setAuthError("請輸入 Email 和密碼"); return; }
+    setAuthError(""); setAuthLoading(true);
+    auth.signInWithEmailAndPassword(email, pw).catch(function(err){
+      setAuthLoading(false);
+      setAuthError(friendlyAuthError(err));
+    });
+  });
+  $("#auth-signup-btn").addEventListener("click", function(){
+    if(!firebaseReady){ setAuthError("雲端服務尚未就緒，請重新整理頁面"); return; }
+    var email = $("#auth-email").value.trim();
+    var pw = $("#auth-password").value;
+    if(!email || !pw){ setAuthError("請輸入 Email 和密碼"); return; }
+    if(pw.length < 6){ setAuthError("密碼至少需要 6 碼"); return; }
+    setAuthError(""); setAuthLoading(true);
+    auth.createUserWithEmailAndPassword(email, pw).catch(function(err){
+      setAuthLoading(false);
+      setAuthError(friendlyAuthError(err));
+    });
+  });
+  $("#logout-btn").addEventListener("click", function(){
+    if(!firebaseReady) return;
+    openConfirm("登出", "確定要登出嗎？登出後需要重新輸入 Email 和密碼才能再次使用。", function(){
+      auth.signOut();
+    });
+  });
+
+  var appInitialized = false;
+  if(firebaseReady){
+    auth.onAuthStateChanged(function(user){
+      if(user){
+        state.currentUid = user.uid;
+        $("#account-email-display").textContent = user.email || "";
+        setAuthLoading(false);
+        setAuthError("");
+        $("#auth-password").value = "";
+        loadDataFromCloud().then(function(){
+          $("#auth-screen").style.display = "none";
+          $("#app").style.display = "flex";
+          if(!appInitialized){ initApp(); appInitialized = true; }
+          else{ renderToday(); renderWeek(); renderMonth(); renderNotes(); renderGoals(); renderDiaryList(); }
+        });
+      }else{
+        state.currentUid = null;
+        appInitialized = false;
+        $("#app").style.display = "none";
+        $("#auth-screen").style.display = "flex";
+      }
+    });
+  }
 
 })();
 </script>

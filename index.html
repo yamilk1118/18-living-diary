@@ -2,1493 +2,2255 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>18 Living｜A Gentle Journal</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>18 Living · A Gentle Life Companion</title>
+<!--
+  字體策略：優先使用系統／本機字體堆疊（思源宋體、思源黑體、等寬字），
+  Google Fonts 僅作為補充；即使離線或載入失敗，fallback 字型仍可正常顯示，不破版。
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-/* =====================================================
-   18 Living — 文青風數位手帳
-   設計語彙：奶茶色 / 米白 / 燕麥 / 霧粉 / 鼠尾草綠 / 暖灰 / 咖啡
-   風格參考：MIDORI、Traveler's Notebook、Hobonichi、MUJI、北歐
-   全部樣式皆為本機內建字型與 CSS 效果，無任何外部 CDN 依賴。
-   ===================================================== */
+  /* ============================================================
+     18 Living — A Gentle Life Companion
+     視覺語言：米白紙張 · 燕麥 · 淺咖啡 · 鼠尾草綠 · 霧粉
+     字體：思源宋體(閱讀) · 思源黑體(介面) · 等寬(日期/英文小字)
+     ============================================================ */
 
-:root{
-  /* ---- 色彩代碼（低彩度 / 紙感） ---- */
-  --cream:      #F7F1E6;   /* 米白：整體背景 */
-  --paper:      #FBF8F1;   /* 紙張：卡片/頁面底色 */
-  --paper-warm: #F3EAD9;   /* 略深紙色：分隔區塊 */
-  --oat:        #EAD9BC;   /* 燕麥色：邊框、次要元素 */
-  --latte:      #D9C4A3;   /* 奶茶色：主色調 */
-  --khaki:      #C4B08A;   /* 卡其：強調線條 */
-  --blush:      #E7D3CC;   /* 霧粉：柔和點綴 */
-  --sage:       #A9BB9C;   /* 鼠尾草綠：輔助點綴 */
-  --warmgray:   #96897A;   /* 暖灰：次要文字 */
-  --coffee:     #6E5A45;   /* 咖啡色：主要強調色 */
-  --ink:        #4A3F34;   /* 深咖啡：主要文字 */
-  --ink-soft:   #7A6C5C;   /* 柔和文字色 */
+  :root{
+    /* ---------- 字體系統（三種角色） ---------- */
+    --font-serif: "Source Han Serif TC","Noto Serif TC","Songti TC","PMingLiU",serif;   /* 閱讀 */
+    --font-sans:  "Source Han Sans TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; /* 介面 */
+    --font-mono:  "SFMono-Regular","SF Mono",Menlo,Monaco,Consolas,"Liberation Mono",monospace; /* 日期/英文 */
 
-  --shadow-soft: 0 10px 28px rgba(110, 90, 69, 0.12), 0 2px 6px rgba(110,90,69,.08);
-  --shadow-lift: 0 16px 40px rgba(110, 90, 69, 0.18);
-  --radius-lg: 26px;
-  --radius-md: 18px;
-  --radius-sm: 12px;
+    /* ---------- 基礎色（品牌恆定，季節僅微調 accent） ---------- */
+    --paper:        #F3EDE2;   /* 米白紙張 */
+    --paper-warm:   #EFE7D9;   /* 燕麥色 */
+    --paper-card:   #FBF7EF;   /* 書頁卡片 */
+    --paper-deep:   #E7DBC9;   /* 淺咖啡紙 */
 
-  --font-display: "Noto Serif TC","Songti TC","PMingLiU","Georgia",serif;
-  --font-body: "PingFang TC","Hiragino Sans","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
-}
+    --sage:         #8C9B80;   /* 鼠尾草綠 */
+    --sage-soft:    #B9C3AC;
+    --coffee:       #9B8570;   /* 淺咖啡 */
+    --coffee-deep:  #7C6A58;
+    --rose:         #CBA9A2;   /* 霧粉 */
+    --rose-soft:    #E4CFCA;
 
-*{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family: var(--font-body);
-  color: var(--ink);
-  background:
-    radial-gradient(circle at 15% 10%, rgba(217,196,163,0.25), transparent 45%),
-    radial-gradient(circle at 85% 90%, rgba(169,187,156,0.18), transparent 40%),
-    var(--cream);
-  background-attachment: fixed;
-  overflow:hidden;
-  -webkit-font-smoothing: antialiased;
-}
-button{ font-family: inherit; }
-textarea, input{ font-family: inherit; }
+    --ink:          #4A4034;   /* 主要墨色 */
+    --ink-soft:     #857868;
+    --ink-faint:    #B0A390;
 
-/* 紙張紋理（純 CSS 微點紋，無需外部圖檔） */
-.paper-texture{
-  background-image:
-    radial-gradient(rgba(110,90,69,0.035) 1px, transparent 1px);
-  background-size: 9px 9px;
-}
+    --line:         #DDD1BE;
+    --shadow:       0 8px 24px rgba(120,100,75,.10), 0 2px 6px rgba(120,100,75,.06);
+    --shadow-soft:  0 4px 14px rgba(120,100,75,.08);
 
-::-webkit-scrollbar{ width:8px; height:8px; }
-::-webkit-scrollbar-thumb{ background: var(--oat); border-radius:8px; }
-::-webkit-scrollbar-track{ background: transparent; }
-
-button, input, textarea, select{ outline: none; }
-button:focus-visible, input:focus-visible, textarea:focus-visible, .day-cell:focus-visible{
-  outline: 2px solid var(--sage);
-  outline-offset: 2px;
-}
-
-/* =====================================================
-   畫面切換容器
-   ===================================================== */
-#app{ position:relative; width:100%; height:100%; }
-.screen{
-  position:absolute; inset:0;
-  opacity:0; pointer-events:none;
-  transition: opacity .55s ease, transform .55s ease;
-}
-.screen.active{ opacity:1; pointer-events:auto; }
-
-/* =====================================================
-   封面（首頁）— 翻開手帳的儀式感
-   ===================================================== */
-#cover-screen{
-  display:flex; align-items:center; justify-content:center;
-  transform: translateY(0);
-}
-#cover-screen:not(.active){ transform: translateY(-16px); }
-.cover-inner{
-  text-align:center;
-  max-width: 560px;
-  padding: 48px 40px;
-  animation: coverFade 1s ease both;
-}
-@keyframes coverFade{ from{ opacity:0; transform: translateY(14px);} to{opacity:1; transform:translateY(0);} }
-.cover-mark{
-  width:46px; height:46px; margin:0 auto 18px;
-  border:1.5px solid var(--khaki); border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:20px; color: var(--coffee);
-}
-.cover-title{
-  font-family: var(--font-display);
-  font-size: clamp(38px, 7vw, 58px);
-  letter-spacing: 0.03em;
-  margin: 0;
-  color: var(--coffee);
-  font-weight: 600;
-}
-.cover-sub{
-  margin: 6px 0 26px;
-  letter-spacing: 0.28em;
-  font-size: 12.5px;
-  color: var(--warmgray);
-  text-transform: uppercase;
-}
-.cover-tagline{
-  font-family: var(--font-display);
-  font-size: 19px;
-  color: var(--ink-soft);
-  margin: 0 0 30px;
-}
-.cover-quote-box{
-  border-top: 1px solid var(--oat);
-  border-bottom: 1px solid var(--oat);
-  padding: 18px 10px;
-  margin-bottom: 34px;
-  min-height: 30px;
-}
-.cover-quote{
-  margin:0; font-size:14.5px; color: var(--ink-soft); line-height:1.9;
-}
-.btn-open{
-  border:none; cursor:pointer;
-  background: var(--coffee); color: var(--paper);
-  padding: 15px 40px; border-radius: 999px;
-  font-size:16px; letter-spacing:.06em;
-  box-shadow: var(--shadow-soft);
-  transition: transform .25s ease, box-shadow .25s ease;
-  display:inline-block; text-decoration:none;
-  -webkit-tap-highlight-color: transparent;
-}
-.btn-open:active{ transform: scale(.96); }
-.cover-hint{
-  margin-top:16px; font-size:12px; color:var(--warmgray);
-}
-
-/* =====================================================
-   主體 App Shell
-   ===================================================== */
-#main-app{ display:flex; height:100%; }
-.tab-strip{
-  flex: 0 0 108px;
-  display:flex; flex-direction:column;
-  align-items:center;
-  padding: 26px 0;
-  gap: 6px;
-  background: linear-gradient(180deg, var(--paper-warm), var(--oat) 130%);
-  border-right: 1px solid rgba(110,90,69,0.12);
-}
-.tab-brand{
-  font-family: var(--font-display);
-  font-size: 19px; color: var(--coffee);
-  margin-bottom: 22px; text-align:center; line-height:1.3;
-}
-.tab-brand small{ display:block; font-size:9px; letter-spacing:.18em; color:var(--warmgray); font-family:var(--font-body); }
-.tab{
-  width: 84px;
-  border:none; background: transparent; cursor:pointer;
-  color: var(--ink-soft);
-  padding: 12px 6px;
-  border-radius: var(--radius-sm);
-  font-size: 12.5px;
-  display:flex; flex-direction:column; align-items:center; gap:5px;
-  transition: background .25s ease, color .25s ease, transform .2s ease;
-}
-.tab .tab-icon{ font-size:19px; }
-.tab.active{ background: var(--paper); color: var(--coffee); box-shadow: var(--shadow-soft); font-weight:600; }
-.tab:active{ transform: scale(.96); }
-
-.view-container{
-  flex:1; min-width:0; height:100%;
-  overflow:hidden; position:relative;
-}
-.view{
-  position:absolute; inset:0; overflow-y:auto;
-  padding: 30px clamp(18px,4vw,54px) 60px;
-  opacity:0; transform: translateX(10px);
-  pointer-events:none;
-  transition: opacity .4s ease, transform .4s ease;
-}
-.view.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
-
-.view-title{
-  font-family: var(--font-display);
-  font-size: 26px; color: var(--coffee); margin: 4px 0 4px;
-}
-.view-desc{ color: var(--warmgray); font-size:13px; margin:0 0 22px; }
-
-/* =====================================================
-   今日頁面（表單像手帳內頁）
-   ===================================================== */
-.journal-page{
-  background: var(--paper);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-  padding: clamp(20px,3vw,40px);
-  max-width: 900px;
-  position: relative;
-}
-.journal-page::before{
-  content:"";
-  position:absolute; left:0; top:22px; bottom:22px; width:3px;
-  background: linear-gradient(180deg, transparent, var(--khaki), transparent);
-  border-radius:3px; opacity:.5;
-}
-.page-header-row{
-  display:flex; flex-wrap:wrap; align-items:center; gap:16px 26px;
-  margin-bottom: 22px; padding-bottom:18px;
-  border-bottom: 1px dashed var(--oat);
-}
-.date-field{ display:flex; flex-direction:column; gap:4px; }
-.date-field label{ font-size:11.5px; color:var(--warmgray); letter-spacing:.08em; }
-.date-field input[type=date]{
-  border:1px solid var(--oat); background:var(--cream);
-  border-radius:12px; padding:10px 12px; font-size:16px; color:var(--ink);
-}
-.weekday-badge{
-  font-family: var(--font-display);
-  font-size:15px; color: var(--coffee);
-  background: var(--blush); padding:8px 16px; border-radius:999px;
-}
-.draft-status{
-  margin-left:auto; font-size:11.5px; color: var(--sage-dark, #7C9270);
-  display:flex; align-items:center; gap:6px;
-}
-.draft-status .dot{ width:6px; height:6px; border-radius:50%; background:var(--sage); }
-
-.field-block{ margin-bottom: 22px; }
-.field-block > label, .field-label{
-  display:block; font-size:13px; color: var(--coffee);
-  font-weight:600; margin-bottom:9px; letter-spacing:.02em;
-}
-.field-block .field-hint{ font-size:11.5px; color:var(--warmgray); font-weight:400; margin-left:6px; }
-
-.picker-row{ display:flex; flex-wrap:wrap; gap:9px; }
-.emoji-btn{
-  border:1.5px solid var(--oat); background:var(--cream);
-  border-radius:14px; min-width:48px; height:48px; padding:0 12px;
-  font-size:21px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition: all .2s ease;
-}
-.emoji-btn.selected{
-  border-color: var(--coffee); background: var(--blush);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(110,90,69,.16);
-}
-.emoji-btn:active{ transform: scale(.94); }
-
-input[type=text].line-input, input.line-input{
-  width:100%; border:none; border-bottom: 1.5px solid var(--oat);
-  background: transparent; font-size:20px; font-family: var(--font-display);
-  color: var(--ink); padding: 8px 4px; transition: border-color .25s ease;
-}
-input.line-input:focus{ border-color: var(--coffee); }
-input.line-input::placeholder{ color: var(--warmgray); font-family: var(--font-body); font-size:15px; }
-
-textarea.soft-textarea{
-  width:100%; border:1px solid var(--oat); background: var(--cream);
-  border-radius: var(--radius-sm); padding:14px 16px;
-  font-size:15.5px; line-height:1.9; color: var(--ink);
-  resize: vertical; min-height: 54px;
-  transition: border-color .25s ease, box-shadow .25s ease;
-}
-textarea.soft-textarea:focus{ border-color: var(--coffee); box-shadow: 0 0 0 3px rgba(199,177,138,.25); }
-textarea.story-textarea{ min-height: 150px; }
-
-.two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 20px 26px; }
-@media (max-width: 760px){ .two-col{ grid-template-columns: 1fr; } }
-
-.sticker-grid{ display:flex; flex-wrap:wrap; gap:9px; }
-.sticker-chip{
-  border:1.5px solid var(--oat); background:var(--cream);
-  border-radius:999px; padding:9px 15px; font-size:13.5px; cursor:pointer;
-  display:flex; align-items:center; gap:6px; color:var(--ink-soft);
-  transition: all .2s ease;
-}
-.sticker-chip .e{ font-size:16px; }
-.sticker-chip.selected{
-  background: var(--sage); border-color: var(--sage); color:#fff; font-weight:600;
-  transform: translateY(-1px);
-}
-.sticker-chip:active{ transform: scale(.95); }
-
-.photo-zone{
-  border: 1.5px dashed var(--oat); border-radius: var(--radius-sm);
-  padding: 16px; background: var(--cream);
-}
-.photo-upload-btn{
-  display:inline-flex; align-items:center; gap:8px;
-  border:1.5px solid var(--khaki); background: var(--paper);
-  padding: 11px 18px; border-radius:999px; cursor:pointer; font-size:13.5px; color:var(--coffee);
-}
-.photo-preview-grid{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
-.photo-thumb{ position:relative; width:82px; height:82px; border-radius:12px; overflow:hidden; box-shadow: var(--shadow-soft); }
-.photo-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-.photo-thumb .remove-photo{
-  position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%;
-  background: rgba(74,63,52,.75); color:#fff; border:none; font-size:12px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-}
-.photo-hint{ font-size:11.5px; color: var(--warmgray); margin-top:10px; }
-
-.gentle-note{
-  background: linear-gradient(135deg, var(--blush), var(--paper-warm));
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
-  font-size: 13.5px; color: var(--coffee);
-  margin: 26px 0 6px;
-  font-family: var(--font-display);
-  text-align:center;
-}
-
-.action-row{ display:flex; flex-wrap:wrap; gap:12px; margin-top: 28px; }
-.btn{
-  border:none; cursor:pointer; border-radius:999px;
-  padding: 13px 26px; font-size:14.5px; letter-spacing:.03em;
-  transition: transform .2s ease, box-shadow .2s ease, opacity .2s;
-  min-height: 46px;
-}
-.btn:active{ transform: scale(.96); }
-.btn-primary{ background: var(--coffee); color: var(--paper); box-shadow: var(--shadow-soft); }
-.btn-secondary{ background: var(--paper); border:1.5px solid var(--khaki); color: var(--coffee); }
-.btn-ghost{ background:transparent; color: var(--warmgray); border:1.5px solid transparent; }
-.btn-danger{ background: transparent; color:#a15b4c; border:1.5px solid #d8b3a8; }
-.btn-danger:hover{ background:#fbeeea; }
-
-/* =====================================================
-   卡片（書櫃 / 搜尋 / 月曆列表 共用）
-   ===================================================== */
-.entry-card{
-  background: var(--paper); border-radius: var(--radius-md);
-  padding: 16px 18px; box-shadow: var(--shadow-soft);
-  cursor:pointer; transition: transform .22s ease, box-shadow .22s ease;
-  border: 1px solid rgba(110,90,69,.06);
-}
-.entry-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-lift); }
-.entry-card:active{ transform: scale(.99); }
-.entry-card-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.entry-date{ font-size:12px; color: var(--warmgray); letter-spacing:.03em; }
-.entry-mood{ font-size:19px; }
-.entry-title{ font-family: var(--font-display); font-size:17px; margin:0 0 6px; color: var(--ink); }
-.entry-summary{ font-size:13px; color: var(--ink-soft); line-height:1.7; margin:0 0 10px;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.entry-stickers{ display:flex; flex-wrap:wrap; gap:6px; }
-.chip-mini{ font-size:11px; background: var(--paper-warm); border-radius:999px; padding:3px 9px; color: var(--ink-soft); }
-
-.card-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
-.empty-state{
-  text-align:center; padding: 60px 20px; color: var(--warmgray);
-}
-.empty-state .e{ font-size:34px; display:block; margin-bottom:10px; }
-
-/* =====================================================
-   書櫃（依年份 / 月份分層）
-   ===================================================== */
-.shelf-year{
-  margin-bottom: 18px;
-  background: var(--paper); border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft); overflow:hidden;
-}
-.shelf-year > summary{
-  list-style:none; cursor:pointer; padding: 18px 22px;
-  font-family: var(--font-display); font-size:20px; color:var(--coffee);
-  display:flex; align-items:center; justify-content:space-between;
-}
-.shelf-year > summary::-webkit-details-marker{ display:none; }
-.shelf-year > summary .count{ font-size:12px; color: var(--warmgray); font-family: var(--font-body); }
-.shelf-year > summary::after{ content:"⌄"; font-size:16px; color:var(--warmgray); transition: transform .25s ease; }
-.shelf-year[open] > summary::after{ transform: rotate(180deg); }
-.shelf-month{ padding: 0 22px 16px; }
-.shelf-month > summary{
-  list-style:none; cursor:pointer; padding: 10px 0; font-size:14.5px; color: var(--ink-soft);
-  border-top: 1px dashed var(--oat);
-  display:flex; align-items:center; justify-content:space-between;
-}
-.shelf-month > summary::-webkit-details-marker{ display:none; }
-.shelf-month-list{ display:flex; flex-direction:column; gap:10px; padding: 8px 0 4px; }
-.shelf-entry-row{
-  display:flex; align-items:center; gap:12px; cursor:pointer;
-  padding:10px 12px; border-radius:12px; transition: background .2s ease;
-}
-.shelf-entry-row:hover{ background: var(--paper-warm); }
-.shelf-entry-row .d{ font-size:12.5px; color:var(--warmgray); width:66px; flex-shrink:0; }
-.shelf-entry-row .m{ font-size:17px; }
-.shelf-entry-row .t{ font-size:14px; color:var(--ink); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-/* =====================================================
-   月曆
-   ===================================================== */
-.calendar-card{
-  background: var(--paper); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
-  padding: clamp(18px,3vw,34px); max-width: 720px;
-}
-.calendar-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
-.calendar-title{ font-family: var(--font-display); font-size:21px; color: var(--coffee); }
-.calendar-nav{ display:flex; gap:8px; }
-.icon-btn{
-  width:38px; height:38px; border-radius:50%; border:1.5px solid var(--oat);
-  background: var(--cream); cursor:pointer; font-size:15px; color: var(--coffee);
-  display:flex; align-items:center; justify-content:center;
-}
-.icon-btn:active{ transform: scale(.92); }
-.calendar-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:6px; }
-.calendar-grid .wd{ text-align:center; font-size:11.5px; color:var(--warmgray); padding-bottom:8px; }
-.day-cell{
-  aspect-ratio: 1/1; border-radius:14px; border:1px solid transparent;
-  background: var(--cream); cursor:pointer; position:relative;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  font-size:13.5px; color: var(--ink-soft); transition: all .2s ease;
-}
-.day-cell.empty{ background:transparent; cursor:default; }
-.day-cell.today{ border-color: var(--coffee); font-weight:700; color:var(--coffee); }
-.day-cell.has-entry{ background: var(--blush); color: var(--ink); }
-.day-cell:hover:not(.empty){ transform: translateY(-2px); box-shadow: var(--shadow-soft); }
-.day-cell .dot{ width:5px; height:5px; border-radius:50%; background: var(--coffee); margin-top:3px; }
-
-/* =====================================================
-   搜尋
-   ===================================================== */
-.search-bar{
-  display:flex; align-items:center; gap:10px;
-  background: var(--paper); border-radius: 999px; padding: 8px 8px 8px 20px;
-  box-shadow: var(--shadow-soft); max-width:560px; margin-bottom:18px;
-}
-.search-bar input{ flex:1; border:none; background:transparent; font-size:15.5px; padding:8px 0; }
-.search-bar .icon{ color: var(--warmgray); }
-.search-bar button{
-  border:none; background: var(--coffee); color:#fff; border-radius:999px;
-  padding: 10px 18px; font-size:13px; cursor:pointer;
-}
-.filter-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
-
-/* =====================================================
-   備份／設定
-   ===================================================== */
-.settings-card{
-  background: var(--paper); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
-  padding: 28px; max-width: 620px; margin-bottom:18px;
-}
-.settings-card h3{ font-family: var(--font-display); color: var(--coffee); margin:0 0 6px; font-size:18px; }
-.settings-card p{ font-size:13.5px; color: var(--ink-soft); line-height:1.8; margin: 0 0 16px; }
-.reminder-box{
-  background: var(--paper-warm); border-left:3px solid var(--sage);
-  border-radius: 10px; padding: 14px 18px; font-size:13px; color:var(--ink-soft); line-height:1.8;
-}
-.file-input-hidden{ display:none; }
-
-/* =====================================================
-   彈窗（完整日記預覽 / 確認提示）
-   ===================================================== */
-.modal-overlay{
-  position:fixed; inset:0; background: rgba(74,63,52,0.38);
-  display:flex; align-items:center; justify-content:center; padding:20px;
-  opacity:0; pointer-events:none; transition: opacity .3s ease; z-index:50;
-}
-.modal-overlay.active{ opacity:1; pointer-events:auto; }
-.modal-page{
-  background: var(--paper); border-radius: var(--radius-lg);
-  max-width: 640px; width:100%; max-height:86vh; overflow-y:auto;
-  padding: clamp(22px,3vw,40px);
-  box-shadow: var(--shadow-lift);
-  transform: translateY(18px) scale(.98); transition: transform .35s ease;
-}
-.modal-overlay.active .modal-page{ transform: translateY(0) scale(1); }
-.modal-close-row{ display:flex; justify-content:flex-end; }
-.modal-close{
-  border:none; background:transparent; font-size:22px; color:var(--warmgray); cursor:pointer;
-}
-.modal-title-row{ display:flex; align-items:center; gap:12px; margin-bottom:4px; }
-.modal-title{ font-family: var(--font-display); font-size:24px; color: var(--coffee); margin:0; }
-.modal-meta{ font-size:12.5px; color: var(--warmgray); margin-bottom:18px; }
-.modal-section{ margin-bottom:18px; }
-.modal-section .label{ font-size:12px; color:var(--coffee); font-weight:600; margin-bottom:5px; }
-.modal-section .content{ font-size:14.5px; color:var(--ink); line-height:1.9; white-space:pre-wrap; }
-.modal-photos{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
-.modal-photos img{ width:100px; height:100px; object-fit:cover; border-radius:12px; box-shadow: var(--shadow-soft); }
-.modal-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; padding-top:18px; border-top:1px dashed var(--oat); }
-
-.confirm-box{ max-width: 380px; text-align:center; }
-.confirm-box p{ font-size:14.5px; color: var(--ink-soft); line-height:1.8; margin: 6px 0 22px; }
-.confirm-box .actions{ display:flex; gap:10px; justify-content:center; }
-
-/* Toast */
-#toast{
-  position:fixed; left:50%; bottom:26px; transform: translateX(-50%) translateY(20px);
-  background: var(--coffee); color: var(--paper); padding: 12px 22px; border-radius: 999px;
-  font-size:13.5px; box-shadow: var(--shadow-lift); opacity:0; pointer-events:none;
-  transition: all .35s ease; z-index:100;
-}
-#toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
-
-/* =====================================================
-   RWD：iPad 直式 / 手機 → 上下排列、頂部橫向分頁
-   ===================================================== */
-@media (max-width: 880px){
-  #main-app{ flex-direction:column; }
-  .tab-strip{
-    flex-direction:row; flex:0 0 auto; width:100%;
-    overflow-x:auto; padding: 14px 12px; justify-content:flex-start; gap:8px;
+    /* 季節 accent（由 JS 依月份覆寫；預設夏） */
+    --season:       #A9B79C;
+    --season-soft:  #C9D2BC;
+    --season-label: "盛夏";
   }
-  .tab-brand{ display:none; }
-  .tab{ width:auto; flex-direction:row; padding:10px 14px; white-space:nowrap; }
-  .view{ padding: 22px 16px 50px; }
-}
 
-/* =====================================================
-   純 CSS 備援：即使 JavaScript 完全沒有執行，
-   點擊 #open-diary-btn（錨點連結）觸發網址 hash 變成 #main-app 時，
-   也能單靠 CSS :target 讓主頁面顯示出來、封面隱藏。
-   （Safari 15.4 以上支援 :has()，屬於雙重保險，不影響原本 JS 邏輯）
-   ===================================================== */
-#main-app:target{ opacity:1 !important; pointer-events:auto !important; }
-@supports selector(:has(*)){
-  #app:has(#main-app:target) #cover-screen{ opacity:0 !important; pointer-events:none !important; }
-}
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
 
-@media (prefers-reduced-motion: reduce){
-  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
-}
+  body{
+    font-family: var(--font-serif);
+    color: var(--ink);
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.32) 0, transparent 55%),
+      radial-gradient(circle at 80% 70%, rgba(200,180,150,.09) 0, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.48 0 0 0 0 0.38 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-attachment: fixed;
+    line-height: 1.95;
+    overflow: hidden;
+    letter-spacing: .02em;
+    -webkit-text-size-adjust: 100%;   /* 避免 iOS 自動放大 */
+  }
+
+  /* 介面元素統一用黑體 */
+  .nav-item, .spine-item, .btn, .field, input, textarea, select,
+  .page-sub, .quiet, .chip, .tag-pill, .save-status, .toast,
+  .modal-actions, .s-meta, .day-name, .cal-wk, label, .field-label{
+    font-family: var(--font-sans);
+  }
+  /* 日期／英文小字用等寬 */
+  .eyebrow, .mono, .today-date, .cal-title, .save-status,
+  .stat-num, .hl-d, .jcard-date, .home-date, .shelf-year, .page-en{
+    font-family: var(--font-mono);
+  }
+
+  /* ============================================================ 外殼 ============================================================ */
+  .app{ height:100vh; height:100dvh; display:flex; flex-direction:column; }
+  .stage{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
+  .stage::-webkit-scrollbar{ width:0; }
+
+  .page{ max-width:880px; margin:0 auto; padding:38px 34px 64px; display:none; animation:pagein .45s ease; }
+  .page.active{ display:block; }
+  @keyframes pagein{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  }
+
+  /* 觸控裝置（iPad）沒有 hover：讓原本靠 hover 顯示的刪除鍵直接可見 */
+  @media (hover:none){
+    .wish .w-del{ opacity:.6; }
+    .life-chip .x{ opacity:.5; }
+    .soft-list-item .rm{ opacity:.7; }
+  }
+
+  /* ---------- 底部導覽（直式） ---------- */
+  .nav{
+    display:flex; justify-content:space-around; align-items:center;
+    background:linear-gradient(180deg,#FBF7EF,#F1E9DB);
+    border-top:1px solid var(--line);
+    box-shadow:0 -4px 18px rgba(120,100,75,.07);
+    padding:7px 4px calc(7px + env(safe-area-inset-bottom));
+    flex-shrink:0; z-index:20;
+  }
+  .nav-item{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:6px 8px; border:none; background:none; cursor:pointer;
+    color:var(--ink-faint); transition:.3s; border-radius:14px; min-width:52px;
+  }
+  .nav-item .ico{ width:23px; height:23px; stroke:currentColor; fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+  .nav-item .lbl{ font-size:11px; letter-spacing:.08em; }
+  .nav-item.on{ color:var(--season); }
+  .nav-item.on .lbl{ color:var(--coffee-deep); font-weight:500; }
+  .nav-item:active{ transform:scale(.9); }
+
+  .spine{ display:none; }
+
+  /* ============================================================ 共用 ============================================================ */
+  .eyebrow{ font-size:13px; color:var(--season); letter-spacing:.28em; text-transform:uppercase; display:inline-block; margin-bottom:8px; }
+  .page-title{ font-size:29px; font-weight:600; color:var(--ink); letter-spacing:.06em; }
+  .page-en{ font-size:12px; color:var(--ink-faint); letter-spacing:.3em; text-transform:uppercase; margin-left:2px; }
+  .page-sub{ color:var(--ink-soft); font-size:14px; font-weight:300; margin-top:8px; }
+  .page-head{ margin-bottom:26px; }
+
+  .card{
+    background:var(--paper-card); border-radius:16px; box-shadow:var(--shadow);
+    padding:24px 24px; position:relative; border:1px solid rgba(221,209,190,.6);
+  }
+  .card + .card{ margin-top:18px; }
+  .card-title{ font-size:16px; font-weight:600; color:var(--coffee-deep); letter-spacing:.06em; margin-bottom:4px; }
+  .card-note{ font-size:13px; color:var(--ink-faint); margin-bottom:16px; line-height:1.7; }
+
+  .sticker{
+    position:absolute; font-family:var(--font-sans); font-size:13px; font-weight:500;
+    padding:6px 14px; border-radius:4px 12px 6px 14px;
+    box-shadow:0 3px 8px rgba(120,100,75,.13); z-index:3; line-height:1.3; letter-spacing:.05em;
+  }
+  .sticker.sage{ background:var(--season-soft); color:#3c452e; transform:rotate(-3deg); }
+  .sticker.rose{ background:var(--rose-soft); color:#7a5450; transform:rotate(2deg); }
+  .sticker.coffee{ background:var(--paper-deep); color:var(--coffee-deep); transform:rotate(-2deg); }
+
+  .quiet{ color:var(--ink-faint); font-weight:300; font-size:13px; }
+  .serif-note{ font-family:var(--font-serif); color:var(--coffee); font-size:16px; line-height:1.9; }
+
+  /* 按鈕 */
+  .btn{
+    font-size:14px; cursor:pointer; border:1px solid var(--line); background:var(--paper-card);
+    color:var(--coffee-deep); border-radius:20px; padding:9px 17px; transition:.2s;
+    box-shadow:var(--shadow-soft); letter-spacing:.04em; min-height:38px;
+  }
+  .btn:hover{ background:#fff; }
+  .btn:active{ transform:scale(.95); }
+  .btn.sage{ background:var(--season-soft); border-color:transparent; color:#3c452e; }
+  .btn.rose{ background:var(--rose-soft); border-color:transparent; color:#7a5450; }
+  .btn.ghost{ background:transparent; box-shadow:none; }
+  .btn.tiny{ font-size:12px; padding:6px 12px; min-height:32px; }
+  .btn.danger{ color:#9c5a52; }
+  .row-actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+  /* 輸入 */
+  .field{
+    width:100%; font-size:16px; color:var(--ink); background:var(--paper-warm);
+    border:1px solid var(--line); border-radius:12px; padding:12px 14px; line-height:1.8;
+  }
+  .field:focus{ outline:none; border-color:var(--season); background:#fff; }
+  .field::placeholder{ color:var(--ink-faint); }
+  select.field{ appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23857868' fill='none' stroke-width='1.4'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:34px; }
+  .field-label{ font-size:13px; color:var(--ink-soft); font-weight:500; margin-bottom:6px; display:block; letter-spacing:.05em; }
+  .field-group{ margin-bottom:16px; }
+
+  /* 可展開區塊 */
+  .expander summary{ cursor:pointer; list-style:none; color:var(--sage); font-family:var(--font-sans); font-size:14px; padding:8px 0; letter-spacing:.05em; }
+  .expander summary::-webkit-details-marker{ display:none; }
+  .expander summary::before{ content:"＋ "; }
+  .expander[open] summary::before{ content:"－ "; }
+
+  /* ============================================================ HOME 首頁 ============================================================ */
+  #home{ max-width:640px; }
+  .home-wrap{ text-align:center; padding:24px 0 10px; }
+  .home-brand{ font-family:var(--font-serif); font-size:46px; font-weight:600; color:var(--ink); letter-spacing:.14em; line-height:1.1; }
+  .home-tagline{ font-family:var(--font-mono); font-size:12px; color:var(--sage); letter-spacing:.32em; text-transform:uppercase; margin-top:12px; }
+  .home-date{ font-size:15px; color:var(--coffee); letter-spacing:.16em; margin-top:30px; }
+  .home-date .season{ color:var(--season); }
+  .home-hr{ width:44px; height:1px; background:var(--line); margin:26px auto; }
+  .home-main{ font-family:var(--font-serif); font-size:26px; color:var(--ink); font-weight:500; letter-spacing:.08em; }
+  .home-sub{ font-family:var(--font-serif); font-size:15px; color:var(--ink-soft); font-weight:300; margin-top:14px; line-height:2; }
+  .home-quote{
+    font-family:var(--font-serif); font-size:17px; color:var(--coffee-deep); font-style:italic;
+    margin:32px auto 8px; max-width:400px; line-height:2; min-height:2em;
+  }
+  .home-quote::before{ content:"「"; opacity:.5; }
+  .home-quote::after{ content:"」"; opacity:.5; }
+
+  .home-status{ font-family:var(--font-sans); font-size:13px; color:var(--ink-faint); margin:8px 0 30px; line-height:1.9; }
+
+  .home-cards{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:8px; }
+  .book-card{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:6px 12px 8px 14px;
+    padding:16px 20px; min-width:130px; cursor:pointer; box-shadow:var(--shadow-soft);
+    transition:.25s; text-align:left; position:relative;
+  }
+  .book-card:nth-child(2){ transform:rotate(-1deg); }
+  .book-card:nth-child(3){ transform:rotate(1deg); }
+  .book-card:hover{ transform:translateY(-4px) rotate(0); box-shadow:var(--shadow); }
+  .book-card .bc-en{ font-family:var(--font-mono); font-size:10px; color:var(--sage); letter-spacing:.2em; text-transform:uppercase; }
+  .book-card .bc-zh{ font-family:var(--font-serif); font-size:17px; color:var(--ink); margin-top:4px; font-weight:500; }
+
+  .onthisday{
+    margin-top:28px; padding:18px 22px; background:var(--paper-warm);
+    border:1px dashed var(--line); border-radius:14px; text-align:left; cursor:pointer; display:none;
+  }
+  .onthisday .otd-label{ font-family:var(--font-mono); font-size:11px; color:var(--rose); letter-spacing:.2em; text-transform:uppercase; }
+  .otd-text{ font-family:var(--font-serif); font-size:15px; color:var(--ink-soft); margin-top:8px; line-height:1.9; }
+
+  /* ============================================================ TODAY ============================================================ */
+  .today-hero{ text-align:center; padding:10px 0 24px; }
+  .today-date{ font-size:15px; color:var(--coffee); letter-spacing:.16em; }
+  .today-quote{ font-family:var(--font-serif); font-size:19px; color:var(--ink); font-weight:400; max-width:420px; margin:16px auto 0; line-height:2.1; }
+
+  .mood-row{ display:flex; justify-content:center; gap:10px; margin:6px 0 4px; flex-wrap:wrap; }
+  .mood{
+    width:50px; height:50px; border-radius:50%; display:grid; place-items:center; font-size:23px;
+    background:var(--paper-warm); cursor:pointer; border:2px solid transparent; transition:.25s; box-shadow:var(--shadow-soft);
+  }
+  .mood:hover{ transform:translateY(-3px); }
+  .mood.sel{ border-color:var(--season); background:#fff; transform:translateY(-3px) scale(1.05); }
+
+  /* 能量值 */
+  .energy-row{ display:flex; justify-content:center; gap:10px; margin:6px 0; }
+  .energy-dot{
+    width:26px; height:26px; border-radius:50%; border:2px solid var(--sage-soft);
+    cursor:pointer; transition:.2s; background:transparent;
+  }
+  .energy-dot.on{ background:var(--season); border-color:var(--season); }
+  .energy-dot:active{ transform:scale(.85); }
+
+  /* 三件事 */
+  .three-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:14px; }
+  .three-head .n{ font-family:var(--font-serif); font-size:18px; color:var(--coffee-deep); font-weight:600; letter-spacing:.04em; }
+  .todo{ display:flex; align-items:center; gap:14px; padding:13px 4px; border-bottom:1px dashed var(--line); }
+  .todo:last-child{ border-bottom:none; }
+  .dot{ width:22px; height:22px; border-radius:50%; border:2px solid var(--sage-soft); flex-shrink:0; cursor:pointer; transition:.25s; position:relative; }
+  .dot.done{ background:var(--season); border-color:var(--season); }
+  .dot.done::after{ content:""; position:absolute; inset:4px 5px; border-left:2px solid #fff; border-bottom:2px solid #fff; transform:rotate(-45deg) translateY(-1px); }
+  .todo .txt{ font-size:16px; color:var(--ink); flex:1; font-family:var(--font-serif); }
+  .todo .txt[contenteditable]{ outline:none; border-bottom:1px solid transparent; }
+  .todo .txt[contenteditable]:focus{ border-bottom-color:var(--season); }
+  .todo.done .txt{ color:var(--ink-faint); text-decoration:line-through; text-decoration-color:var(--sage-soft); }
+  .todo .txt:empty::before{ content:"寫下一件小事…"; color:var(--ink-faint); }
+
+  .quick-note{
+    margin-top:6px; background:var(--paper-warm); border:1px solid var(--line); border-radius:14px;
+    padding:16px 18px; font-family:var(--font-serif); font-size:16px; color:var(--ink);
+    width:100%; resize:none; min-height:70px; line-height:2;
+  }
+  .quick-note:focus{ outline:none; border-color:var(--season); background:#fff; }
+
+  /* 不做清單 / 生活選項 */
+  .soft-list-item{ display:flex; align-items:center; gap:10px; padding:9px 2px; }
+  .soft-list-item .txt{ flex:1; font-family:var(--font-serif); font-size:15px; color:var(--ink); }
+  .soft-list-item .rm{ color:var(--ink-faint); cursor:pointer; font-size:13px; opacity:.5; }
+  .soft-list-item:hover .rm{ opacity:1; }
+
+  .life-checks{ display:flex; flex-wrap:wrap; gap:9px; margin-top:6px; }
+  .life-chip{
+    font-family:var(--font-sans); font-size:13px; padding:8px 14px; border-radius:18px;
+    background:var(--paper-warm); color:var(--ink-soft); border:1px solid var(--line);
+    cursor:pointer; transition:.2s; user-select:none; letter-spacing:.03em;
+  }
+  .life-chip.on{ background:var(--season-soft); color:#3c452e; border-color:transparent; }
+  .life-chip .x{ opacity:0; margin-left:4px; color:var(--ink-faint); }
+  .life-chip:hover .x{ opacity:.6; }
+
+  .today-close{ text-align:center; margin-top:28px; font-family:var(--font-serif); font-size:16px; color:var(--sage); font-style:italic; }
+
+  .becoming-input{
+    width:100%; font-family:var(--font-serif); font-size:17px; color:var(--ink);
+    background:transparent; border:none; border-bottom:1px solid var(--line);
+    padding:8px 2px; line-height:1.9;
+  }
+  .becoming-input:focus{ outline:none; border-bottom-color:var(--season); }
+
+  /* ============================================================ PLANNER ============================================================ */
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .cal-title{ font-size:18px; color:var(--coffee); letter-spacing:.1em; }
+  .week-strip{ display:grid; grid-template-columns:repeat(7,1fr); gap:9px; }
+  .day-col{
+    background:var(--paper-card); border-radius:12px; padding:11px 7px; min-height:140px;
+    box-shadow:var(--shadow-soft); border:1px solid rgba(221,209,190,.6);
+    display:flex; flex-direction:column; gap:6px; cursor:pointer; transition:.2s;
+  }
+  .day-col:active{ transform:scale(.97); }
+  .day-col.today{ background:#fff; box-shadow:var(--shadow); border-color:var(--season); }
+  .day-name{ font-size:13px; color:var(--coffee); text-align:center; letter-spacing:.05em; }
+  .day-num{ font-family:var(--font-mono); text-align:center; font-size:12px; color:var(--ink-faint); margin-top:-2px; }
+  .chip{ font-family:var(--font-sans); font-size:11.5px; padding:5px 8px; border-radius:8px; line-height:1.4; background:var(--paper-warm); color:var(--ink-soft); word-break:break-word; }
+  .chip.sage{ background:var(--season-soft); color:#40492f; }
+  .chip.rose{ background:var(--rose-soft); color:#7a5450; }
+  .chip.coffee{ background:var(--paper-deep); color:var(--coffee-deep); }
+  .day-empty{ color:var(--ink-faint); font-size:11px; text-align:center; margin:auto 0; opacity:.6; }
+
+  .wish{ display:flex; align-items:flex-start; gap:12px; padding:11px 2px; border-bottom:1px dashed var(--line); }
+  .wish:last-child{ border-bottom:none; }
+  .wish .mark{ font-size:16px; color:var(--rose); flex-shrink:0; cursor:pointer; user-select:none; }
+  .wish.done .mark{ color:var(--sage); }
+  .wish .w-txt{ font-family:var(--font-serif); font-size:15px; color:var(--ink); flex:1; }
+  .wish.done .w-txt{ color:var(--ink-faint); text-decoration:line-through; text-decoration-color:var(--sage-soft); }
+  .wish .w-tag{ font-family:var(--font-sans); font-size:11px; color:var(--sage); margin-left:6px; }
+  .wish .w-del{ opacity:0; transition:.2s; cursor:pointer; color:var(--ink-faint); font-size:13px; }
+  .wish:hover .w-del{ opacity:1; }
+
+  .feel-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .feel-chip{
+    font-family:var(--font-sans); font-size:13px; padding:7px 14px; border-radius:18px;
+    background:var(--paper-warm); color:var(--ink-soft); border:1px solid var(--line); cursor:pointer; transition:.2s;
+  }
+  .feel-chip.on{ background:var(--rose-soft); color:#7a5450; border-color:transparent; }
+
+  /* ============================================================ JOURNAL ============================================================ */
+  .view-tabs{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .view-tab{
+    font-family:var(--font-sans); font-size:13px; padding:8px 16px; border-radius:18px;
+    background:var(--paper-card); color:var(--ink-soft); border:1px solid var(--line); cursor:pointer; transition:.2s;
+  }
+  .view-tab.on{ background:var(--season-soft); color:#3c452e; border-color:transparent; }
+
+  .journal-write{
+    background:repeating-linear-gradient(var(--paper-card) 0 37px, var(--line) 37px 38px);
+    border-radius:16px; padding:20px 24px 24px; box-shadow:var(--shadow);
+    border:1px solid rgba(221,209,190,.6); position:relative;
+  }
+  .jw-label{ font-family:var(--font-mono); font-size:13px; color:var(--sage); letter-spacing:.1em; margin-bottom:10px; }
+  .journal-title-input{
+    width:100%; font-family:var(--font-serif); font-size:19px; font-weight:600; color:var(--ink);
+    background:transparent; border:none; margin-bottom:6px; line-height:38px;
+  }
+  .journal-title-input:focus{ outline:none; }
+  .journal-title-input::placeholder{ color:var(--ink-faint); font-weight:400; }
+  .journal-write textarea{
+    width:100%; border:none; background:transparent; resize:none;
+    font-family:var(--font-serif); font-size:16px; color:var(--ink); line-height:38px; min-height:180px;
+  }
+  .journal-write textarea:focus{ outline:none; }
+
+  /* 照片 UI（第一階段 UI，第二階段接 IndexedDB） */
+  .photo-slot{
+    margin-top:16px; border:1px dashed var(--line); border-radius:14px; overflow:hidden;
+    background:var(--paper-warm); position:relative;
+  }
+  .photo-empty{ padding:26px; text-align:center; color:var(--ink-faint); font-family:var(--font-sans); font-size:14px; cursor:pointer; }
+  .photo-preview{ display:none; }
+  .photo-preview img{ width:100%; display:block; max-height:280px; object-fit:cover; }
+  .photo-bar{ display:flex; align-items:center; justify-content:space-between; padding:8px 12px; font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); }
+
+  .jcard{ background:var(--paper-card); border-radius:16px; padding:20px 22px; box-shadow:var(--shadow-soft); border:1px solid rgba(221,209,190,.6); position:relative; }
+  .jcard + .jcard{ margin-top:14px; }
+  .jcard-head{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .jcard-date{ font-size:13px; color:var(--coffee); letter-spacing:.06em; }
+  .jcard-mood{ font-size:18px; }
+  .jcard-title{ font-family:var(--font-serif); font-size:17px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+  .jcard-body{ font-family:var(--font-serif); font-size:15px; color:var(--ink-soft); line-height:1.95; font-weight:300; white-space:pre-wrap; }
+  .jcard-tags{ margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+  .jcard-actions{ margin-top:14px; display:flex; gap:8px; }
+  .timeline-label{ font-family:var(--font-serif); font-size:17px; color:var(--coffee-deep); font-weight:600; margin:26px 0 14px; letter-spacing:.05em; }
+
+  .tag-pill{ font-size:12px; padding:4px 11px; border-radius:12px; background:var(--paper-warm); color:var(--sage); border:1px solid var(--line); cursor:pointer; letter-spacing:.03em; }
+  .tag-pill.on{ background:var(--season-soft); color:#3c452e; border-color:transparent; }
+
+  .search-bar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+  .search-input{ flex:1; min-width:160px; }
+  .tag-filter{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+
+  /* 卡片模式網格 */
+  .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; }
+
+  /* 月曆 */
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .cal-wk{ text-align:center; font-size:11px; color:var(--ink-faint); padding:4px 0; letter-spacing:.05em; }
+  .cal-cell{
+    aspect-ratio:1; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    cursor:pointer; background:var(--paper-warm); color:var(--ink-soft); font-family:var(--font-mono); font-size:13px;
+    border:1px solid transparent; transition:.15s; position:relative;
+  }
+  .cal-cell.blank{ background:transparent; cursor:default; }
+  .cal-cell:not(.blank):active{ transform:scale(.92); }
+  .cal-cell.today{ background:#fff; border-color:var(--season); color:var(--coffee-deep); font-weight:500; }
+  .cal-cell.sel{ background:var(--season-soft); color:#3c452e; }
+  .cal-cell .c-dot{ width:5px; height:5px; border-radius:50%; background:var(--rose); }
+  .cal-cell.sel .c-dot{ background:#7a5450; }
+
+  /* ============================================================ 生活書櫃 ============================================================ */
+  .shelf-years{ display:flex; flex-wrap:wrap; gap:18px; }
+  .shelf-book{
+    width:130px; height:180px; border-radius:6px 10px 10px 6px; cursor:pointer;
+    background:linear-gradient(135deg,var(--paper-deep),var(--paper-warm));
+    border:1px solid var(--line); box-shadow:var(--shadow); position:relative;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    transition:.25s;
+  }
+  .shelf-book::before{ content:""; position:absolute; left:8px; top:0; bottom:0; width:2px; background:rgba(155,133,112,.25); }
+  .shelf-book:hover{ transform:translateY(-6px); }
+  .shelf-year{ font-size:26px; color:var(--coffee-deep); letter-spacing:.08em; }
+  .shelf-meta{ font-family:var(--font-sans); font-size:11px; color:var(--ink-faint); }
+  .shelf-months{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .month-cover{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:10px; padding:16px 12px;
+    cursor:pointer; box-shadow:var(--shadow-soft); transition:.2s; min-height:96px;
+  }
+  .month-cover:hover{ transform:translateY(-3px); }
+  .month-cover .mc-m{ font-family:var(--font-mono); font-size:14px; color:var(--coffee); letter-spacing:.06em; }
+  .month-cover .mc-count{ font-family:var(--font-sans); font-size:11px; color:var(--ink-faint); margin-top:6px; }
+  .month-cover .mc-mood{ font-size:18px; margin-top:6px; }
+  .month-cover .mc-quote{ font-family:var(--font-serif); font-size:12px; color:var(--ink-soft); margin-top:6px; line-height:1.6; }
+
+  /* ============================================================ CREATE ============================================================ */
+  .garden{ column-count:2; column-gap:16px; }
+  @media (max-width:560px){ .garden{ column-count:1; } }
+  .scrap{
+    break-inside:avoid; margin-bottom:16px; background:var(--paper-card); border-radius:12px;
+    padding:18px 20px; box-shadow:var(--shadow-soft); border:1px solid rgba(221,209,190,.6); position:relative;
+  }
+  .scrap.seed{ border-left:3px solid var(--sage-soft); }
+  .scrap.sprout{ border-left:3px solid var(--season); }
+  .scrap.ready{ border-left:3px solid var(--coffee); }
+  .scrap.published{ opacity:.7; border-left:3px solid var(--rose); }
+  .scrap.extend{ border-left:3px solid var(--paper-deep); }
+  .scrap.rest{ opacity:.55; border-left:3px solid var(--line); }
+  .scrap .s-state{ font-family:var(--font-sans); font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
+  .scrap .s-title{ font-family:var(--font-serif); font-size:17px; font-weight:600; color:var(--ink); line-height:1.5; }
+  .scrap .s-txt{ font-family:var(--font-serif); font-size:14px; color:var(--ink-soft); font-weight:300; line-height:1.8; white-space:pre-wrap; margin-top:6px; }
+  .scrap .s-meta{ font-size:11px; color:var(--ink-faint); margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .scrap .s-actions{ margin-top:12px; display:flex; gap:6px; flex-wrap:wrap; }
+  .collection{ display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:18px; background:var(--paper-warm); color:var(--coffee-deep); font-family:var(--font-sans); font-size:13px; margin:4px 6px 4px 0; box-shadow:var(--shadow-soft); cursor:pointer; border:1px solid transparent; }
+  .collection.on{ border-color:var(--season); background:#fff; }
+
+  /* ============================================================ REFLECT ============================================================ */
+  .reflect-stat{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+  .stat-card{ flex:1; min-width:110px; background:var(--paper-card); border-radius:16px; padding:20px; box-shadow:var(--shadow-soft); border:1px solid rgba(221,209,190,.6); text-align:center; }
+  .stat-num{ font-size:38px; color:var(--season); line-height:1; letter-spacing:.02em; }
+  .stat-lbl{ font-family:var(--font-sans); font-size:12px; color:var(--ink-soft); margin-top:10px; line-height:1.6; }
+
+  .mood-month{ display:flex; gap:6px; align-items:flex-end; height:76px; margin:14px 0 6px; }
+  .mood-bar{ flex:1; border-radius:8px 8px 4px 4px; background:var(--season-soft); opacity:.85; min-height:6px; }
+
+  .summary-box{ background:var(--paper-warm); border:1px dashed var(--line); border-radius:14px; padding:18px 20px; margin-top:4px; }
+  .summary-box .sm-text{ font-family:var(--font-serif); font-size:15px; color:var(--ink-soft); line-height:1.95; }
+  .summary-box .sm-note{ font-family:var(--font-sans); font-size:11px; color:var(--ink-faint); margin-top:10px; line-height:1.6; }
+
+  .prompt-box{ background:var(--paper-warm); border-radius:16px; padding:20px 22px; border:1px solid var(--line); position:relative; }
+  .prompt-box + .prompt-box{ margin-top:14px; }
+  .prompt-q{ font-family:var(--font-serif); font-size:16px; color:var(--coffee-deep); font-weight:500; line-height:1.7; margin-bottom:10px; }
+  .prompt-box textarea{ width:100%; border:none; background:transparent; resize:none; font-family:var(--font-serif); font-size:16px; color:var(--ink); line-height:1.95; min-height:70px; }
+  .prompt-box textarea:focus{ outline:none; }
+
+  .highlight-strip{ display:flex; gap:12px; overflow-x:auto; padding:4px 2px 10px; }
+  .highlight-strip::-webkit-scrollbar{ height:0; }
+  .hl{ flex-shrink:0; width:130px; background:var(--paper-card); border-radius:12px; padding:14px; box-shadow:var(--shadow-soft); border:1px solid rgba(221,209,190,.6); }
+  .hl-d{ font-size:13px; color:var(--rose); letter-spacing:.06em; }
+  .hl-t{ font-family:var(--font-serif); font-size:13px; color:var(--ink-soft); margin-top:6px; line-height:1.7; }
+
+  .reflect-mode{ display:flex; gap:8px; margin-bottom:20px; }
+
+  /* ============================================================ 頂部列 ============================================================ */
+  .topbar{ display:flex; align-items:center; gap:10px; justify-content:space-between; padding:9px 30px; flex-shrink:0; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#FBF7EF,#F3EDE2); }
+  .topbar-brand{ font-family:var(--font-serif); font-size:15px; color:var(--coffee-deep); font-weight:600; letter-spacing:.1em; cursor:pointer; }
+  .save-status{ font-size:12px; color:var(--sage); display:flex; align-items:center; gap:6px; letter-spacing:.06em; }
+  .save-status .pulse{ width:7px; height:7px; border-radius:50%; background:var(--sage-soft); }
+  .save-status.saving .pulse{ animation:blink .8s infinite; background:var(--rose); }
+  @keyframes blink{ 50%{ opacity:.3; } }
+  .topbar-actions{ display:flex; gap:8px; }
+
+  /* Modal */
+  .overlay{ position:fixed; inset:0; background:rgba(74,64,52,.34); display:none; align-items:center; justify-content:center; z-index:100; padding:24px; backdrop-filter:blur(3px); }
+  .overlay.show{ display:flex; animation:pagein .25s ease; }
+  .modal{ background:var(--paper-card); border-radius:18px; box-shadow:var(--shadow); padding:26px 26px 22px; max-width:440px; width:100%; position:relative; border:1px solid var(--line); max-height:86vh; overflow-y:auto; }
+  .modal h3{ font-family:var(--font-serif); font-size:20px; color:var(--coffee-deep); font-weight:600; margin-bottom:8px; letter-spacing:.04em; }
+  .modal p{ font-family:var(--font-sans); color:var(--ink-soft); font-size:14px; margin-bottom:16px; line-height:1.8; }
+  .modal .field{ margin-bottom:12px; }
+  .modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:8px; flex-wrap:wrap; }
+
+  .toast{ position:fixed; left:50%; bottom:88px; transform:translateX(-50%) translateY(20px); background:var(--coffee-deep); color:#FBF7EF; padding:11px 22px; border-radius:20px; font-family:var(--font-sans); font-size:14px; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.35s; z-index:200; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .empty-note{ text-align:center; color:var(--ink-faint); font-family:var(--font-serif); font-style:italic; padding:30px 10px; font-size:15px; }
+
+  /* ============================================================ 橫式跨頁 ============================================================ */
+  @media (min-width:820px) and (orientation:landscape){
+    .app{ flex-direction:row; }
+    .nav{ display:none; }
+    .side{ display:flex; flex-direction:column; flex:1; min-width:0; }
+    .spine{
+      display:flex; flex-direction:column; align-items:center; gap:4px; width:98px; flex-shrink:0;
+      background:linear-gradient(180deg,#EFE7D9,#E7DBC9); border-right:1px solid var(--line);
+      box-shadow:4px 0 18px rgba(120,100,75,.07); padding:24px 0;
+    }
+    .spine-brand{ font-family:var(--font-serif); font-size:17px; color:var(--coffee); writing-mode:vertical-rl; margin-bottom:18px; letter-spacing:.14em; font-weight:600; cursor:pointer; }
+    .spine-item{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:11px 8px; border:none; background:none; cursor:pointer; color:var(--ink-faint); transition:.3s; border-radius:14px; width:74px; }
+    .spine-item .ico{ width:23px; height:23px; stroke:currentColor; fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+    .spine-item .lbl{ font-size:11px; letter-spacing:.06em; }
+    .spine-item.on{ color:var(--season); }
+    .spine-item.on .lbl{ color:var(--coffee-deep); font-weight:500; }
+    .spine-item:active{ transform:scale(.92); }
+
+    .page{ max-width:1060px; padding:44px 54px 60px; }
+    #home{ max-width:720px; }
+    .spread{ display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; position:relative; }
+    .spread::before{ content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:linear-gradient(180deg,transparent,var(--line),transparent); }
+  }
+  @media (max-width:819px), (orientation:portrait){
+    .spread{ display:block; }
+    .spread > * + *{ margin-top:18px; }
+    .side{ display:contents; }
+  }
+
+  @media (max-width:520px){
+    .page{ padding:28px 20px 54px; }
+    .topbar{ padding:9px 18px; }
+    .week-strip{ gap:5px; }
+    .day-col{ padding:8px 4px; min-height:118px; }
+    .home-brand{ font-size:38px; }
+    .page-title{ font-size:25px; }
+    .shelf-months{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width:400px){ .week-strip{ grid-template-columns:repeat(4,1fr); } }
 </style>
 </head>
 <body>
+<div class="app">
 
-<div id="app">
+  <!-- 橫式書脊導覽 -->
+  <nav class="spine">
+    <div class="spine-brand" data-go="home">18 Living</div>
+    <button class="spine-item" data-go="today">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M12 3v2M4.2 5.6l1.4 1.4M3 12h2M21 12h-2M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+      <span class="lbl">今日</span>
+    </button>
+    <button class="spine-item" data-go="planner">
+      <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg>
+      <span class="lbl">生活</span>
+    </button>
+    <button class="spine-item" data-go="journal">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg>
+      <span class="lbl">片段</span>
+    </button>
+    <button class="spine-item" data-go="create">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M12 20s-6-4-6-9a3 3 0 016-1 3 3 0 016 1c0 5-6 9-6 9z"/></svg>
+      <span class="lbl">靈感</span>
+    </button>
+    <button class="spine-item" data-go="reflect">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3-6.7M21 4v5h-5"/></svg>
+      <span class="lbl">回望</span>
+    </button>
+  </nav>
 
-  <!-- ============ 封面首頁 ============ -->
-  <section id="cover-screen" class="screen active">
-    <div class="cover-inner">
-      <div class="cover-mark">18</div>
-      <h1 class="cover-title">18 Living</h1>
-      <p class="cover-sub">A Gentle Journal</p>
-      <p class="cover-tagline">把一天放下，也把自己接住。</p>
-      <div class="cover-quote-box">
-        <p class="cover-quote" id="cover-quote">今天不用完美，願意記錄下來，就已經很好了。</p>
+  <div class="side">
+    <!-- 頂部狀態列 -->
+    <div class="topbar">
+      <div class="topbar-brand" data-go="home">18 Living</div>
+      <div class="save-status" id="saveStatus"><span class="pulse"></span><span id="saveText">尚未儲存</span></div>
+      <div class="topbar-actions">
+        <button class="btn tiny" id="btnExport">匯出</button>
+        <button class="btn tiny" id="btnImport">匯入</button>
       </div>
-      <!-- 使用 <a href="#main-app"> 而非單純 <button>：
-           即使 JavaScript 因任何原因未能執行，點擊仍會透過瀏覽器原生的錨點跳轉，
-           搭配下方 CSS 的 :target 規則，讓畫面依然能切換到主頁面，作為雙重保險。
-           同時保留 onclick 內嵌屬性與外部 addEventListener 兩種綁定方式，增加可靠度。 -->
-      <a class="btn-open" id="open-diary-btn" href="#main-app"
-         onclick="try{document.getElementById('cover-screen').classList.remove('active');document.getElementById('main-app').classList.add('active');if(typeof switchView==='function'){switchView('today');}}catch(e){}">翻開手帳</a>
-      <p class="cover-hint">資料只存在這台裝置的瀏覽器裡，記得偶爾備份 🤍</p>
     </div>
-  </section>
 
-  <!-- ============ 主體 App ============ -->
-  <div id="main-app" class="screen">
+    <div class="stage" id="stage">
 
-    <nav class="tab-strip">
-      <div class="tab-brand">18 Living<small>GENTLE JOURNAL</small></div>
-      <button class="tab active" data-view="today"><span class="tab-icon">📖</span>今日</button>
-      <button class="tab" data-view="calendar"><span class="tab-icon">🗓️</span>月曆</button>
-      <button class="tab" data-view="shelf"><span class="tab-icon">📚</span>書櫃</button>
-      <button class="tab" data-view="search"><span class="tab-icon">🔍</span>搜尋</button>
-      <button class="tab" data-view="settings"><span class="tab-icon">🤍</span>備份</button>
+      <!-- ============ HOME 首頁 ============ -->
+      <section class="page active" id="home">
+        <div class="home-wrap">
+          <div class="home-brand">18 Living</div>
+          <div class="home-tagline">A Gentle Life Companion</div>
+          <div class="home-date" id="homeDate">—</div>
+          <div class="home-hr"></div>
+          <div class="home-main">今天，想怎麼生活？</div>
+          <div class="home-sub">今天不是來完成更多事情。<br>只是來陪自己待一下。</div>
+          <div class="home-quote" id="homeQuote">—</div>
+          <div class="home-status" id="homeStatus">—</div>
+
+          <div class="home-cards">
+            <div class="book-card" data-go="today"><div class="bc-en">Today</div><div class="bc-zh">翻開今天</div></div>
+            <div class="book-card" data-go="journal"><div class="bc-en">Journal</div><div class="bc-zh">寫一段生活</div></div>
+            <div class="book-card" data-go="create"><div class="bc-en">Create</div><div class="bc-zh">收下一個靈感</div></div>
+            <div class="book-card" data-go="reflect"><div class="bc-en">Reflect</div><div class="bc-zh">回望這個月</div></div>
+          </div>
+
+          <div class="onthisday" id="homeOnThisDay">
+            <div class="otd-label">On This Day</div>
+            <div class="otd-text" id="homeOtdText"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TODAY 今日留白 ============ -->
+      <section class="page" id="today">
+        <div class="today-hero">
+          <div class="eyebrow">Today</div>
+          <div class="page-title" style="margin-bottom:6px;">今日留白</div>
+          <div class="today-date" id="todayDate">—</div>
+          <p class="today-quote" id="todayQuote">先深呼吸，再看看今天想怎麼過。</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">今天的心情</div>
+          <div class="mood-row" id="moodRow">
+            <div class="mood" data-mood="🌤️">🌤️</div>
+            <div class="mood" data-mood="☁️">☁️</div>
+            <div class="mood" data-mood="🌧️">🌧️</div>
+            <div class="mood" data-mood="🌙">🌙</div>
+            <div class="mood" data-mood="🌱">🌱</div>
+          </div>
+          <div class="card-title" style="margin-top:18px;">今天的能量</div>
+          <div class="card-note">今天有多少力氣，就過多少生活。</div>
+          <div class="energy-row" id="energyRow"></div>
+        </div>
+
+        <div class="card">
+          <div class="three-head"><span class="n">今天想溫柔完成的三件事</span></div>
+          <div id="todayTodos"></div>
+          <div class="quiet" style="text-align:center;margin-top:12px;">只留三格，其餘的就留白吧。</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">今天，我不勉強自己……</div>
+          <div class="card-note">寫一到三件，今天允許自己放下的事。</div>
+          <div id="notForce"></div>
+          <div class="row-actions" style="margin-top:10px;">
+            <input class="field" id="notForceInput" placeholder="例：不因為晚起而責怪自己" style="flex:1;">
+            <button class="btn tiny sage" id="btnAddNotForce">加入</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">今天，有好好生活嗎？</div>
+          <div class="card-note">不是打卡，只是提醒自己，生活也需要被照顧。</div>
+          <div class="life-checks" id="lifeChecks"></div>
+          <div class="row-actions" style="margin-top:12px;">
+            <input class="field" id="lifeAddInput" placeholder="新增一個生活項目…" style="flex:1;">
+            <button class="btn tiny" id="btnAddLifeItem">新增</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">隨手記一筆</div>
+          <textarea class="quick-note" id="quickNote" placeholder="想到什麼就寫下來，它會安靜地收進今天的生活片段裡…"></textarea>
+          <div class="row-actions" style="margin-top:12px;justify-content:flex-end;">
+            <button class="btn tiny sage" id="btnQuickToJournal">收進今天的片段</button>
+          </div>
+        </div>
+
+        <details class="expander card">
+          <summary>展開今日生活片段</summary>
+          <div style="margin-top:16px;" id="todayFragments"></div>
+        </details>
+
+        <div class="card">
+          <div class="card-title">Becoming</div>
+          <div class="card-note">今天，我更靠近了哪一種自己？</div>
+          <input class="becoming-input" id="becomingInput" placeholder="今天，我成為了一個＿＿＿＿的人。">
+        </div>
+
+        <div class="today-close">今天，也在好好過生活。</div>
+      </section>
+
+      <!-- ============ PLANNER 慢慢生活 ============ -->
+      <section class="page" id="planner">
+        <div class="page-head">
+          <div class="eyebrow">Planner</div>
+          <h1 class="page-title">慢慢生活</h1>
+          <p class="page-sub">安排，但也留一點空白給自己。</p>
+        </div>
+
+        <div class="view-tabs" id="plannerTabs">
+          <div class="view-tab on" data-ptab="week">這一週</div>
+          <div class="view-tab" data-ptab="month">這個月</div>
+        </div>
+
+        <!-- 週視圖 -->
+        <div id="planWeek">
+          <div class="card" style="padding:20px 18px;">
+            <div class="cal-head" style="margin-bottom:12px;">
+              <button class="btn tiny ghost" id="weekPrev">← 上週</button>
+              <span class="cal-title" id="weekLabel"></span>
+              <button class="btn tiny ghost" id="weekNext">下週 →</button>
+            </div>
+            <div class="week-strip" id="weekStrip"></div>
+            <p class="quiet" style="text-align:center;margin-top:12px;">輕點某一天，安排一件小事。</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title">這週想保留的生活方向</div>
+            <div class="card-note">不需要全部填寫，寫想寫的就好。</div>
+            <div id="weekDirections"></div>
+          </div>
+
+          <div class="card">
+            <div class="three-head"><span class="n" style="color:var(--sage);">想做的事</span><span class="quiet">（永遠不打勾也沒關係）</span></div>
+            <div id="wishList"></div>
+            <div class="row-actions" style="margin-top:14px;">
+              <input class="field" id="wishInput" placeholder="想做的事…（可加 #標籤）" style="flex:1;">
+              <button class="btn sage" id="btnAddWish">加入</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 月視圖：每月生活設計 -->
+        <div id="planMonth" style="display:none;">
+          <div class="cal-head" style="margin-bottom:18px;">
+            <button class="btn tiny ghost" id="monthDesignPrev">←</button>
+            <span class="cal-title" id="monthDesignLabel"></span>
+            <button class="btn tiny ghost" id="monthDesignNext">→</button>
+          </div>
+
+          <div class="card">
+            <div class="field-group">
+              <label class="field-label">本月關鍵字</label>
+              <input class="field" id="mdKeyword" placeholder="一個詞，定調這個月">
+            </div>
+            <div class="field-group">
+              <label class="field-label">這個月，我想過怎樣的生活？</label>
+              <textarea class="field" id="mdLife" placeholder="慢慢寫…" style="min-height:70px;resize:none;"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">這個月，我希望自己有什麼感受？</label>
+              <div class="feel-chips" id="mdFeelChips"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">本月三個重要方向</div>
+            <div class="card-note">工作與品牌、創作、身體、關係、財務、學習、休息——挑重要的寫。</div>
+            <div id="mdDirections"></div>
+            <div class="row-actions" style="margin-top:10px;">
+              <input class="field" id="mdDirInput" placeholder="例：讓 18 SPA 的節奏穩一點" style="flex:1;">
+              <button class="btn tiny sage" id="btnAddMdDir">加入</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">本月期待清單</div>
+            <div id="mdWishList"></div>
+            <div class="row-actions" style="margin-top:10px;">
+              <input class="field" id="mdWishInput" placeholder="這個月想期待的事…" style="flex:1;">
+              <button class="btn tiny" id="btnAddMdWish">加入</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">本月不做清單</div>
+            <div id="mdNotList"></div>
+            <div class="row-actions" style="margin-top:10px;">
+              <input class="field" id="mdNotInput" placeholder="這個月不勉強自己的事…" style="flex:1;">
+              <button class="btn tiny" id="btnAddMdNot">加入</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticker sage" style="position:relative;display:inline-block;margin-top:18px;">這週，鬆一點</div>
+      </section>
+
+      <!-- ============ JOURNAL 生活片段 ============ -->
+      <section class="page" id="journal">
+        <div class="page-head">
+          <div class="eyebrow">Journal</div>
+          <h1 class="page-title">生活片段</h1>
+          <p class="page-sub">今天過得怎麼樣？寫下來就好。</p>
+        </div>
+
+        <div class="view-tabs" id="journalViewTabs">
+          <div class="view-tab on" data-jview="write">書寫</div>
+          <div class="view-tab" data-jview="timeline">時間軸</div>
+          <div class="view-tab" data-jview="calendar">月曆</div>
+          <div class="view-tab" data-jview="cards">卡片</div>
+          <div class="view-tab" data-jview="shelf">生活書櫃</div>
+        </div>
+
+        <!-- 書寫 -->
+        <div class="jview" id="jviewWrite">
+          <div class="spread">
+            <div>
+              <div class="journal-write">
+                <div class="jw-label" id="jwLabel">今天</div>
+                <input class="journal-title-input" id="journalTitle" placeholder="給這一天一個小標題（可不填）">
+                <textarea id="journalText" placeholder="今天的天空很淡，像被水洗過…"></textarea>
+              </div>
+
+              <!-- 照片 UI（第一階段） -->
+              <div class="photo-slot">
+                <div class="photo-empty" id="photoEmpty">＋ 加入今日代表照片</div>
+                <div class="photo-preview" id="photoPreview">
+                  <img id="photoImg" alt="今日照片">
+                  <div class="photo-bar"><span id="photoSize">—</span><button class="btn tiny ghost danger" id="photoDelete">移除</button></div>
+                </div>
+              </div>
+              <input type="file" id="photoFile" accept="image/*" style="display:none;">
+            </div>
+
+            <div>
+              <div class="card" style="padding:18px 20px;">
+                <div class="field-group">
+                  <label class="field-label">心情</label>
+                  <div id="journalMood" class="row-actions"></div>
+                </div>
+                <div class="field-group">
+                  <label class="field-label">生活標籤</label>
+                  <div class="tag-filter" id="journalPresetTags" style="margin-bottom:8px;"></div>
+                  <input class="field" id="journalTags" placeholder="標籤，用空格分隔（例：散步 平靜）">
+                </div>
+                <div class="row-actions" style="justify-content:flex-end;">
+                  <button class="btn tiny ghost" id="btnJournalNewDay">寫別天</button>
+                  <button class="btn sage" id="btnSaveJournal">存下這一天</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 時間軸 -->
+        <div class="jview" id="jviewTimeline" style="display:none;">
+          <div class="search-bar">
+            <input class="field search-input" id="journalSearch" placeholder="搜尋片段裡的字…">
+            <button class="btn ghost tiny" id="journalSearchClear">清除</button>
+          </div>
+          <div class="tag-filter" id="journalTagFilter"></div>
+          <div id="journalTimeline"></div>
+        </div>
+
+        <!-- 月曆 -->
+        <div class="jview" id="jviewCalendar" style="display:none;">
+          <div class="card">
+            <div class="cal-head">
+              <button class="btn tiny ghost" id="calPrev">←</button>
+              <span class="cal-title" id="calTitle"></span>
+              <button class="btn tiny ghost" id="calNext">→</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <p class="quiet" style="text-align:center;margin-top:10px;">有小圓點的日子，是你留下過字的日子。</p>
+          </div>
+        </div>
+
+        <!-- 卡片 -->
+        <div class="jview" id="jviewCards" style="display:none;">
+          <div class="search-bar">
+            <input class="field search-input" id="journalSearch2" placeholder="搜尋片段裡的字…">
+          </div>
+          <div class="card-grid" id="journalCards"></div>
+        </div>
+
+        <!-- 生活書櫃 -->
+        <div class="jview" id="jviewShelf" style="display:none;">
+          <div id="shelfYears"></div>
+          <div id="shelfMonths" style="display:none;">
+            <div class="row-actions" style="margin-bottom:16px;">
+              <button class="btn tiny ghost" id="shelfBack">← 回到書櫃</button>
+              <span class="cal-title" id="shelfYearLabel"></span>
+            </div>
+            <div class="shelf-months" id="shelfMonthGrid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CREATE 靈感花園 ============ -->
+      <section class="page" id="create">
+        <div class="page-head">
+          <div class="eyebrow">Create</div>
+          <h1 class="page-title">靈感花園</h1>
+          <p class="page-sub">不為了什麼，只是喜歡。</p>
+        </div>
+
+        <div class="card" style="margin-bottom:18px;">
+          <div class="card-title">快速收集</div>
+          <div class="card-note">靈感出現時，先收下來就好，之後再慢慢補。</div>
+          <div class="row-actions">
+            <input class="field" id="scrapInput" placeholder="收集一句話、一個念頭…（可加 #標籤）" style="flex:1;">
+            <button class="btn sage" id="btnAddScrap">收集</button>
+          </div>
+        </div>
+
+        <div class="tag-filter" id="createStateFilter"></div>
+        <div class="tag-filter" id="createCollections"></div>
+
+        <div class="garden" id="garden"></div>
+        <div class="empty-note" id="gardenEmpty" style="display:none;">這座花園還很安靜，等你來種下第一個念頭。</div>
+      </section>
+
+      <!-- ============ REFLECT 回望自己 ============ -->
+      <section class="page" id="reflect">
+        <div class="page-head">
+          <div class="eyebrow">Reflect</div>
+          <h1 class="page-title" id="reflectTitle">回望自己</h1>
+          <p class="page-sub">回頭看看，你正在過的日子。</p>
+        </div>
+
+        <div class="reflect-mode">
+          <div class="view-tab on" data-rmode="month">每月回望</div>
+          <div class="view-tab" data-rmode="week">每週回望</div>
+        </div>
+
+        <!-- 每月 -->
+        <div id="reflectMonthView">
+          <div class="cal-head" style="margin-bottom:18px;">
+            <button class="btn tiny ghost" id="reflectPrev">← 上個月</button>
+            <span class="cal-title" id="reflectMonth"></span>
+            <button class="btn tiny ghost" id="reflectNext">下個月 →</button>
+          </div>
+
+          <div class="spread">
+            <div>
+              <div class="reflect-stat">
+                <div class="stat-card"><div class="stat-num" id="statWritten">0</div><div class="stat-lbl">這個月留下的日子</div></div>
+                <div class="stat-card"><div class="stat-num" id="statBlank">0</div><div class="stat-lbl">安靜留白的日子</div></div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">心情的樣子</div>
+                <div class="mood-month" id="moodMonth"></div>
+                <p class="quiet" id="moodSummary" style="text-align:center;margin-top:8px;"></p>
+              </div>
+
+              <div class="card">
+                <div class="card-title">這個月的文字，悄悄說著</div>
+                <div class="summary-box">
+                  <div class="sm-text" id="localSummary">—</div>
+                  <div class="sm-note">這是依你日記文字做的簡單本機整理，不是完整 AI 分析。</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">本月精選</div>
+                <div class="highlight-strip" id="highlightStrip"></div>
+              </div>
+            </div>
+
+            <div id="reflectMonthQuestions"></div>
+          </div>
+        </div>
+
+        <!-- 每週 -->
+        <div id="reflectWeekView" style="display:none;">
+          <div class="cal-head" style="margin-bottom:18px;">
+            <button class="btn tiny ghost" id="reflectWkPrev">← 上週</button>
+            <span class="cal-title" id="reflectWeekLabel"></span>
+            <button class="btn tiny ghost" id="reflectWkNext">下週 →</button>
+          </div>
+          <div id="reflectWeekQuestions"></div>
+        </div>
+
+        <div class="sticker rose" style="position:relative;display:inline-block;margin-top:20px;">你已經走得很好了</div>
+      </section>
+
+    </div>
+
+    <!-- 底部導覽 -->
+    <nav class="nav">
+      <button class="nav-item" data-go="home">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M4 11l8-6 8 6M6 10v9h12v-9"/></svg>
+        <span class="lbl">首頁</span>
+      </button>
+      <button class="nav-item" data-go="today">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 3v2M4.2 5.6l1.4 1.4M3 12h2M21 12h-2M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        <span class="lbl">今日</span>
+      </button>
+      <button class="nav-item" data-go="planner">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg>
+        <span class="lbl">生活</span>
+      </button>
+      <button class="nav-item" data-go="journal">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg>
+        <span class="lbl">片段</span>
+      </button>
+      <button class="nav-item" data-go="create">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 20s-6-4-6-9a3 3 0 016-1 3 3 0 016 1c0 5-6 9-6 9z"/></svg>
+        <span class="lbl">靈感</span>
+      </button>
+      <button class="nav-item" data-go="reflect">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3-6.7M21 4v5h-5"/></svg>
+        <span class="lbl">回望</span>
+      </button>
     </nav>
-
-    <main class="view-container">
-
-      <!-- ---------- 今日頁面 ---------- -->
-      <section id="view-today" class="view active">
-        <h2 class="view-title">今日這一頁</h2>
-        <p class="view-desc">選擇日期，寫下屬於這一天的心情與故事。</p>
-
-        <div class="journal-page">
-          <div class="page-header-row">
-            <div class="date-field">
-              <label for="date-input">日期</label>
-              <input type="date" id="date-input">
-            </div>
-            <div class="weekday-badge" id="weekday-badge">今天</div>
-            <div class="draft-status" id="draft-status"><span class="dot"></span>尚未輸入</div>
-          </div>
-
-          <div class="field-block">
-            <label>今天的天氣</label>
-            <div class="picker-row" id="weather-picker"></div>
-          </div>
-
-          <div class="field-block">
-            <label>今日心情</label>
-            <div class="picker-row" id="mood-picker"></div>
-          </div>
-
-          <div class="field-block">
-            <input type="text" class="line-input" id="title-input" placeholder="今日標題，例如：一個安靜的下午">
-          </div>
-
-          <div class="field-block">
-            <label>今天的小故事</label>
-            <textarea class="soft-textarea story-textarea" id="story-input" placeholder="今天發生了什麼？想到什麼就寫什麼，不用太有邏輯。"></textarea>
-          </div>
-
-          <div class="field-block">
-            <label>今天最想記住的一件事</label>
-            <textarea class="soft-textarea" id="memorable-input" placeholder="哪怕只是一個小瞬間"></textarea>
-          </div>
-
-          <div class="two-col">
-            <div class="field-block">
-              <label>今天值得感謝的事</label>
-              <textarea class="soft-textarea" id="gratitude-input" placeholder="一件小事也可以"></textarea>
-            </div>
-            <div class="field-block">
-              <label>今天我想對自己說</label>
-              <textarea class="soft-textarea" id="selfmessage-input" placeholder="辛苦了，或是任何一句話"></textarea>
-            </div>
-          </div>
-
-          <div class="field-block">
-            <label>明天想溫柔完成的小事</label>
-            <textarea class="soft-textarea" id="tomorrow-input" placeholder="不必是大事，一件就好"></textarea>
-          </div>
-
-          <div class="field-block">
-            <input type="text" class="line-input" id="summary-input" placeholder="今日小結，用一句話記下今天的重點">
-          </div>
-
-          <div class="field-block">
-            <label>貼紙 <span class="field-hint">點一下加入 / 移除</span></label>
-            <div class="sticker-grid" id="sticker-picker"></div>
-          </div>
-
-          <div class="field-block">
-            <label>照片</label>
-            <div class="photo-zone">
-              <label class="photo-upload-btn">
-                📷 加入照片
-                <input type="file" id="photo-input" class="file-input-hidden" accept="image/*" multiple>
-              </label>
-              <div class="photo-preview-grid" id="photo-preview"></div>
-              <p class="photo-hint">小提醒：iPad 瀏覽器儲存空間有限，建議控制照片數量與大小。</p>
-            </div>
-          </div>
-
-          <div class="gentle-note">今天不用完美，願意記錄下來，就已經很好了。</div>
-
-          <div class="action-row">
-            <button class="btn btn-primary" id="save-entry-btn">💾 儲存這一頁</button>
-            <button class="btn btn-secondary" id="new-entry-btn">✏️ 開新的一頁</button>
-            <button class="btn btn-ghost" id="clear-draft-btn">清空草稿</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ---------- 月曆 ---------- -->
-      <section id="view-calendar" class="view">
-        <h2 class="view-title">月曆</h2>
-        <p class="view-desc">有小圓點的日子，代表那天寫過日記。</p>
-        <div class="calendar-card">
-          <div class="calendar-head">
-            <div class="calendar-nav">
-              <button class="icon-btn" id="cal-prev">‹</button>
-            </div>
-            <div class="calendar-title" id="calendar-title">2026年 1月</div>
-            <div class="calendar-nav">
-              <button class="icon-btn" id="cal-next">›</button>
-            </div>
-          </div>
-          <div class="calendar-grid" id="calendar-grid"></div>
-        </div>
-      </section>
-
-      <!-- ---------- 書櫃 ---------- -->
-      <section id="view-shelf" class="view">
-        <h2 class="view-title">我的書櫃</h2>
-        <p class="view-desc">依年份、月份收著每一段日子。</p>
-        <div id="shelf-container"></div>
-      </section>
-
-      <!-- ---------- 搜尋 ---------- -->
-      <section id="view-search" class="view">
-        <h2 class="view-title">搜尋</h2>
-        <p class="view-desc">找一段被寫下來的時光。</p>
-        <div class="search-bar">
-          <span class="icon">🔍</span>
-          <input type="text" id="search-input" placeholder="搜尋標題或內容...">
-          <button id="search-btn">搜尋</button>
-        </div>
-        <div class="filter-row" id="search-sticker-filter"></div>
-        <div class="card-grid" id="search-results"></div>
-      </section>
-
-      <!-- ---------- 備份 / 設定 ---------- -->
-      <section id="view-settings" class="view">
-        <h2 class="view-title">備份與提醒</h2>
-        <p class="view-desc">好好收著這些日子。</p>
-
-        <div class="settings-card">
-          <h3>匯出日記</h3>
-          <p>把目前所有日記匯出成一份 JSON 檔案，可以存到雲端硬碟或電腦，作為備份。</p>
-          <button class="btn btn-primary" id="export-btn">⬇️ 匯出日記 JSON 檔</button>
-        </div>
-
-        <div class="settings-card">
-          <h3>匯入日記</h3>
-          <p>選擇先前匯出的 JSON 檔，會與目前的日記「合併」，不會整批覆蓋掉現有資料。</p>
-          <label class="photo-upload-btn" style="cursor:pointer;">
-            ⬆️ 選擇 JSON 檔匯入
-            <input type="file" id="import-input" class="file-input-hidden" accept="application/json">
-          </label>
-        </div>
-
-        <div class="settings-card">
-          <h3>小提醒</h3>
-          <div class="reminder-box">
-            💡 日記資料儲存在「這個瀏覽器」裡，請不要清除 Safari 的「網站資料 / 瀏覽紀錄」，以免日記遺失。<br><br>
-            建議養成定期「匯出備份」的習慣，尤其是在清理儲存空間、更新 iPad 或換裝置之前。<br><br>
-            今天不用完美，願意記錄下來，就已經很好了。
-          </div>
-        </div>
-      </section>
-
-    </main>
   </div>
-
-  <!-- ============ 完整日記預覽彈窗 ============ -->
-  <div class="modal-overlay" id="entry-modal">
-    <div class="modal-page">
-      <div class="modal-close-row"><button class="modal-close" id="modal-close-btn">✕</button></div>
-      <div class="modal-title-row">
-        <span id="modal-mood" style="font-size:26px;"></span>
-        <h3 class="modal-title" id="modal-title">未命名的一天</h3>
-      </div>
-      <div class="modal-meta" id="modal-meta"></div>
-      <div id="modal-body"></div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" id="modal-edit-btn">✏️ 編輯這一頁</button>
-        <button class="btn btn-danger" id="modal-delete-btn">🗑️ 刪除這一頁</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ 通用確認彈窗 ============ -->
-  <div class="modal-overlay" id="confirm-modal">
-    <div class="modal-page confirm-box">
-      <h3 class="modal-title" id="confirm-title" style="font-size:19px;">確定嗎？</h3>
-      <p id="confirm-message">此動作無法復原。</p>
-      <div class="actions">
-        <button class="btn btn-ghost" id="confirm-cancel-btn">取消</button>
-        <button class="btn btn-danger" id="confirm-ok-btn">確定</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast"></div>
 </div>
 
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<input type="file" id="importFile" accept="application/json" style="display:none;">
+<div class="toast" id="toast"></div>
+
 <script>
-/* =====================================================
-   18 Living — 主程式
-   全部資料儲存在 localStorage，離線可用，無任何外部依賴。
-   ===================================================== */
-(function(){
-  "use strict";
+/* ================================================================
+   18 Living — A Gentle Life Companion
+   資料層：localStorage。沿用 v1 的 STORE_KEY，向下相容補齊新欄位。
+   ================================================================ */
 
-  /* ---------------- 常數設定 ---------------- */
-  var STORAGE_KEY = "eighteenLiving_entries_v1";
-  var DRAFT_KEY   = "eighteenLiving_draft_v1";
+/* ---------- 儲存核心 ---------- */
+const STORE_KEY = "living18_v1";   // 沿用舊鍵，保留舊使用者資料
+const SCHEMA_VERSION = 2;
+let SAVE_TIMER = null;
 
-  var WEATHERS = ["☀️","⛅","☁️","🌧️","⛈️","❄️","🌫️"];
-  var MOODS    = ["😊","😌","🤍","🥹","😭","😴","😤","😍","😎","🌧️","🌤️"];
-  var STICKERS = [
-    {e:"☕",l:"Coffee"}, {e:"🌿",l:"Nature"}, {e:"📖",l:"Reading"}, {e:"💻",l:"Work"},
-    {e:"✨",l:"Create"}, {e:"🏡",l:"Home"}, {e:"🎵",l:"Music"}, {e:"🍰",l:"Dessert"},
-    {e:"🌙",l:"Night"}, {e:"🌸",l:"Happy"}, {e:"💛",l:"Gratitude"}, {e:"✈️",l:"Travel"}
-  ];
-
-  /* 內建 110 句療癒小語，開啟首頁時隨機顯示一句 */
-  var QUOTES = [
-    "今天不用完美，願意記錄下來，就已經很好了。","慢慢來，也是一種速度。","每一天都有值得被記住的地方。",
-    "留白，也是生活的一部分。","今天，也謝謝努力生活的自己。","累的時候，休息不是偷懶，是照顧自己。",
-    "你不需要趕上誰，只需要抵達自己的節奏。","心裡的重量，寫下來就輕一點。","平凡的一天，也是好好活著的證據。",
-    "溫柔對待自己，是一輩子的練習。","有些日子，撐過去就已經很勇敢。","陽光會斜斜地照進來，剛剛好。",
-    "不必急著長大，慢慢懂事也可以。","情緒不是麻煩，是提醒你該休息了。","一杯溫茶，也能安放一整天的疲憊。",
-    "你已經做得比自己以為的還要好。","今天的難過，明天不一定還在。","允許自己有一天什麼都不做。",
-    "生活很小，但你認真活過。","心情不好的日子，也值得被溫柔記下。","有時候，安靜也是一種力量。",
-    "不完美的一天，也是完整的一天。","你值得擁有溫柔的自己。","走得慢一點，才看得見沿途的風景。",
-    "今天也辛苦了，先深呼吸一下吧。","疲憊的時候，允許自己軟弱一下。","願你今天遇到的都是小小的溫柔。",
-    "每個努力生活的日子，都值得被珍藏。","有些傷口，時間會替你輕輕撫平。","你不孤單，只是這個階段安靜了一些。",
-    "好好吃飯，好好睡覺，就是很棒的一天。","心累的時候，先放過自己。","今天也謝謝自己，沒有輕易放棄。",
-    "生活的碎片，拼起來就是你的故事。","不需要每天都閃閃發光，平淡也很好。","願你被這個世界溫柔以待。",
-    "有些心情，說不出口，就寫下來吧。","今天的小小努力，明天會看見。","慢慢走，也會走到想去的地方。",
-    "一個人的時光，也可以很安穩。","好好休息，是為了走更遠的路。","你已經很努力在愛自己了。",
-    "每一次呼吸，都是重新開始的機會。","心情低落沒關係，明天太陽依舊會升起。","今天，願你能對自己多一點耐心。",
-    "生活偶爾亂糟糟，也是一種真實。","你不用假裝堅強，累了可以說。","溫柔的力量，往往比想像中更強大。",
-    "願你今天也能被自己好好照顧。","一切都會慢慢好起來的。","有你認真生活的樣子，很美。",
-    "今天的心情，不論好壞，都值得記錄。","別忘了，你已經走了很長一段路。","生活不必用力，用心就好。",
-    "願你今天的心裡，有一點點光。","難過的時候，允許自己哭一下。","每個平凡的日子，都是生活的養分。",
-    "今天也謝謝自己，願意繼續前進。","你的努力，時間都看得見。","心裡有雨也沒關係，總會放晴。",
-    "願你被溫柔對待，也溫柔待己。","慢一點沒關係，你依然在前進。","今天的小確幸，也值得被記住。",
-    "你不需要完美，只需要真實。","生活的重量，分擔一點會輕鬆許多。","願你今晚，能睡個安穩的覺。",
-    "每一次的堅持，都值得被看見。","心情不好時，先照顧好自己再說。","今天，也要記得對自己說聲辛苦了。",
-    "有些日子，安靜地過也很好。","你已經很棒了，別忘了肯定自己。","願你今天能感受到一點點幸福。",
-    "生活不是比賽，慢慢走也可以。","心裡累了，就休息一下再出發。","今天的你，已經很努力了。",
-    "願每個平凡的日子，都能被溫柔記住。","別小看每一個努力生活的自己。","生活裡的小事，其實都是大事。",
-    "願你在忙碌之中，也能記得呼吸。","今天過得辛苦，也請記得抱抱自己。","有些溫柔，是留給自己的。",
-    "願你今天，能對自己多一點溫柔。","心情低潮的日子，也是生活的一部分。","每一天，都在練習好好愛自己。",
-    "你走過的路，都會成為養分。","願你今天，能被喜歡的事情療癒。","慢慢來，你已經做得很好了。",
-    "心裡的話，說不出口就寫下來。","今天的努力，不會白費。","願你的生活，能多一點從容。",
-    "有些日子，撐住了就是勝利。","你值得擁有安靜而美好的日常。","心情不好，也可以只是心情不好。",
-    "願你今天的心，能柔軟一點。","生活很難，但你依然溫柔地活著。","今天也謝謝自己，好好走完了一天。",
-    "願你被這個世界，溫柔接住。","每一個小小的堅持，都很了不起。","心累的日子，記得對自己說辛苦了。",
-    "生活的答案，慢慢來就會知道。","願你今天的心情，都被好好安放。","你不用急著變好，慢慢來就好。",
-    "每一天，都值得被認真對待。","心裡的重量，寫下來會輕一些。","願你今天，能遇見一點小確幸。",
-    "生活再忙，也要記得對自己好一點。","你已經很努力，在成為更好的自己。","今天過得不容易，也請肯定自己。",
-    "願你的每一天，都有光照進來。","好好記錄，好好生活，好好愛自己。"
-  ];
-
-  /* ---------------- 狀態 ---------------- */
-  var state = {
-    entries: [],
-    currentEditId: null,
-    selectedWeather: "",
-    selectedMood: "",
-    selectedStickers: [],
-    photos: [],
-    searchStickerFilter: [],
-    calYear: 0,
-    calMonth: 0,
-    confirmCallback: null
+/* 完整資料結構（含 v2 新欄位）。舊資料會被 migrate() 補齊。 */
+function emptyData(){
+  return {
+    v: SCHEMA_VERSION,
+    today: {},     // { date: {mood, energy, todos, quick, notForce:[], life:[], fragments:{}, becoming} }
+    journal: {},   // { date: {title, text, mood, tags:[], photo:null, updated} }
+    week: {},      // { date: [{text,cat}] }
+    weekMeta: {},  // { weekStartDate: {directions:{}} }  每週生活方向
+    wishes: [],
+    scraps: [],    // 靈感（v2 擴充欄位）
+    reflect: {},   // { "YYYY-MM": {q1,q2,...每月回顧} }
+    reflectWeek:{},// { weekStartDate: {...每週回顧} }
+    monthDesign:{},// { "YYYY-MM": {keyword, life, feels:[], directions:[], wishes:[], notList:[]} }
+    lifeItems: null, // 使用者自訂的「好好生活」項目清單（null=用預設）
+    meta: { lastSaved:null }
   };
+}
 
-  /* ---------------- 工具函式 ---------------- */
-  function $(sel){ return document.querySelector(sel); }
-  function $all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
-  function pad(n){ return n < 10 ? "0"+n : ""+n; }
-  function todayStr(){ var d = new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
-  function uid(){ return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-  function escapeHTML(str){
-    if(!str) return "";
-    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-  }
-  function nl2br(str){ return escapeHTML(str).replace(/\n/g,"<br>"); }
-  function formatDateDisplay(dateStr){
-    if(!dateStr) return "";
-    var d = new Date(dateStr + "T00:00:00");
-    if(isNaN(d.getTime())) return dateStr;
-    return d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";
-  }
-  function weekdayOf(dateStr){
-    if(!dateStr) return "";
-    var d = new Date(dateStr + "T00:00:00");
-    if(isNaN(d.getTime())) return "";
-    var names = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
-    return names[d.getDay()];
-  }
-  function showToast(msg){
-    var t = $("#toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    clearTimeout(t._timer);
-    t._timer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
-  }
-
-  /* ---------------- localStorage 存取 ---------------- */
-  function loadEntries(){
-    try{
-      var raw = localStorage.getItem(STORAGE_KEY);
-      state.entries = raw ? JSON.parse(raw) : [];
-    }catch(e){
-      console.error("讀取日記資料失敗", e);
-      state.entries = [];
+/* 讀取 + 遷移 */
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return seed();
+    const parsed = JSON.parse(raw);
+    const migrated = migrate(parsed);
+    // 若版本較舊，遷移後立即寫回一次，讓本機儲存的結構與新版一致（不動既有內容）
+    if((parsed.v||1) < SCHEMA_VERSION){
+      migrated.meta = migrated.meta || {};
+      migrated.meta.lastSaved = migrated.meta.lastSaved || Date.now();
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(migrated)); }catch(e){}
     }
+    return migrated;
+  }catch(e){
+    console.warn("讀取失敗，改用空白資料", e);
+    return emptyData();
   }
-  function persistEntries(){
-    try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
-    }catch(e){
-      console.error("儲存日記資料失敗", e);
-      showToast("⚠️ 儲存失敗，可能是空間不足（照片太多），請試著清理照片或匯出備份。");
-    }
-  }
-  function getEntryByDate(dateStr){
-    for(var i=0;i<state.entries.length;i++){ if(state.entries[i].date === dateStr) return state.entries[i]; }
-    return null;
-  }
-  function getEntryById(id){
-    for(var i=0;i<state.entries.length;i++){ if(state.entries[i].id === id) return state.entries[i]; }
-    return null;
-  }
+}
 
-  /* ---------------- 確認彈窗（取代原生 confirm，維持風格） ---------------- */
-  function openConfirm(title, message, onOk){
-    $("#confirm-title").textContent = title;
-    $("#confirm-message").textContent = message;
-    state.confirmCallback = onOk;
-    $("#confirm-modal").classList.add("active");
-  }
-  function closeConfirm(){
-    $("#confirm-modal").classList.remove("active");
-    state.confirmCallback = null;
-  }
-  $("#confirm-cancel-btn").addEventListener("click", closeConfirm);
-  $("#confirm-ok-btn").addEventListener("click", function(){
-    var cb = state.confirmCallback;
-    closeConfirm();
-    if(cb) cb();
+/* 資料遷移：把舊結構安全補齊成新結構，絕不刪除既有內容 */
+/* 判斷是否為「純物件」（非 null、非陣列）。用來擋掉字串／數字／陣列被當成容器的情況。 */
+function isPlainObject(x){ return x!==null && typeof x==="object" && !Array.isArray(x); }
+/* 只保留 value 為純物件的鍵，過濾掉損壞（字串、數字等）的記錄，避免後續 in / 屬性存取崩潰。 */
+function sanitizeMap(x){
+  if(!isPlainObject(x)) return {};
+  const out={};
+  for(const k of Object.keys(x)){ if(isPlainObject(x[k])) out[k]=x[k]; }
+  return out;
+}
+
+function migrate(old){
+  const base = emptyData();
+  // 若整包不是物件（例如存到字串／陣列），直接回空白結構，避免崩潰
+  if(!isPlainObject(old)) return base;
+
+  // 淺層合併頂層鍵
+  const d = Object.assign(base, old);
+
+  // 確保每個「以日期為鍵」的容器都是純物件，且內部每筆都是物件（過濾損壞記錄）
+  d.today       = sanitizeMap(d.today);
+  d.journal     = sanitizeMap(d.journal);
+  d.week        = isPlainObject(d.week) ? d.week : {};
+  d.weekMeta    = sanitizeMap(d.weekMeta);
+  d.reflect     = sanitizeMap(d.reflect);
+  d.reflectWeek = sanitizeMap(d.reflectWeek);
+  d.monthDesign = sanitizeMap(d.monthDesign);
+  d.wishes      = Array.isArray(d.wishes) ? d.wishes.filter(isPlainObject) : [];
+  d.scraps      = Array.isArray(d.scraps) ? d.scraps.filter(isPlainObject) : [];
+  d.meta        = isPlainObject(d.meta) ? d.meta : { lastSaved:null };
+  if(d.lifeItems!=null && !Array.isArray(d.lifeItems)) d.lifeItems=null;
+
+  // week 各筆必須是陣列
+  Object.keys(d.week).forEach(k=>{ if(!Array.isArray(d.week[k])) d.week[k]=[]; });
+
+  // today 各筆補齊新欄位（此時每筆保證是物件）
+  Object.values(d.today).forEach(t=>{
+    if(!Array.isArray(t.todos)) t.todos = [{t:"",done:false},{t:"",done:false},{t:"",done:false}];
+    while(t.todos.length<3) t.todos.push({t:"",done:false});
+    if(typeof t.energy!=="number") t.energy = 0;
+    if(!Array.isArray(t.notForce)) t.notForce = [];
+    if(!Array.isArray(t.life)) t.life = [];
+    if(!isPlainObject(t.fragments)) t.fragments = {};
+    if(typeof t.becoming!=="string") t.becoming = "";
+    if(typeof t.quick!=="string") t.quick = typeof t.quick==="undefined"?"":String(t.quick);
+    if(typeof t.mood!=="string") t.mood = typeof t.mood==="undefined"?"":String(t.mood);
   });
 
-  /* ---------------- 封面（首頁）---------------- */
-  function initCover(){
-    var q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-    $("#cover-quote").textContent = q;
-    $("#open-diary-btn").addEventListener("click", function(){
-      $("#cover-screen").classList.remove("active");
-      $("#main-app").classList.add("active");
-      switchView("today");
-    });
-  }
-
-  /* ---------------- 分頁切換 ---------------- */
-  function switchView(name){
-    $all(".tab").forEach(function(t){ t.classList.toggle("active", t.dataset.view === name); });
-    $all(".view").forEach(function(v){ v.classList.toggle("active", v.id === "view-" + name); });
-    if(name === "calendar") renderCalendar();
-    if(name === "shelf") renderShelf();
-    if(name === "search") renderSearchFilters();
-  }
-  $all(".tab").forEach(function(t){
-    t.addEventListener("click", function(){ switchView(t.dataset.view); });
+  // journal 各筆補齊 title / photo（此時每筆保證是物件）
+  Object.values(d.journal).forEach(j=>{
+    if(typeof j.title!=="string") j.title = "";
+    if(typeof j.text!=="string") j.text = typeof j.text==="undefined"?"":String(j.text);
+    if(typeof j.mood!=="string") j.mood = "";
+    if(!("photo" in j) || (typeof j.photo!=="string" && j.photo!==null)) j.photo = null;
+    if(!Array.isArray(j.tags)) j.tags = [];
   });
 
-  /* ---------------- 今日頁面：選擇器渲染 ---------------- */
-  function renderPickers(){
-    var wp = $("#weather-picker"); wp.innerHTML = "";
-    WEATHERS.forEach(function(w){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "emoji-btn"; b.textContent = w;
-      b.addEventListener("click", function(){
-        state.selectedWeather = (state.selectedWeather === w) ? "" : w;
-        renderPickers(); autosaveDraft();
-      });
-      if(state.selectedWeather === w) b.classList.add("selected");
-      wp.appendChild(b);
-    });
+  // weekMeta 各筆確保 directions 為物件
+  Object.values(d.weekMeta).forEach(m=>{ if(!isPlainObject(m.directions)) m.directions={}; });
 
-    var mp = $("#mood-picker"); mp.innerHTML = "";
-    MOODS.forEach(function(m){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "emoji-btn"; b.textContent = m;
-      b.addEventListener("click", function(){
-        state.selectedMood = (state.selectedMood === m) ? "" : m;
-        renderPickers(); autosaveDraft();
-      });
-      if(state.selectedMood === m) b.classList.add("selected");
-      mp.appendChild(b);
-    });
-
-    var sp = $("#sticker-picker"); sp.innerHTML = "";
-    STICKERS.forEach(function(s){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "sticker-chip";
-      b.innerHTML = '<span class="e">'+s.e+'</span>'+s.l;
-      if(state.selectedStickers.indexOf(s.e) > -1) b.classList.add("selected");
-      b.addEventListener("click", function(){
-        var idx = state.selectedStickers.indexOf(s.e);
-        if(idx > -1) state.selectedStickers.splice(idx,1); else state.selectedStickers.push(s.e);
-        renderPickers(); autosaveDraft();
-      });
-      sp.appendChild(b);
-    });
-
-    renderPhotoPreview();
-  }
-
-  function renderPhotoPreview(){
-    var box = $("#photo-preview"); box.innerHTML = "";
-    state.photos.forEach(function(src, idx){
-      var d = document.createElement("div"); d.className = "photo-thumb";
-      var img = document.createElement("img"); img.src = src;
-      var rm = document.createElement("button"); rm.className = "remove-photo"; rm.textContent = "✕";
-      rm.addEventListener("click", function(){ state.photos.splice(idx,1); renderPhotoPreview(); autosaveDraft(); });
-      d.appendChild(img); d.appendChild(rm); box.appendChild(d);
-    });
-  }
-
-  $("#photo-input").addEventListener("change", function(e){
-    var files = Array.prototype.slice.call(e.target.files || []);
-    files.forEach(function(file){
-      var reader = new FileReader();
-      reader.onload = function(ev){
-        state.photos.push(ev.target.result);
-        renderPhotoPreview();
-        autosaveDraft();
-      };
-      reader.readAsDataURL(file);
-    });
-    e.target.value = "";
+  // monthDesign 各筆確保欄位型別
+  Object.values(d.monthDesign).forEach(m=>{
+    if(typeof m.keyword!=="string") m.keyword="";
+    if(typeof m.life!=="string") m.life="";
+    if(!Array.isArray(m.feels)) m.feels=[];
+    if(!Array.isArray(m.directions)) m.directions=[];
+    if(!Array.isArray(m.wishes)) m.wishes=[];
+    if(!Array.isArray(m.notList)) m.notList=[];
   });
 
-  /* ---------------- 今日頁面：讀取 / 清空表單 ---------------- */
-  function clearForm(keepDate){
-    var keepDateVal = keepDate ? $("#date-input").value : todayStr();
-    state.currentEditId = null;
-    state.selectedWeather = ""; state.selectedMood = ""; state.selectedStickers = []; state.photos = [];
-    $("#date-input").value = keepDateVal;
-    $("#weekday-badge").textContent = weekdayOf(keepDateVal);
-    $("#title-input").value = "";
-    $("#story-input").value = "";
-    $("#memorable-input").value = "";
-    $("#gratitude-input").value = "";
-    $("#selfmessage-input").value = "";
-    $("#tomorrow-input").value = "";
-    $("#summary-input").value = "";
-    renderPickers();
-    updateDraftStatus("尚未輸入");
-  }
-
-  function loadEntryIntoForm(entry){
-    state.currentEditId = entry.id;
-    state.selectedWeather = entry.weather || "";
-    state.selectedMood = entry.mood || "";
-    state.selectedStickers = (entry.stickers || []).slice();
-    state.photos = (entry.photos || []).slice();
-    $("#date-input").value = entry.date;
-    $("#weekday-badge").textContent = weekdayOf(entry.date);
-    $("#title-input").value = entry.title || "";
-    $("#story-input").value = entry.story || "";
-    $("#memorable-input").value = entry.memorable || "";
-    $("#gratitude-input").value = entry.gratitude || "";
-    $("#selfmessage-input").value = entry.selfMessage || "";
-    $("#tomorrow-input").value = entry.tomorrow || "";
-    $("#summary-input").value = entry.summary || "";
-    renderPickers();
-    updateDraftStatus("正在編輯：" + formatDateDisplay(entry.date));
-  }
-
-  /* 日期變更：若當天已有日記，自動帶入（像翻到那一頁）；否則視為新的一頁 */
-  $("#date-input").addEventListener("change", function(){
-    var d = $("#date-input").value || todayStr();
-    var existing = getEntryByDate(d);
-    if(existing){
-      loadEntryIntoForm(existing);
-      showToast("這一天已經寫過日記，已為你帶出內容 📖");
-    }else{
-      state.currentEditId = null;
-      $("#weekday-badge").textContent = weekdayOf(d);
-      updateDraftStatus("尚未輸入");
-    }
+  // 靈感 scraps 補齊 v2 欄位（此時每筆保證是物件）
+  d.scraps.forEach(s=>{
+    if(typeof s.title!=="string") s.title = "";
+    if(typeof s.note!=="string") s.note = "";
+    if(typeof s.state!=="string") s.state = s.done ? "published" : "seed"; // 舊 done 對應
+    if(typeof s.platform!=="string") s.platform = "";
+    if(typeof s.format!=="string") s.format = "";
+    if(!("publishDate" in s) || typeof s.publishDate!=="string") s.publishDate = "";
+    if(typeof s.tag!=="string") s.tag = "";
+    if(typeof s.text!=="string") s.text = typeof s.text==="undefined"?"":String(s.text);
+    if(typeof s.id==="undefined") s.id = Date.now()+Math.floor(Math.random()*1000);
   });
 
-  /* ---------------- 自動儲存草稿 ---------------- */
-  function collectFormData(){
-    return {
-      date: $("#date-input").value || todayStr(),
-      weather: state.selectedWeather,
-      mood: state.selectedMood,
-      title: $("#title-input").value,
-      story: $("#story-input").value,
-      memorable: $("#memorable-input").value,
-      gratitude: $("#gratitude-input").value,
-      selfMessage: $("#selfmessage-input").value,
-      tomorrow: $("#tomorrow-input").value,
-      summary: $("#summary-input").value,
-      stickers: state.selectedStickers.slice(),
-      photos: state.photos.slice(),
-      editId: state.currentEditId
-    };
-  }
-  var draftTimer = null;
-  function autosaveDraft(){
-    clearTimeout(draftTimer);
-    draftTimer = setTimeout(function(){
-      try{
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(collectFormData()));
-        updateDraftStatus("草稿已自動儲存 " + pad(new Date().getHours()) + ":" + pad(new Date().getMinutes()));
-      }catch(e){ console.error("草稿儲存失敗", e); }
-    }, 500);
-  }
-  function updateDraftStatus(text){ $("#draft-status").innerHTML = '<span class="dot"></span>' + escapeHTML(text); }
+  d.v = SCHEMA_VERSION;
+  return d;
+}
 
-  function restoreDraftIfAny(){
-    try{
-      var raw = localStorage.getItem(DRAFT_KEY);
-      if(!raw) return;
-      var d = JSON.parse(raw);
-      if(!d) return;
-      var hasContent = d.title || d.story || d.memorable || d.gratitude || d.selfMessage || d.tomorrow || d.summary || (d.photos && d.photos.length);
-      if(!hasContent) return;
-      openConfirm("發現未儲存的草稿", "偵測到「" + formatDateDisplay(d.date) + "」有尚未儲存的草稿內容，要接續帶入嗎？", function(){
-        state.currentEditId = d.editId || null;
-        state.selectedWeather = d.weather || "";
-        state.selectedMood = d.mood || "";
-        state.selectedStickers = d.stickers || [];
-        state.photos = d.photos || [];
-        $("#date-input").value = d.date;
-        $("#weekday-badge").textContent = weekdayOf(d.date);
-        $("#title-input").value = d.title || "";
-        $("#story-input").value = d.story || "";
-        $("#memorable-input").value = d.memorable || "";
-        $("#gratitude-input").value = d.gratitude || "";
-        $("#selfmessage-input").value = d.selfMessage || "";
-        $("#tomorrow-input").value = d.tomorrow || "";
-        $("#summary-input").value = d.summary || "";
-        renderPickers();
-        updateDraftStatus("已帶回草稿內容");
-        showToast("已為你接續上次的草稿 🌿");
-      });
-    }catch(e){ console.error(e); }
+/* persist：寫入成功回傳 true；若空間不足則回傳 false（呼叫端可據此回復狀態）。 */
+function persist(){
+  const prevSaved = DATA.meta.lastSaved;
+  DATA.meta.lastSaved = Date.now();
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(DATA));
+    updateSaveStatus(false);
+    return true;
+  }catch(e){
+    // 寫入失敗：還原 lastSaved，並提示。DATA 記憶體內容維持，等使用者處理（例如移除照片）。
+    DATA.meta.lastSaved = prevSaved;
+    updateSaveStatus(false);
+    toast("儲存空間已滿，這次沒存成功");
+    return false;
+  }
+}
+function autosave(){
+  updateSaveStatus(true);
+  clearTimeout(SAVE_TIMER);
+  SAVE_TIMER = setTimeout(persist, 600);
+}
+
+let DATA = load();
+
+/* ---------- 日期工具 ---------- */
+const WK = ["日","一","二","三","四","五","六"];
+const WK_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+function pad(n){ return String(n).padStart(2,"0"); }
+function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function ym(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1); }
+function todayKey(){ return ymd(new Date()); }
+/* 由 "YYYY-MM-DD" 建立「當地」日期，避免 new Date("2026-07-01") 以 UTC 解析而跨日／跨月。
+   格式不合或無效時回傳今天，確保不會產生 Invalid Date。 */
+function parseLocalDate(s){
+  if(typeof s==="string"){
+    const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m){ const d=new Date(+m[1], +m[2]-1, +m[3]); if(!isNaN(d)) return d; }
+  }
+  return new Date();
+}
+/* 判斷某天是否有「留下東西」：正文、標題或照片任一即算。
+   讓只有標題或只有照片的日子也能被月曆圓點、時間軸、書櫃看見。 */
+function hasEntry(j){ return !!(j && ((j.text&&j.text.trim()) || (j.title&&j.title.trim()) || j.photo)); }
+function fmtZh(s){ const [y,m,dd]=s.split("-").map(Number); const d=new Date(y,m-1,dd); return m+"月 "+dd+"日 · 星期"+WK[d.getDay()]; }
+function fmtShort(s){ const [y,m,dd]=s.split("-"); return (+m)+"/"+(+dd); }
+
+/* 季節：依月份回傳 accent 顏色與文字（僅微調，不換主色） */
+function seasonOf(month){ // month:0-11
+  if([2,3,4].includes(month))  return { c:"#C9A9A6", s:"#E4CFCA", label:"春日", en:"Spring" };   // 春·霧粉嫩綠
+  if([5,6,7].includes(month))  return { c:"#A9B79C", s:"#C9D2BC", label:"盛夏", en:"Summer" };   // 夏·鼠尾草綠
+  if([8,9,10].includes(month)) return { c:"#B39A7E", s:"#DAC9B0", label:"秋日", en:"Autumn" };   // 秋·淺咖啡焦糖
+  return { c:"#9BA6A6", s:"#C6CFCE", label:"冬日", en:"Winter" };                                  // 冬·暖霧藍灰
+}
+function applySeason(month){
+  const s = seasonOf(month);
+  const root = document.documentElement.style;
+  root.setProperty("--season", s.c);
+  root.setProperty("--season-soft", s.s);
+}
+
+/* ---------- 上次儲存時間 ---------- */
+function updateSaveStatus(saving){
+  const el = document.getElementById("saveStatus");
+  const txt = document.getElementById("saveText");
+  if(saving){ el.classList.add("saving"); txt.textContent="儲存中…"; return; }
+  el.classList.remove("saving");
+  const t = DATA.meta.lastSaved;
+  if(!t){ txt.textContent="尚未儲存"; return; }
+  const d = new Date(t);
+  txt.textContent = "已儲存 "+pad(d.getHours())+":"+pad(d.getMinutes());
+}
+
+/* ---------- Toast ---------- */
+let TOAST_TIMER=null;
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(TOAST_TIMER); TOAST_TIMER=setTimeout(()=>el.classList.remove("show"),1900);
+}
+
+/* ---------- Modal ---------- */
+const overlay=document.getElementById("overlay");
+const modalBox=document.getElementById("modal");
+function closeModal(){ overlay.classList.remove("show"); modalBox.innerHTML=""; }
+overlay.addEventListener("click",e=>{
+  // 合併衝突處理進行中時，不允許點背景關閉，避免資料停在半合併狀態
+  if(MERGE_SNAPSHOT) return;
+  if(e.target===overlay) closeModal();
+});
+
+function confirmDelete(message,onYes){
+  // message 可能含使用者文字（例如願望／週計畫內容），一律 escape 後才放入 innerHTML
+  modalBox.innerHTML=`
+    <h3>要刪掉嗎？</h3>
+    <p>${escapeHtml(message)}<br>刪掉之後就找不回來了。</p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="mCancel">先留著</button>
+      <button class="btn rose danger" id="mYes">刪掉</button>
+    </div>`;
+  overlay.classList.add("show");
+  document.getElementById("mCancel").onclick=closeModal;
+  document.getElementById("mYes").onclick=()=>{ onYes(); closeModal(); };
+}
+function promptModal({title,desc,value="",placeholder="",onSave,multiline=false}){
+  // title／desc／placeholder 都 escape，避免使用者輸入的日期字串或內容注入 HTML
+  modalBox.innerHTML=`
+    <h3>${escapeHtml(title)}</h3>
+    ${desc?`<p>${escapeHtml(desc)}</p>`:""}
+    ${multiline
+      ? `<textarea class="field" id="mField" placeholder="${escapeAttr(placeholder)}" style="min-height:120px;resize:none;"></textarea>`
+      : `<input class="field" id="mField" placeholder="${escapeAttr(placeholder)}">`}
+    <div class="modal-actions">
+      <button class="btn ghost" id="mCancel">取消</button>
+      <button class="btn sage" id="mSave">存下</button>
+    </div>`;
+  overlay.classList.add("show");
+  const f=document.getElementById("mField"); f.value=value; setTimeout(()=>f.focus(),60);
+  document.getElementById("mCancel").onclick=closeModal;
+  document.getElementById("mSave").onclick=()=>{ onSave(f.value.trim()); closeModal(); };
+}
+
+/* ---------- 標籤解析 ---------- */
+function parseTags(str){ return (str.match(/#[^\s#]+/g)||[]).map(s=>s.slice(1)); }
+function stripTags(str){ return str.replace(/#[^\s#]+/g,"").trim(); }
+
+/* ================================================================
+   隨機生活小語（40+ 句）
+   ================================================================ */
+const GENTLE_LINES = [
+  "今天不用急著變得更好。","慢慢來，也是一種速度。","留白，不代表今天沒有好好生活。",
+  "先照顧自己，再處理世界。","不是每一天都要有答案。","今天能好好吃飯，也是一件值得記住的事。",
+  "生活不用很滿，心有地方呼吸就好。","你不需要用忙碌，證明自己的價值。","日子不一定閃閃發亮，但仍值得被收藏。",
+  "今天的你，也已經很努力了。","累了就休息，這不是浪費。","把自己顧好，也是一種正經事。",
+  "有些事，明天再想也不遲。","你可以只是存在，不必時時發光。","今天允許自己慢一點。",
+  "生活是拿來過的，不是拿來趕的。","做不完，就先做到這裡吧。","今天的心情，值得被溫柔對待。",
+  "不必替還沒發生的事先擔心。","走得慢，也還是在往前。","偶爾停下來，是為了看清楚。",
+  "你正在成為的，比你以為的更好。","今天，先深呼吸再說。","一杯溫水，也能是照顧自己的開始。",
+  "不完美的一天，也是完整的一天。","把力氣留給真正重要的人事物。","今天想留白，就留白吧。",
+  "生活會回應你的溫柔。","你不需要一次修好全部。","今天，把自己接住就好。",
+  "有些日子只要撐過去，就很了不起。","工作是為了生活，別倒過來了。","慢下來，你才聽得見自己。",
+  "今天值得一個好好的休息。","不必事事都要有意義。","被好好照顧的，也包含你自己。",
+  "今天過得普通，也很好。","允許自己，只做一點點。","記得也給自己一些溫柔。",
+  "你已經在路上了，不用著急。","晚一點抵達，也還是會抵達。","今天，就先陪自己待一下。"
+];
+function pickGentleLine(){ return GENTLE_LINES[Math.floor(Math.random()*GENTLE_LINES.length)]; }
+
+/* 生活選項預設 */
+const DEFAULT_LIFE = ["好好吃飯","喝水","曬曬太陽","走一走","動動身體","閱讀","創作","整理空間","好好保養","和喜歡的人說話","留一點時間給自己","早點睡"];
+/* 生活標籤預設 */
+const PRESET_TAGS = ["日常","18 SPA","創業","離職日記","伴侶","家庭","身體","心情","創作","學習","美食","閱讀","旅行","小確幸","療癒"];
+/* 心情 */
+const MOODS = ["🌤️","☁️","🌧️","🌙","🌱"];
+/* 感受選項 */
+const FEELS = ["安定","自由","有餘裕","有創造力","被支持","輕盈","踏實","平靜","勇敢","柔軟"];
+/* 靈感狀態 */
+const SCRAP_STATES = [
+  {k:"seed",label:"🌱 一顆種子"},{k:"sprout",label:"🌿 正在發芽"},{k:"ready",label:"🌼 準備創作"},
+  {k:"published",label:"✨ 已經發布"},{k:"extend",label:"🍃 想再延伸"},{k:"rest",label:"💤 先放著"}
+];
+const PLATFORMS = ["IG 貼文","IG 限動","Threads","Reels","LINE","部落格","個人日記","18 SPA","18 Living","暫時不知道"];
+const FORMATS = ["一句話","短文","輪播貼文","影片","生活紀錄","品牌故事","專業知識","療癒文字","圖像","AI Prompt"];
+/* 每週生活方向欄位 */
+const WEEK_DIR_FIELDS = [
+  ["top3","這週最重要的三件事"],["keep","這週想保留的生活感"],["metime","這週想留給自己的時間"],
+  ["people","這週想見的人"],["food","這週想吃的東西"],["place","這週想去的地方"],["nopush","這週不想勉強自己的事"]
+];
+/* 每週回顧欄位 */
+const WEEK_REFLECT_FIELDS = [
+  ["best","這週最喜歡的一個瞬間"],["tired","這週最累的是什麼"],["better","哪件事比想像中做得更好"],
+  ["letgo","哪件事其實可以放下"],["care","這週有在哪裡好好照顧自己"],["nextkeep","下週想保留什麼"],
+  ["nextless","下週想少做什麼"],["oneline","這週的一句話"]
+];
+/* 每月回顧欄位 */
+const MONTH_REFLECT_FIELDS = [
+  ["repText","本月代表文字"],["three","最值得記住的三件事"],["learn","這個月學到了什麼"],
+  ["cared","我在哪裡照顧了自己"],["ignored","我在哪裡忽略了自己"],["ideal","生活有更靠近理想的樣子嗎"],
+  ["nextkeep","下個月想繼續保留什麼"],["nextletgo","下個月想放下什麼"],["toself","給下個月自己的話"]
+];
+
+/* ================================================================
+   頁面切換
+   ================================================================ */
+const stage=document.getElementById("stage");
+function go(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
+  document.querySelectorAll("[data-go]").forEach(b=>b.classList.toggle("on",b.dataset.go===id));
+  stage.scrollTop=0;
+  if(id==="home") renderHome();
+  if(id==="today") renderToday();
+  if(id==="planner") renderPlanner();
+  if(id==="journal") renderJournal();
+  if(id==="create") renderCreate();
+  if(id==="reflect") renderReflect();
+}
+document.querySelectorAll("[data-go]").forEach(b=> b.addEventListener("click",()=>go(b.dataset.go)) );
+
+/* ================================================================
+   HOME 首頁
+   ================================================================ */
+function renderHome(){
+  const now=new Date();
+  const s=seasonOf(now.getMonth());
+  document.getElementById("homeDate").innerHTML =
+    `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}　${WK_EN[now.getDay()]} · <span class="season">${s.label}</span>`;
+  document.getElementById("homeQuote").textContent = pickGentleLine();
+
+  // 今日狀態（溫柔、非考核）
+  const k=todayKey();
+  const t=DATA.today[k]; const j=DATA.journal[k];
+  const hasJournal = j && j.text && j.text.trim();
+  const hasMood = t && t.mood;
+  const fragCount = t ? Object.values(t.fragments||{}).filter(v=>v&&v.trim()).length : 0;
+  let status;
+  if(!hasJournal && !hasMood && !fragCount){ status="今天還是一張乾淨的紙。"; }
+  else{
+    const bits=[];
+    if(hasMood) bits.push("選了今天的心情");
+    if(hasJournal) bits.push("寫下了生活片段");
+    if(fragCount) bits.push(`記了 ${fragCount} 個生活片刻`);
+    status = "今天已經"+bits.join("、")+"。";
+  }
+  document.getElementById("homeStatus").textContent = status;
+
+  renderOnThisDay("homeOnThisDay","homeOtdText");
+}
+
+/* On This Day：同月日的往年日記 */
+function renderOnThisDay(boxId,textId){
+  const box=document.getElementById(boxId); if(!box) return;
+  const now=new Date();
+  const mmdd = pad(now.getMonth()+1)+"-"+pad(now.getDate());
+  const thisYear=now.getFullYear();
+  const hits = Object.keys(DATA.journal)
+    .filter(key=> key.slice(5)===mmdd && +key.slice(0,4)<thisYear && DATA.journal[key].text && DATA.journal[key].text.trim())
+    .sort().reverse();
+  if(!hits.length){ box.style.display="none"; return; }
+  const key=hits[0]; const j=DATA.journal[key];
+  const yearsAgo = thisYear - (+key.slice(0,4));
+  const preview = j.text.replace(/\n/g," ").slice(0,50);
+  document.getElementById(textId).textContent =
+    `${yearsAgo} 年前的今天，你寫下了：「${preview}${j.text.length>50?"…":""}」`;
+  box.style.display="block";
+  box.onclick=()=>{ journalEditKey=key; calAnchor=parseLocalDate(key); switchJournalView("write"); go("journal"); };
+}
+
+/* ================================================================
+   TODAY 今日留白
+   ================================================================ */
+const TODAY_FRAGMENTS = [
+  ["eat","今天吃了什麼"],["drink","今天喝了什麼"],["song","今天聽的歌"],
+  ["scene","今天看見的一個畫面"],["remember","今天最想記住的瞬間"],["thanks","今天值得感謝的一件事"],
+  ["toself","今天想對自己說的話"],["tomorrow","明天想溫柔完成的小事"]
+];
+
+function todayRec(){
+  const k=todayKey();
+  if(!DATA.today[k]) DATA.today[k]={ mood:"",energy:0,todos:[{t:"",done:false},{t:"",done:false},{t:"",done:false}],quick:"",notForce:[],life:[],fragments:{},becoming:"" };
+  const r=DATA.today[k];
+  while(r.todos.length<3) r.todos.push({t:"",done:false});
+  return r;
+}
+function currentLifeItems(){ return DATA.lifeItems || DEFAULT_LIFE; }
+
+function renderToday(){
+  document.getElementById("todayDate").textContent=fmtZh(todayKey());
+  document.getElementById("todayQuote").textContent=pickGentleLine();
+  const rec=todayRec();
+
+  // 心情
+  document.querySelectorAll("#moodRow .mood").forEach(m=> m.classList.toggle("sel",m.dataset.mood===rec.mood));
+
+  // 能量 1-5
+  const er=document.getElementById("energyRow"); er.innerHTML="";
+  for(let i=1;i<=5;i++){
+    const d=document.createElement("div");
+    d.className="energy-dot"+(i<=rec.energy?" on":"");
+    d.onclick=()=>{ rec.energy=(rec.energy===i)?0:i; renderToday(); autosave(); };
+    er.appendChild(d);
   }
 
-  /* 綁定表單欄位變更 -> 自動存草稿 */
-  ["title-input","story-input","memorable-input","gratitude-input","selfmessage-input","tomorrow-input","summary-input"]
-    .forEach(function(id){ $("#"+id).addEventListener("input", autosaveDraft); });
-
-  $("#clear-draft-btn").addEventListener("click", function(){
-    openConfirm("清空草稿", "確定要清空目前輸入但尚未儲存的內容嗎？", function(){
-      localStorage.removeItem(DRAFT_KEY);
-      clearForm(true);
-      showToast("草稿已清空");
-    });
+  // 三件事
+  const box=document.getElementById("todayTodos"); box.innerHTML="";
+  rec.todos.forEach((td,i)=>{
+    const row=document.createElement("div");
+    row.className="todo"+(td.done?" done":"");
+    row.innerHTML=`<span class="dot${td.done?' done':''}" data-i="${i}"></span><span class="txt" contenteditable="true" data-i="${i}">${escapeHtml(td.t)}</span>`;
+    box.appendChild(row);
   });
+  box.querySelectorAll(".dot").forEach(dot=> dot.onclick=()=>{ const i=+dot.dataset.i; rec.todos[i].done=!rec.todos[i].done; renderToday(); autosave(); });
+  box.querySelectorAll(".txt").forEach(t=> t.addEventListener("input",()=>{ rec.todos[+t.dataset.i].t=t.textContent; autosave(); }));
 
-  /* ---------------- 新增 / 儲存 ---------------- */
-  $("#new-entry-btn").addEventListener("click", function(){
-    clearForm(false);
-    $("#date-input").value = todayStr();
-    $("#weekday-badge").textContent = weekdayOf(todayStr());
-    showToast("翻開了新的一頁 📖");
-  });
+  // 不勉強清單
+  renderSoftList("notForce", rec.notForce, ()=>{ renderToday(); autosave(); });
 
-  $("#save-entry-btn").addEventListener("click", function(){
-    var data = collectFormData();
-    if(!data.date){ showToast("請先選擇日期"); return; }
-
-    var now = new Date().toISOString();
-    var existing = state.currentEditId ? getEntryById(state.currentEditId) : getEntryByDate(data.date);
-
-    if(existing){
-      existing.date = data.date;
-      existing.weather = data.weather;
-      existing.mood = data.mood;
-      existing.title = data.title;
-      existing.story = data.story;
-      existing.memorable = data.memorable;
-      existing.gratitude = data.gratitude;
-      existing.selfMessage = data.selfMessage;
-      existing.tomorrow = data.tomorrow;
-      existing.summary = data.summary;
-      existing.stickers = data.stickers;
-      existing.photos = data.photos;
-      existing.updatedAt = now;
-      state.currentEditId = existing.id;
-    }else{
-      var entry = {
-        id: uid(),
-        date: data.date,
-        weather: data.weather,
-        mood: data.mood,
-        title: data.title,
-        story: data.story,
-        memorable: data.memorable,
-        gratitude: data.gratitude,
-        selfMessage: data.selfMessage,
-        tomorrow: data.tomorrow,
-        summary: data.summary,
-        stickers: data.stickers,
-        photos: data.photos,
-        createdAt: now,
-        updatedAt: now
-      };
-      state.entries.push(entry);
-      state.currentEditId = entry.id;
-    }
-
-    persistEntries();
-    localStorage.removeItem(DRAFT_KEY);
-    updateDraftStatus("已儲存 " + pad(new Date().getHours()) + ":" + pad(new Date().getMinutes()));
-    showToast("這一頁已經好好收起來了 🤍");
-  });
-
-  /* ---------------- 卡片元件 ---------------- */
-  function summaryExcerpt(entry){
-    var text = entry.summary || entry.story || entry.memorable || "";
-    text = text.replace(/\n/g," ");
-    return text.length > 46 ? text.slice(0,46) + "…" : (text || "這一天，還沒有留下太多文字。");
-  }
-  function renderEntryCardHTML(entry){
-    var stickersHTML = (entry.stickers||[]).map(function(s){ return '<span class="chip-mini">'+s+'</span>'; }).join("");
-    return ''
-      + '<article class="entry-card" data-id="'+entry.id+'">'
-      +   '<div class="entry-card-top">'
-      +     '<span class="entry-date">'+formatDateDisplay(entry.date)+' · '+weekdayOf(entry.date)+'</span>'
-      +     '<span class="entry-mood">'+(entry.mood||"")+'</span>'
-      +   '</div>'
-      +   '<h3 class="entry-title">'+escapeHTML(entry.title || "（未命名的一天）")+'</h3>'
-      +   '<p class="entry-summary">'+escapeHTML(summaryExcerpt(entry))+'</p>'
-      +   '<div class="entry-stickers">'+stickersHTML+'</div>'
-      + '</article>';
-  }
-  function bindCardClicks(container){
-    $all(".entry-card", ).length; // no-op guard
-    Array.prototype.slice.call(container.querySelectorAll(".entry-card")).forEach(function(card){
-      card.addEventListener("click", function(){ openEntryModal(card.dataset.id); });
-    });
-  }
-
-  /* ---------------- 月曆 ---------------- */
-  function renderCalendar(){
-    var now = new Date();
-    if(!state.calYear){ state.calYear = now.getFullYear(); state.calMonth = now.getMonth(); }
-    var y = state.calYear, m = state.calMonth;
-    $("#calendar-title").textContent = y + "年 " + (m+1) + "月";
-
-    var grid = $("#calendar-grid"); grid.innerHTML = "";
-    ["日","一","二","三","四","五","六"].forEach(function(w){
-      var el = document.createElement("div"); el.className = "wd"; el.textContent = w; grid.appendChild(el);
-    });
-
-    var firstDay = new Date(y, m, 1).getDay();
-    var daysInMonth = new Date(y, m+1, 0).getDate();
-    var todayString = todayStr();
-
-    var entryDates = {};
-    state.entries.forEach(function(e){ entryDates[e.date] = true; });
-
-    for(var i=0;i<firstDay;i++){
-      var empty = document.createElement("div"); empty.className = "day-cell empty"; grid.appendChild(empty);
-    }
-    for(var d=1; d<=daysInMonth; d++){
-      var dateStr = y + "-" + pad(m+1) + "-" + pad(d);
-      var cell = document.createElement("div");
-      cell.className = "day-cell" + (entryDates[dateStr] ? " has-entry" : "") + (dateStr === todayString ? " today" : "");
-      cell.tabIndex = 0;
-      cell.innerHTML = '<span>'+d+'</span>' + (entryDates[dateStr] ? '<span class="dot"></span>' : '');
-      (function(ds){
-        cell.addEventListener("click", function(){
-          var entry = getEntryByDate(ds);
-          if(entry){ openEntryModal(entry.id); }
-          else{
-            openConfirm("開始寫這一天", "「"+formatDateDisplay(ds)+"」還沒有日記，要前往書寫嗎？", function(){
-              switchView("today");
-              $("#date-input").value = ds;
-              state.currentEditId = null;
-              $("#weekday-badge").textContent = weekdayOf(ds);
-              $("#title-input, #story-input").value = "";
-              clearFormButKeepDate(ds);
-            });
-          }
-        });
-      })(dateStr);
-      grid.appendChild(cell);
-    }
-  }
-  function clearFormButKeepDate(ds){
-    state.selectedWeather = ""; state.selectedMood = ""; state.selectedStickers = []; state.photos = [];
-    $("#title-input").value = ""; $("#story-input").value = ""; $("#memorable-input").value = "";
-    $("#gratitude-input").value = ""; $("#selfmessage-input").value = ""; $("#tomorrow-input").value = ""; $("#summary-input").value = "";
-    $("#date-input").value = ds; $("#weekday-badge").textContent = weekdayOf(ds);
-    renderPickers();
-  }
-  $("#cal-prev").addEventListener("click", function(){
-    state.calMonth--; if(state.calMonth < 0){ state.calMonth = 11; state.calYear--; } renderCalendar();
-  });
-  $("#cal-next").addEventListener("click", function(){
-    state.calMonth++; if(state.calMonth > 11){ state.calMonth = 0; state.calYear++; } renderCalendar();
-  });
-
-  /* ---------------- 書櫃（依年份/月份） ---------------- */
-  function renderShelf(){
-    var box = $("#shelf-container");
-    if(state.entries.length === 0){
-      box.innerHTML = '<div class="empty-state"><span class="e">📗</span>書櫃還是空的，寫下第一篇日記吧。</div>';
-      return;
-    }
-    var sorted = state.entries.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
-    var byYear = {};
-    sorted.forEach(function(e){
-      var y = e.date.slice(0,4), mo = e.date.slice(5,7);
-      byYear[y] = byYear[y] || {};
-      byYear[y][mo] = byYear[y][mo] || [];
-      byYear[y][mo].push(e);
-    });
-    var years = Object.keys(byYear).sort(function(a,b){ return b - a; });
-    var html = "";
-    years.forEach(function(y, yi){
-      var months = Object.keys(byYear[y]).sort(function(a,b){ return b - a; });
-      var totalCount = months.reduce(function(sum,mo){ return sum + byYear[y][mo].length; }, 0);
-      html += '<details class="shelf-year"'+(yi===0?' open':'')+'>';
-      html += '<summary>'+y+' 年<span class="count">'+totalCount+' 篇</span></summary>';
-      months.forEach(function(mo){
-        var list = byYear[y][mo];
-        html += '<details class="shelf-month" open>';
-        html += '<summary>'+parseInt(mo,10)+' 月<span>'+list.length+' 篇</span></summary>';
-        html += '<div class="shelf-month-list">';
-        list.forEach(function(e){
-          html += '<div class="shelf-entry-row" data-id="'+e.id+'">'
-                + '<span class="d">'+e.date.slice(8,10)+' 日</span>'
-                + '<span class="m">'+(e.mood||"🤍")+'</span>'
-                + '<span class="t">'+escapeHTML(e.title || summaryExcerpt(e))+'</span>'
-                + '</div>';
-        });
-        html += '</div></details>';
-      });
-      html += '</details>';
-    });
-    box.innerHTML = html;
-    Array.prototype.slice.call(box.querySelectorAll(".shelf-entry-row")).forEach(function(row){
-      row.addEventListener("click", function(){ openEntryModal(row.dataset.id); });
-    });
-  }
-
-  /* ---------------- 搜尋 ---------------- */
-  function renderSearchFilters(){
-    var box = $("#search-sticker-filter"); box.innerHTML = "";
-    STICKERS.forEach(function(s){
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "sticker-chip";
-      b.innerHTML = '<span class="e">'+s.e+'</span>'+s.l;
-      if(state.searchStickerFilter.indexOf(s.e) > -1) b.classList.add("selected");
-      b.addEventListener("click", function(){
-        var idx = state.searchStickerFilter.indexOf(s.e);
-        if(idx > -1) state.searchStickerFilter.splice(idx,1); else state.searchStickerFilter.push(s.e);
-        renderSearchFilters(); runSearch();
-      });
-      box.appendChild(b);
-    });
-    runSearch();
-  }
-  function runSearch(){
-    var kw = ($("#search-input").value || "").trim().toLowerCase();
-    var filterStickers = state.searchStickerFilter;
-    var results = state.entries.filter(function(e){
-      var matchKw = true;
-      if(kw){
-        var haystack = [e.title, e.story, e.memorable, e.gratitude, e.selfMessage, e.tomorrow, e.summary]
-          .join(" ").toLowerCase();
-        matchKw = haystack.indexOf(kw) > -1;
+  // 好好生活
+  const lc=document.getElementById("lifeChecks"); lc.innerHTML="";
+  currentLifeItems().forEach(item=>{
+    const on=rec.life.includes(item);
+    const chip=document.createElement("div");
+    chip.className="life-chip"+(on?" on":"");
+    chip.innerHTML=escapeHtml(item)+(DATA.lifeItems?'<span class="x" data-x="'+escapeAttr(item)+'">✕</span>':"");
+    chip.onclick=(e)=>{
+      if(e.target.dataset.x){ // 刪除自訂項目
+        DATA.lifeItems=currentLifeItems().filter(x=>x!==e.target.dataset.x);
+        rec.life=rec.life.filter(x=>x!==e.target.dataset.x);
+        renderToday(); persist(); return;
       }
-      var matchTag = true;
-      if(filterStickers.length){
-        matchTag = (e.stickers||[]).some(function(s){ return filterStickers.indexOf(s) > -1; });
-      }
-      return matchKw && matchTag;
-    }).sort(function(a,b){ return b.date.localeCompare(a.date); });
-
-    var out = $("#search-results");
-    if(results.length === 0){
-      out.innerHTML = '<div class="empty-state"><span class="e">🔍</span>沒有找到符合的日記，換個關鍵字試試？</div>';
-      return;
-    }
-    out.innerHTML = results.map(renderEntryCardHTML).join("");
-    bindCardClicks(out);
-  }
-  $("#search-btn").addEventListener("click", runSearch);
-  $("#search-input").addEventListener("input", runSearch);
-  $("#search-input").addEventListener("keydown", function(e){ if(e.key === "Enter") runSearch(); });
-
-  /* ---------------- 完整日記彈窗 ---------------- */
-  var modalCurrentId = null;
-  function openEntryModal(id){
-    var e = getEntryById(id);
-    if(!e) return;
-    modalCurrentId = id;
-    $("#modal-mood").textContent = e.mood || "🤍";
-    $("#modal-title").textContent = e.title || "未命名的一天";
-    $("#modal-meta").textContent = formatDateDisplay(e.date) + " · " + weekdayOf(e.date) + (e.weather ? " · " + e.weather : "");
-
-    var sections = [];
-    if(e.summary) sections.push(sectionHTML("今日小結", e.summary));
-    if(e.story) sections.push(sectionHTML("今天的小故事", e.story));
-    if(e.memorable) sections.push(sectionHTML("今天最想記住的一件事", e.memorable));
-    if(e.gratitude) sections.push(sectionHTML("今天值得感謝的事", e.gratitude));
-    if(e.selfMessage) sections.push(sectionHTML("今天我想對自己說", e.selfMessage));
-    if(e.tomorrow) sections.push(sectionHTML("明天想溫柔完成的小事", e.tomorrow));
-    if(e.stickers && e.stickers.length){
-      sections.push('<div class="modal-section"><div class="label">貼紙</div><div class="content">'+e.stickers.join(" ")+'</div></div>');
-    }
-    if(e.photos && e.photos.length){
-      var imgs = e.photos.map(function(p){ return '<img src="'+p+'">'; }).join("");
-      sections.push('<div class="modal-section"><div class="label">照片</div><div class="modal-photos">'+imgs+'</div></div>');
-    }
-    if(sections.length === 0){ sections.push('<div class="modal-section"><div class="content">這一天，還沒有留下太多文字。</div></div>'); }
-    $("#modal-body").innerHTML = sections.join("");
-    $("#entry-modal").classList.add("active");
-  }
-  function sectionHTML(label, content){
-    return '<div class="modal-section"><div class="label">'+label+'</div><div class="content">'+nl2br(content)+'</div></div>';
-  }
-  function closeEntryModal(){ $("#entry-modal").classList.remove("active"); modalCurrentId = null; }
-  $("#modal-close-btn").addEventListener("click", closeEntryModal);
-  $("#entry-modal").addEventListener("click", function(e){ if(e.target === $("#entry-modal")) closeEntryModal(); });
-
-  $("#modal-edit-btn").addEventListener("click", function(){
-    var e = getEntryById(modalCurrentId);
-    if(!e) return;
-    closeEntryModal();
-    switchView("today");
-    loadEntryIntoForm(e);
-    showToast("已帶入編輯，改完記得按「儲存」喔");
+      if(on) rec.life=rec.life.filter(x=>x!==item); else rec.life.push(item);
+      renderToday(); autosave();
+    };
+    lc.appendChild(chip);
   });
-  $("#modal-delete-btn").addEventListener("click", function(){
-    var id = modalCurrentId;
-    var e = getEntryById(id);
-    if(!e) return;
-    openConfirm("刪除這一頁", "確定要刪除「"+formatDateDisplay(e.date)+"」的日記嗎？此動作無法復原。", function(){
-      state.entries = state.entries.filter(function(x){ return x.id !== id; });
-      persistEntries();
-      closeEntryModal();
-      renderShelf(); renderCalendar(); runSearch();
-      if(state.currentEditId === id) clearForm(false);
-      showToast("已經刪除了這一頁");
+
+  // 隨手記
+  const q=document.getElementById("quickNote"); q.value=rec.quick||""; autoGrow(q);
+
+  // 生活片段
+  const fb=document.getElementById("todayFragments"); fb.innerHTML="";
+  TODAY_FRAGMENTS.forEach(([k,label])=>{
+    const g=document.createElement("div"); g.className="field-group";
+    g.innerHTML=`<label class="field-label">${label}</label><input class="field" data-frag="${k}" value="${escapeAttr(rec.fragments[k]||"")}">`;
+    fb.appendChild(g);
+  });
+  fb.querySelectorAll("[data-frag]").forEach(inp=> inp.addEventListener("input",()=>{ rec.fragments[inp.dataset.frag]=inp.value; autosave(); }));
+
+  // Becoming
+  const bc=document.getElementById("becomingInput"); bc.value=rec.becoming||"";
+}
+
+/* 軟清單通用（不勉強清單） */
+function renderSoftList(kind, arr, after){
+  const box=document.getElementById(kind==="notForce"?"notForce":kind);
+  box.innerHTML="";
+  arr.forEach((txt,i)=>{
+    const row=document.createElement("div"); row.className="soft-list-item";
+    row.innerHTML=`<span class="txt">· ${escapeHtml(txt)}</span><span class="rm" data-i="${i}">移除</span>`;
+    box.appendChild(row);
+  });
+  box.querySelectorAll(".rm").forEach(x=> x.onclick=()=>{ arr.splice(+x.dataset.i,1); after(); });
+}
+
+document.getElementById("moodRow").addEventListener("click",e=>{
+  const m=e.target.closest(".mood"); if(!m) return;
+  const rec=todayRec(); rec.mood=(rec.mood===m.dataset.mood)?"":m.dataset.mood;
+  renderToday(); autosave();
+});
+document.getElementById("quickNote").addEventListener("input",e=>{ todayRec().quick=e.target.value; autoGrow(e.target); autosave(); });
+document.getElementById("becomingInput").addEventListener("input",e=>{ todayRec().becoming=e.target.value; autosave(); });
+
+document.getElementById("btnAddNotForce").onclick=()=>{
+  const inp=document.getElementById("notForceInput"); const v=inp.value.trim(); if(!v) return;
+  const rec=todayRec(); if(rec.notForce.length>=3){ toast("一到三件就好"); return; }
+  rec.notForce.push(v); inp.value=""; renderToday(); persist();
+};
+document.getElementById("notForceInput").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("btnAddNotForce").click(); });
+
+document.getElementById("btnAddLifeItem").onclick=()=>{
+  const inp=document.getElementById("lifeAddInput"); const v=inp.value.trim(); if(!v) return;
+  if(!DATA.lifeItems) DATA.lifeItems=DEFAULT_LIFE.slice();
+  if(!DATA.lifeItems.includes(v)) DATA.lifeItems.push(v);
+  inp.value=""; renderToday(); persist();
+};
+document.getElementById("lifeAddInput").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("btnAddLifeItem").click(); });
+
+document.getElementById("btnQuickToJournal").onclick=()=>{
+  const rec=todayRec(); const note=(rec.quick||"").trim();
+  if(!note){ toast("先寫點什麼吧"); return; }
+  const k=todayKey();
+  const j=DATA.journal[k]||{ title:"",text:"",mood:rec.mood||"",tags:[],photo:null,updated:0 };
+  j.text=(j.text?j.text+"\n":"")+note;
+  if(!j.mood) j.mood=rec.mood||"";
+  j.updated=Date.now(); DATA.journal[k]=j; rec.quick="";
+  renderToday(); persist(); toast("已收進今天的片段");
+};
+
+/* ================================================================
+   PLANNER 慢慢生活
+   ================================================================ */
+let weekAnchor=new Date();
+let monthDesignAnchor=new Date();
+
+function startOfWeek(d){ const x=new Date(d); x.setDate(x.getDate()-x.getDay()); x.setHours(0,0,0,0); return x; }
+
+// tab 切換
+document.getElementById("plannerTabs").addEventListener("click",e=>{
+  const t=e.target.closest(".view-tab"); if(!t) return;
+  document.querySelectorAll("#plannerTabs .view-tab").forEach(x=>x.classList.toggle("on",x===t));
+  const isWeek=t.dataset.ptab==="week";
+  document.getElementById("planWeek").style.display=isWeek?"block":"none";
+  document.getElementById("planMonth").style.display=isWeek?"none":"block";
+  if(isWeek) renderPlannerWeek(); else renderMonthDesign();
+});
+
+function renderPlanner(){ renderPlannerWeek(); }
+
+function renderPlannerWeek(){
+  const start=startOfWeek(weekAnchor);
+  const strip=document.getElementById("weekStrip"); strip.innerHTML="";
+  const tk=todayKey();
+  const first=ymd(start); const lastD=new Date(start); lastD.setDate(lastD.getDate()+6);
+  document.getElementById("weekLabel").textContent=fmtShort(first)+" – "+fmtShort(ymd(lastD));
+
+  for(let i=0;i<7;i++){
+    const d=new Date(start); d.setDate(d.getDate()+i);
+    const key=ymd(d); const items=DATA.week[key]||[];
+    const col=document.createElement("div"); col.className="day-col"+(key===tk?" today":"");
+    let inner=`<div class="day-name">${WK[d.getDay()]}</div><div class="day-num">${d.getDate()}</div>`;
+    if(items.length) items.forEach((it,idx)=> inner+=`<div class="chip ${it.cat||''}" data-key="${key}" data-idx="${idx}">${escapeHtml(it.text)}</div>`);
+    else inner+=`<div class="day-empty">留白的一天</div>`;
+    col.innerHTML=inner;
+    col.addEventListener("click",e=>{ const chip=e.target.closest(".chip"); if(chip){ editWeekItem(chip.dataset.key,+chip.dataset.idx); return; } addWeekItem(key); });
+    strip.appendChild(col);
+  }
+
+  renderWeekDirections(first);
+  renderWishes();
+}
+
+function renderWeekDirections(weekStart){
+  const box=document.getElementById("weekDirections"); box.innerHTML="";
+  const meta=DATA.weekMeta[weekStart]||{directions:{}};
+  DATA.weekMeta[weekStart]=meta; if(!meta.directions) meta.directions={};
+  WEEK_DIR_FIELDS.forEach(([k,label])=>{
+    const g=document.createElement("div"); g.className="field-group";
+    g.innerHTML=`<label class="field-label">${label}</label><input class="field" data-wd="${k}" value="${escapeAttr(meta.directions[k]||"")}" placeholder="想寫再寫">`;
+    box.appendChild(g);
+  });
+  box.querySelectorAll("[data-wd]").forEach(inp=> inp.addEventListener("input",()=>{ meta.directions[inp.dataset.wd]=inp.value; autosave(); }));
+}
+
+function addWeekItem(key){
+  promptModal({ title:fmtZh(key), desc:"想在這天做點什麼？（可留白也沒關係）", placeholder:"例：傍晚去散步",
+    onSave:val=>{ if(!val) return; if(!DATA.week[key]) DATA.week[key]=[]; const cats=["sage","rose","coffee",""]; DATA.week[key].push({text:val,cat:cats[DATA.week[key].length%cats.length]}); renderPlannerWeek(); persist(); toast("安排好了"); }});
+}
+function editWeekItem(key,idx){
+  const it=DATA.week[key][idx];
+  promptModal({ title:"改一下這件事", value:it.text, placeholder:"留空白代表刪掉",
+    onSave:val=>{ if(!val){ confirmDelete("「"+it.text+"」",()=>{ DATA.week[key].splice(idx,1); if(!DATA.week[key].length) delete DATA.week[key]; renderPlannerWeek(); persist(); toast("已刪掉"); }); return; } it.text=val; renderPlannerWeek(); persist(); toast("改好了"); }});
+}
+
+function renderWishes(){
+  const box=document.getElementById("wishList"); box.innerHTML="";
+  if(!DATA.wishes.length){ box.innerHTML=`<div class="empty-note">還沒有想做的事，慢慢想。</div>`; return; }
+  DATA.wishes.forEach(w=>{
+    const row=document.createElement("div"); row.className="wish"+(w.done?" done":"");
+    row.innerHTML=`<span class="mark" data-id="${w.id}">${w.done?"✔":"✿"}</span><span class="w-txt">${escapeHtml(w.text)}${w.tag?`<span class="w-tag">· ${escapeHtml(w.tag)}</span>`:""}</span><span class="w-del" data-del="${w.id}">刪</span>`;
+    box.appendChild(row);
+  });
+  box.querySelectorAll(".mark").forEach(m=> m.onclick=()=>{ const w=DATA.wishes.find(x=>x.id==m.dataset.id); w.done=!w.done; renderWishes(); persist(); });
+  box.querySelectorAll(".w-del").forEach(x=> x.onclick=()=>{ const w=DATA.wishes.find(v=>v.id==x.dataset.del); confirmDelete("「"+w.text+"」",()=>{ DATA.wishes=DATA.wishes.filter(v=>v.id!=x.dataset.del); renderWishes(); persist(); toast("已刪掉"); }); });
+}
+document.getElementById("btnAddWish").onclick=addWishFromInput;
+document.getElementById("wishInput").addEventListener("keydown",e=>{ if(e.key==="Enter") addWishFromInput(); });
+function addWishFromInput(){
+  const inp=document.getElementById("wishInput"); const raw=inp.value.trim(); if(!raw) return;
+  const tags=parseTags(raw);
+  DATA.wishes.push({id:Date.now(),text:stripTags(raw)||raw,tag:tags[0]||"",done:false});
+  inp.value=""; renderWishes(); persist(); toast("加好了");
+}
+
+/* 每月生活設計 */
+function mdRec(){ const k=ym(monthDesignAnchor); if(!DATA.monthDesign[k]) DATA.monthDesign[k]={keyword:"",life:"",feels:[],directions:[],wishes:[],notList:[]}; return DATA.monthDesign[k]; }
+function renderMonthDesign(){
+  const y=monthDesignAnchor.getFullYear(), m=monthDesignAnchor.getMonth();
+  document.getElementById("monthDesignLabel").textContent=y+" 年 "+(m+1)+" 月";
+  const r=mdRec();
+  document.getElementById("mdKeyword").value=r.keyword||"";
+  document.getElementById("mdLife").value=r.life||"";
+  autoGrow(document.getElementById("mdLife"));
+
+  const fc=document.getElementById("mdFeelChips"); fc.innerHTML="";
+  FEELS.forEach(f=>{
+    const on=r.feels.includes(f);
+    const chip=document.createElement("div"); chip.className="feel-chip"+(on?" on":"");
+    chip.textContent=f;
+    chip.onclick=()=>{ if(on) r.feels=r.feels.filter(x=>x!==f); else r.feels.push(f); renderMonthDesign(); autosave(); };
+    fc.appendChild(chip);
+  });
+
+  renderSimpleList("mdDirections", r.directions, ()=>{ renderMonthDesign(); persist(); });
+  renderSimpleList("mdWishList", r.wishes, ()=>{ renderMonthDesign(); persist(); });
+  renderSimpleList("mdNotList", r.notList, ()=>{ renderMonthDesign(); persist(); });
+}
+function renderSimpleList(boxId, arr, after){
+  const box=document.getElementById(boxId); box.innerHTML="";
+  if(!arr.length){ box.innerHTML=`<div class="quiet" style="padding:6px 2px;">還沒有，想寫再寫。</div>`; }
+  arr.forEach((txt,i)=>{
+    const row=document.createElement("div"); row.className="soft-list-item";
+    row.innerHTML=`<span class="txt">· ${escapeHtml(txt)}</span><span class="rm" data-i="${i}">移除</span>`;
+    box.appendChild(row);
+  });
+  box.querySelectorAll(".rm").forEach(x=> x.onclick=()=>{ arr.splice(+x.dataset.i,1); after(); });
+}
+document.getElementById("mdKeyword").addEventListener("input",e=>{ mdRec().keyword=e.target.value; autosave(); });
+document.getElementById("mdLife").addEventListener("input",e=>{ mdRec().life=e.target.value; autoGrow(e.target); autosave(); });
+document.getElementById("btnAddMdDir").onclick=()=>{ const inp=document.getElementById("mdDirInput"); const v=inp.value.trim(); if(!v) return; mdRec().directions.push(v); inp.value=""; renderMonthDesign(); persist(); };
+document.getElementById("btnAddMdWish").onclick=()=>{ const inp=document.getElementById("mdWishInput"); const v=inp.value.trim(); if(!v) return; mdRec().wishes.push(v); inp.value=""; renderMonthDesign(); persist(); };
+document.getElementById("btnAddMdNot").onclick=()=>{ const inp=document.getElementById("mdNotInput"); const v=inp.value.trim(); if(!v) return; mdRec().notList.push(v); inp.value=""; renderMonthDesign(); persist(); };
+document.getElementById("monthDesignPrev").onclick=()=>{ monthDesignAnchor.setMonth(monthDesignAnchor.getMonth()-1); renderMonthDesign(); };
+document.getElementById("monthDesignNext").onclick=()=>{ monthDesignAnchor.setMonth(monthDesignAnchor.getMonth()+1); renderMonthDesign(); };
+document.getElementById("weekPrev").onclick=()=>{ weekAnchor.setDate(weekAnchor.getDate()-7); renderPlannerWeek(); };
+document.getElementById("weekNext").onclick=()=>{ weekAnchor.setDate(weekAnchor.getDate()+7); renderPlannerWeek(); };
+
+/* ================================================================
+   JOURNAL 生活片段
+   ================================================================ */
+let calAnchor=new Date();
+let journalEditKey=todayKey();
+let journalFilterTag="";
+let journalKeyword="";
+let currentJView="write";
+
+document.getElementById("journalViewTabs").addEventListener("click",e=>{
+  const t=e.target.closest(".view-tab"); if(!t) return; switchJournalView(t.dataset.jview);
+});
+function switchJournalView(v){
+  currentJView=v;
+  document.querySelectorAll("#journalViewTabs .view-tab").forEach(x=>x.classList.toggle("on",x.dataset.jview===v));
+  ["write","timeline","calendar","cards","shelf"].forEach(k=>{
+    document.getElementById("jview"+k.charAt(0).toUpperCase()+k.slice(1)).style.display = (k===v)?"block":"none";
+  });
+  renderJournal();
+}
+function renderJournal(){
+  if(currentJView==="write") renderJournalEditor();
+  if(currentJView==="timeline"){ renderJournalTagFilter(); renderTimeline(); }
+  if(currentJView==="calendar") renderCalendar();
+  if(currentJView==="cards") renderJournalCards();
+  if(currentJView==="shelf") renderShelf();
+}
+
+function journalRec(){ if(!DATA.journal[journalEditKey]) DATA.journal[journalEditKey]={title:"",text:"",mood:"",tags:[],photo:null,updated:0}; return DATA.journal[journalEditKey]; }
+
+function renderJournalEditor(){
+  const rec=DATA.journal[journalEditKey]||{title:"",text:"",mood:"",tags:[],photo:null};
+  document.getElementById("jwLabel").textContent=fmtZh(journalEditKey);
+  document.getElementById("journalTitle").value=rec.title||"";
+  const ta=document.getElementById("journalText"); ta.value=rec.text||"";
+
+  const mm=document.getElementById("journalMood");
+  mm.innerHTML=MOODS.map(x=>`<span class="mood" data-m="${x}" style="width:38px;height:38px;font-size:18px;">${x}</span>`).join("");
+  mm.querySelectorAll(".mood").forEach(el=>{
+    el.classList.toggle("sel",el.dataset.m===rec.mood);
+    el.onclick=()=>{ const r=journalRec(); r.mood=(r.mood===el.dataset.m)?"":el.dataset.m; renderJournalEditor(); autosave(); };
+  });
+
+  // 預設標籤
+  const pt=document.getElementById("journalPresetTags"); pt.innerHTML="";
+  PRESET_TAGS.forEach(tg=>{
+    const on=(rec.tags||[]).includes(tg);
+    const el=document.createElement("span"); el.className="tag-pill"+(on?" on":""); el.textContent=tg;
+    el.onclick=()=>{ const r=journalRec(); if(!r.tags) r.tags=[]; if(r.tags.includes(tg)) r.tags=r.tags.filter(x=>x!==tg); else r.tags.push(tg); renderJournalEditor(); autosave(); };
+    pt.appendChild(el);
+  });
+  document.getElementById("journalTags").value=(rec.tags||[]).join(" ");
+
+  // 照片
+  renderPhotoSlot(rec);
+}
+
+function renderPhotoSlot(rec){
+  const empty=document.getElementById("photoEmpty");
+  const prev=document.getElementById("photoPreview");
+  const src=safePhotoSrc(rec.photo);
+  if(src){
+    empty.style.display="none"; prev.style.display="block";
+    document.getElementById("photoImg").src=src;
+    const kb=Math.round(src.length*0.75/1024);
+    document.getElementById("photoSize").textContent=kb+" KB · 縮圖存於本機";
+  }else{
+    empty.style.display="block"; prev.style.display="none";
+  }
+}
+document.getElementById("photoEmpty").onclick=()=>document.getElementById("photoFile").click();
+document.getElementById("photoDelete").onclick=()=>{ const r=journalRec(); r.photo=null; renderPhotoSlot(r); persist(); toast("已移除照片"); };
+/* 單張照片壓縮後的安全上限（dataURL 字元數）。約 1.4MB 字串 ≈ 1MB 影像，對 localStorage 是保守值。 */
+const PHOTO_MAX_CHARS = 1400000;
+
+document.getElementById("photoFile").addEventListener("change",e=>{
+  const file=e.target.files[0]; if(!file) return;
+  e.target.value="";  // 先清掉，允許重選同一張
+  /* 照片策略（第一階段）：自動縮圖 + JPEG 壓縮，存成小型 dataURL。
+     若壓縮後仍過大，會降階再壓一次；仍超過安全上限則拒絕，並且「絕不」讓照片
+     蓋掉既有文字資料。第二階段（下一版）再改用 IndexedDB 支援多張與完整備份。 */
+  compressImage(file, 900, 0.7, dataUrl=>{
+    if(!dataUrl){ toast("這張圖讀不進來"); return; }
+    const commit=(url)=>{
+      const r=journalRec();
+      const prev=r.photo;          // 記住原本的照片，失敗要還原
+      r.photo=url;
+      const ok=persist();          // 嘗試寫入
+      if(ok){ renderPhotoSlot(r); toast("照片加好了"); }
+      else{
+        r.photo=prev;              // 還原，確保文字資料不受影響
+        renderPhotoSlot(r);
+        toast("這張照片太大，已取消加入（你的文字都安全）");
+      }
+    };
+    if(dataUrl.length<=PHOTO_MAX_CHARS){ commit(dataUrl); return; }
+    // 太大：用更小尺寸與更低品質再壓一次
+    compressImage(file, 700, 0.55, smaller=>{
+      if(smaller && smaller.length<=PHOTO_MAX_CHARS) commit(smaller);
+      else toast("這張照片太大了，換一張小一點的吧");
     });
   });
+});
+/* 縮圖壓縮：限制最大邊、輸出 JPEG，避免大圖塞爆 localStorage。失敗時 cb(null)。 */
+function compressImage(file, maxSize, quality, cb){
+  const img=new Image();
+  img.onload=()=>{
+    let {width,height}=img;
+    if(!width||!height){ cb(null); return; }
+    if(width>height && width>maxSize){ height=Math.round(height*maxSize/width); width=maxSize; }
+    else if(height>maxSize){ width=Math.round(width*maxSize/height); height=maxSize; }
+    const canvas=document.createElement("canvas"); canvas.width=width; canvas.height=height;
+    try{
+      canvas.getContext("2d").drawImage(img,0,0,width,height);
+      cb(canvas.toDataURL("image/jpeg",quality));
+    }catch(err){ cb(null); }  // 例如 HEIC 在部分瀏覽器無法解碼
+  };
+  img.onerror=()=>cb(null);
+  const fr=new FileReader(); fr.onload=()=>img.src=fr.result; fr.onerror=()=>cb(null); fr.readAsDataURL(file);
+}
 
-  /* ---------------- 匯出 / 匯入 ---------------- */
-  $("#export-btn").addEventListener("click", function(){
-    var data = JSON.stringify(state.entries, null, 2);
-    var blob = new Blob([data], {type:"application/json"});
-    var url = URL.createObjectURL(blob);
-    var now = new Date();
-    var filename = "18-living-diary-backup-" + now.getFullYear() + "-" + pad(now.getMonth()+1) + "-" + pad(now.getDate()) + ".json";
-    var a = document.createElement("a");
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast("已匯出備份檔 🤍");
+document.getElementById("journalTitle").addEventListener("input",e=>{ const r=journalRec(); r.title=e.target.value; r.updated=Date.now(); autosave(); });
+document.getElementById("journalText").addEventListener("input",e=>{ const r=journalRec(); r.text=e.target.value; r.updated=Date.now(); autosave(); });
+document.getElementById("journalTags").addEventListener("input",e=>{ const r=journalRec(); r.tags=e.target.value.split(/\s+/).filter(Boolean); autosave(); });
+
+document.getElementById("btnSaveJournal").onclick=()=>{
+  const r=DATA.journal[journalEditKey];
+  if(!r || (!r.text||!r.text.trim()) && !(r.title&&r.title.trim()) && !r.photo){ toast("這天還是空白的"); return; }
+  r.updated=Date.now(); persist(); toast("存下這一天了");
+};
+document.getElementById("btnJournalNewDay").onclick=()=>{
+  promptModal({ title:"想寫哪一天？", desc:"輸入日期（YYYY-MM-DD），或到月曆上點。", value:journalEditKey, placeholder:"2026-07-12",
+    onSave:val=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(val)){ journalEditKey=val; calAnchor=parseLocalDate(val); renderJournalEditor(); } else toast("日期格式怪怪的"); }});
+};
+
+/* 月曆 */
+function renderCalendar(){
+  const y=calAnchor.getFullYear(), m=calAnchor.getMonth();
+  document.getElementById("calTitle").textContent=y+" 年 "+(m+1)+" 月";
+  const grid=document.getElementById("calGrid"); grid.innerHTML="";
+  WK.forEach(w=> grid.insertAdjacentHTML("beforeend",`<div class="cal-wk">${w}</div>`));
+  const first=new Date(y,m,1); const startDay=first.getDay(); const days=new Date(y,m+1,0).getDate();
+  for(let i=0;i<startDay;i++) grid.insertAdjacentHTML("beforeend",`<div class="cal-cell blank"></div>`);
+  const tk=todayKey();
+  for(let dd=1;dd<=days;dd++){
+    const key=y+"-"+pad(m+1)+"-"+pad(dd);
+    const j=DATA.journal[key]; const has=hasEntry(j);
+    const cls=["cal-cell"]; if(key===tk) cls.push("today"); if(key===journalEditKey) cls.push("sel");
+    const cell=document.createElement("div"); cell.className=cls.join(" ");
+    cell.innerHTML=`<span>${dd}</span>${has?'<span class="c-dot"></span>':''}`;
+    cell.onclick=()=>{ journalEditKey=key; switchJournalView("write"); };
+    grid.appendChild(cell);
+  }
+}
+document.getElementById("calPrev").onclick=()=>{ calAnchor.setMonth(calAnchor.getMonth()-1); renderCalendar(); };
+document.getElementById("calNext").onclick=()=>{ calAnchor.setMonth(calAnchor.getMonth()+1); renderCalendar(); };
+
+/* 標籤篩選 */
+function renderJournalTagFilter(){
+  const all=new Set(); Object.values(DATA.journal).forEach(j=> (j.tags||[]).forEach(t=>all.add(t)));
+  const box=document.getElementById("journalTagFilter");
+  if(!all.size){ box.innerHTML=""; return; }
+  let html=`<span class="tag-pill ${journalFilterTag===""?"on":""}" data-t="">全部</span>`;
+  [...all].forEach(t=> html+=`<span class="tag-pill ${journalFilterTag===t?"on":""}" data-t="${escapeAttr(t)}">${escapeHtml(t)}</span>`);
+  box.innerHTML=html;
+  box.querySelectorAll(".tag-pill").forEach(p=> p.onclick=()=>{ journalFilterTag=p.dataset.t; TIMELINE_LIMIT=60; renderJournalTagFilter(); renderTimeline(); });
+}
+document.getElementById("journalSearch").addEventListener("input",e=>{ journalKeyword=e.target.value.trim(); TIMELINE_LIMIT=60; renderTimeline(); });
+document.getElementById("journalSearchClear").onclick=()=>{ journalKeyword=""; document.getElementById("journalSearch").value=""; TIMELINE_LIMIT=60; renderTimeline(); };
+document.getElementById("journalSearch2").addEventListener("input",e=>{ journalKeyword=e.target.value.trim(); renderJournalCards(); });
+
+function filteredJournalKeys(){
+  let keys=Object.keys(DATA.journal).filter(k=>hasEntry(DATA.journal[k])).sort().reverse();
+  if(journalFilterTag) keys=keys.filter(k=>(DATA.journal[k].tags||[]).includes(journalFilterTag));
+  if(journalKeyword){ const kw=journalKeyword.toLowerCase(); keys=keys.filter(k=> DATA.journal[k].text.toLowerCase().includes(kw) || (DATA.journal[k].title||"").toLowerCase().includes(kw) || (DATA.journal[k].tags||[]).some(t=>t.toLowerCase().includes(kw))); }
+  return keys;
+}
+let TIMELINE_LIMIT = 60;   // 每次顯示的時間軸筆數，避免一次渲染上百張卡片造成卡頓
+function renderTimeline(){
+  const box=document.getElementById("journalTimeline");
+  const allKeys=filteredJournalKeys();
+  if(!allKeys.length){ box.innerHTML=`<div class="empty-note">${journalKeyword||journalFilterTag?"沒有找到符合的日子":"還沒有片段，從今天開始吧"}</div>`; return; }
+  const keys=allKeys.slice(0, TIMELINE_LIMIT);
+  box.innerHTML="";
+  keys.forEach(k=>{
+    const j=DATA.journal[k];
+    const card=document.createElement("div"); card.className="jcard";
+    const txt=j.text||"";
+    const preview=txt.length>120?txt.slice(0,120)+"…":txt;
+    card.innerHTML=`
+      <div class="jcard-head"><span class="jcard-date">${k.replace(/-/g,".")}</span><span class="jcard-mood">${escapeHtml(j.mood||"")}</span></div>
+      ${j.title?`<div class="jcard-title">${escapeHtml(j.title)}</div>`:""}
+      ${safePhotoSrc(j.photo)?`<img src="${safePhotoSrc(j.photo)}" style="width:100%;border-radius:10px;margin-bottom:10px;max-height:200px;object-fit:cover;">`:""}
+      <p class="jcard-body">${escapeHtml(preview)}</p>
+      ${(j.tags&&j.tags.length)?`<div class="jcard-tags">${j.tags.map(t=>`<span class="tag-pill">${escapeHtml(t)}</span>`).join("")}</div>`:""}
+      <div class="jcard-actions"><button class="btn tiny" data-edit="${k}">編輯</button><button class="btn tiny ghost danger" data-del="${k}">刪除</button></div>`;
+    box.appendChild(card);
   });
+  // 還有更多筆時，顯示「載入更多」，避免一次渲染全部
+  if(allKeys.length > keys.length){
+    const more=document.createElement("div");
+    more.style.textAlign="center"; more.style.marginTop="16px";
+    more.innerHTML=`<button class="btn" id="timelineMore">再往回看更多（還有 ${allKeys.length-keys.length} 天）</button>`;
+    box.appendChild(more);
+    more.querySelector("#timelineMore").onclick=()=>{ TIMELINE_LIMIT+=60; renderTimeline(); };
+  }
+  bindTimelineActions(box);
+}
+function renderJournalCards(){
+  const box=document.getElementById("journalCards");
+  const keys=filteredJournalKeys();
+  if(!keys.length){ box.innerHTML=`<div class="empty-note">還沒有片段。</div>`; return; }
+  box.innerHTML="";
+  keys.forEach(k=>{
+    const j=DATA.journal[k];
+    const card=document.createElement("div"); card.className="jcard"; card.style.cursor="pointer";
+    const txt=j.text||"";
+    const preview=txt.length>60?txt.slice(0,60)+"…":txt;
+    card.innerHTML=`
+      <div class="jcard-head"><span class="jcard-date">${fmtShort(k)}</span><span class="jcard-mood">${escapeHtml(j.mood||"")}</span></div>
+      ${j.title?`<div class="jcard-title" style="font-size:15px;">${escapeHtml(j.title)}</div>`:""}
+      <p class="jcard-body" style="font-size:13px;">${escapeHtml(preview)}</p>`;
+    card.onclick=()=>{ journalEditKey=k; calAnchor=parseLocalDate(k); switchJournalView("write"); };
+    box.appendChild(card);
+  });
+}
+function bindTimelineActions(box){
+  box.querySelectorAll("[data-edit]").forEach(b=> b.onclick=()=>{ journalEditKey=b.dataset.edit; calAnchor=parseLocalDate(b.dataset.edit); switchJournalView("write"); toast("翻到 "+fmtShort(b.dataset.edit)); });
+  box.querySelectorAll("[data-del]").forEach(b=> b.onclick=()=>{ confirmDelete(fmtShort(b.dataset.del)+" 的片段",()=>{ delete DATA.journal[b.dataset.del]; renderJournal(); persist(); toast("已刪掉"); }); });
+}
 
-  $("#import-input").addEventListener("change", function(e){
-    var file = e.target.files && e.target.files[0];
-    if(!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      var imported;
-      try{ imported = JSON.parse(ev.target.result); }
-      catch(err){ showToast("這個檔案讀不懂，請確認是正確的備份 JSON 檔"); return; }
-      if(!Array.isArray(imported)){ showToast("檔案格式不正確"); return; }
+/* 生活書櫃 */
+let shelfYear=null;
+function renderShelf(){
+  const yearsBox=document.getElementById("shelfYears");
+  const monthsBox=document.getElementById("shelfMonths");
+  if(shelfYear){ yearsBox.style.display="none"; monthsBox.style.display="block"; renderShelfMonths(shelfYear); return; }
+  yearsBox.style.display="block"; monthsBox.style.display="none";
 
-      openConfirm("合併日記資料", "偵測到「"+imported.length+"」篇日記，將與目前的日記合併（相同日期會保留較新的版本），不會整批覆蓋現有資料，確定要繼續嗎？", function(){
-        var added = 0, updated = 0;
-        imported.forEach(function(item){
-          if(!item || !item.date) return;
-          var byId = item.id ? getEntryById(item.id) : null;
-          var byDate = getEntryByDate(item.date);
-          var existing = byId || byDate;
-          if(existing){
-            var existingTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
-            var importTime = new Date(item.updatedAt || item.createdAt || 0).getTime();
-            if(importTime > existingTime){
-              Object.assign(existing, item, { id: existing.id });
-              updated++;
-            }
-          }else{
-            state.entries.push(Object.assign({}, item, { id: item.id || uid() }));
-            added++;
-          }
-        });
-        persistEntries();
-        renderShelf(); renderCalendar(); runSearch();
-        showToast("匯入完成：新增 "+added+" 篇、更新 "+updated+" 篇 🌿");
+  // 收集所有有日記的年份
+  const years=new Set(); Object.keys(DATA.journal).forEach(k=>{ if(hasEntry(DATA.journal[k])) years.add(k.slice(0,4)); });
+  years.add(String(new Date().getFullYear()));
+  const sorted=[...years].sort().reverse();
+  yearsBox.innerHTML=`<div class="shelf-years">`+sorted.map(y=>{
+    const count=Object.keys(DATA.journal).filter(k=>k.startsWith(y)&&hasEntry(DATA.journal[k])).length;
+    return `<div class="shelf-book" data-year="${y}"><div class="shelf-year">${y}</div><div class="shelf-meta">${count} 天的生活</div></div>`;
+  }).join("")+`</div>`;
+  yearsBox.querySelectorAll("[data-year]").forEach(b=> b.onclick=()=>{ shelfYear=b.dataset.year; renderShelf(); });
+}
+function renderShelfMonths(year){
+  document.getElementById("shelfYearLabel").textContent=year+" 年";
+  const grid=document.getElementById("shelfMonthGrid"); grid.innerHTML="";
+  for(let m=1;m<=12;m++){
+    const mk=year+"-"+pad(m);
+    const keys=Object.keys(DATA.journal).filter(k=>k.startsWith(mk)&&hasEntry(DATA.journal[k])).sort();
+    const count=keys.length;
+    let topMood="", quote="", photo="";
+    if(count){
+      const moods={}; keys.forEach(k=>{ const md=DATA.journal[k].mood; if(md) moods[md]=(moods[md]||0)+1; });
+      topMood=Object.entries(moods).sort((a,b)=>b[1]-a[1])[0]?.[0]||"";
+      const firstWithText=keys.find(k=>DATA.journal[k].text.trim());
+      if(firstWithText){ const t=DATA.journal[firstWithText]; quote=(t.title||t.text).slice(0,16); }
+    }
+    const cover=document.createElement("div"); cover.className="month-cover";
+    cover.innerHTML=`<div class="mc-m">${m} 月</div><div class="mc-count">${count?count+" 天的生活":"還沒開始"}</div>${topMood?`<div class="mc-mood">${topMood}</div>`:""}${quote?`<div class="mc-quote">${escapeHtml(quote)}…</div>`:""}`;
+    cover.onclick=()=>{ if(!count){ toast("這個月還沒有片段"); return; } calAnchor=new Date(+year,m-1,1); const firstKey=keys[keys.length-1]; journalEditKey=firstKey; switchJournalView("calendar"); };
+    grid.appendChild(cover);
+  }
+}
+document.getElementById("shelfBack").onclick=()=>{ shelfYear=null; renderShelf(); };
+
+/* ================================================================
+   CREATE 靈感花園
+   ================================================================ */
+let createFilterTag="";
+let createFilterState="";
+
+function renderCreate(){ renderStateFilter(); renderCollections(); renderGarden(); }
+
+function renderStateFilter(){
+  const box=document.getElementById("createStateFilter");
+  let html=`<span class="collection ${createFilterState===""?"on":""}" data-s="">全部狀態</span>`;
+  SCRAP_STATES.forEach(s=> html+=`<span class="collection ${createFilterState===s.k?"on":""}" data-s="${s.k}">${s.label}</span>`);
+  box.innerHTML=html;
+  box.querySelectorAll("[data-s]").forEach(c=> c.onclick=()=>{ createFilterState=c.dataset.s; GARDEN_LIMIT=60; renderCreate(); });
+}
+function renderCollections(){
+  const all=new Set(); DATA.scraps.forEach(s=> s.tag&&all.add(s.tag));
+  const box=document.getElementById("createCollections");
+  if(!all.size){ box.innerHTML=""; return; }
+  let html=`<span class="collection ${createFilterTag===""?"on":""}" data-t="">全部標籤</span>`;
+  [...all].forEach(t=> html+=`<span class="collection ${createFilterTag===t?"on":""}" data-t="${escapeAttr(t)}">＃${escapeHtml(t)}</span>`);
+  box.innerHTML=html;
+  box.querySelectorAll("[data-t]").forEach(c=> c.onclick=()=>{ createFilterTag=c.dataset.t; GARDEN_LIMIT=60; renderCreate(); });
+}
+function stateLabel(k){ return (SCRAP_STATES.find(s=>s.k===k)||SCRAP_STATES[0]).label; }
+let GARDEN_LIMIT = 60;   // 一次顯示的靈感數量上限
+function renderGarden(){
+  const garden=document.getElementById("garden"); const empty=document.getElementById("gardenEmpty");
+  let full=DATA.scraps.slice().reverse();
+  if(createFilterTag) full=full.filter(s=>s.tag===createFilterTag);
+  if(createFilterState) full=full.filter(s=>s.state===createFilterState);
+  if(!full.length){ garden.innerHTML=""; empty.style.display="block"; return; }
+  empty.style.display="none"; garden.innerHTML="";
+  const list=full.slice(0, GARDEN_LIMIT);
+  list.forEach(s=>{
+    const el=document.createElement("div"); el.className="scrap "+(s.state||"seed");
+    el.innerHTML=`
+      <div class="s-state">${stateLabel(s.state)}</div>
+      ${s.title?`<div class="s-title">${escapeHtml(s.title)}</div>`:""}
+      <div class="s-txt">${escapeHtml(s.text)}</div>
+      <div class="s-meta">${s.tag?`＃${escapeHtml(s.tag)}`:""}${s.platform?` · ${escapeHtml(s.platform)}`:""}${s.format?` · ${escapeHtml(s.format)}`:""}${s.publishDate?` · 預計 ${escapeHtml(s.publishDate)}`:""}</div>
+      <div class="s-actions"><button class="btn tiny" data-detail="${s.id}">展開</button><button class="btn tiny ghost" data-cyc="${s.id}">下一個狀態</button><button class="btn tiny ghost danger" data-del="${s.id}">刪除</button></div>`;
+    garden.appendChild(el);
+  });
+  if(full.length > list.length){
+    const more=document.createElement("div");
+    more.style.cssText="break-inside:avoid;text-align:center;margin-top:8px;";
+    more.innerHTML=`<button class="btn" id="gardenMore">看更多靈感（還有 ${full.length-list.length} 則）</button>`;
+    garden.appendChild(more);
+    more.querySelector("#gardenMore").onclick=()=>{ GARDEN_LIMIT+=60; renderGarden(); };
+  }
+  garden.querySelectorAll("[data-cyc]").forEach(b=> b.onclick=()=>{ const s=DATA.scraps.find(x=>x.id==b.dataset.cyc); const idx=SCRAP_STATES.findIndex(x=>x.k===s.state); s.state=SCRAP_STATES[(idx+1)%SCRAP_STATES.length].k; renderGarden(); persist(); });
+  garden.querySelectorAll("[data-detail]").forEach(b=> b.onclick=()=>openScrapDetail(DATA.scraps.find(x=>x.id==b.dataset.detail)));
+  garden.querySelectorAll("[data-del]").forEach(b=> b.onclick=()=>{ const s=DATA.scraps.find(x=>x.id==b.dataset.del); confirmDelete("這個念頭",()=>{ DATA.scraps=DATA.scraps.filter(x=>x.id!=b.dataset.del); renderCreate(); persist(); toast("已刪掉"); }); });
+}
+function openScrapDetail(s){
+  const stateOpts=SCRAP_STATES.map(x=>`<option value="${x.k}" ${s.state===x.k?"selected":""}>${x.label}</option>`).join("");
+  const platOpts=`<option value="">—</option>`+PLATFORMS.map(x=>`<option ${s.platform===x?"selected":""}>${x}</option>`).join("");
+  const fmtOpts=`<option value="">—</option>`+FORMATS.map(x=>`<option ${s.format===x?"selected":""}>${x}</option>`).join("");
+  modalBox.innerHTML=`
+    <h3>靈感細節</h3>
+    <div class="field-group"><label class="field-label">靈感標題</label><input class="field" id="sTitle" value="${escapeAttr(s.title||"")}" placeholder="給這個靈感一個名字"></div>
+    <div class="field-group"><label class="field-label">核心想法</label><textarea class="field" id="sText" style="min-height:70px;resize:none;">${escapeHtml(s.text||"")}</textarea></div>
+    <div class="field-group"><label class="field-label">延伸筆記</label><textarea class="field" id="sNote" style="min-height:60px;resize:none;">${escapeHtml(s.note||"")}</textarea></div>
+    <div class="field-group"><label class="field-label">標籤</label><input class="field" id="sTag" value="${escapeAttr(s.tag||"")}" placeholder="一個標籤"></div>
+    <div class="field-group"><label class="field-label">狀態</label><select class="field" id="sState">${stateOpts}</select></div>
+    <div class="field-group"><label class="field-label">適合平台</label><select class="field" id="sPlat">${platOpts}</select></div>
+    <div class="field-group"><label class="field-label">內容形式</label><select class="field" id="sFormat">${fmtOpts}</select></div>
+    <div class="field-group"><label class="field-label">預計發布日期（可不填）</label><input class="field" id="sPub" type="date" value="${escapeAttr(s.publishDate||"")}"></div>
+    <div class="modal-actions"><button class="btn ghost" id="mCancel">取消</button><button class="btn sage" id="mSave">存下</button></div>`;
+  overlay.classList.add("show");
+  document.getElementById("mCancel").onclick=closeModal;
+  document.getElementById("mSave").onclick=()=>{
+    s.title=document.getElementById("sTitle").value.trim();
+    s.text=document.getElementById("sText").value.trim();
+    s.note=document.getElementById("sNote").value.trim();
+    s.tag=document.getElementById("sTag").value.trim();
+    s.state=document.getElementById("sState").value;
+    s.platform=document.getElementById("sPlat").value;
+    s.format=document.getElementById("sFormat").value;
+    s.publishDate=document.getElementById("sPub").value;
+    closeModal(); renderCreate(); persist(); toast("存好了");
+  };
+}
+document.getElementById("btnAddScrap").onclick=addScrap;
+document.getElementById("scrapInput").addEventListener("keydown",e=>{ if(e.key==="Enter") addScrap(); });
+function addScrap(){
+  const inp=document.getElementById("scrapInput"); const raw=inp.value.trim(); if(!raw) return;
+  const tags=parseTags(raw);
+  const scrap={ id:Date.now(), title:"", text:stripTags(raw)||raw, note:"", tag:tags[0]||"", state:"seed", platform:"", format:"", publishDate:"", created:Date.now() };
+  DATA.scraps.push(scrap);
+  inp.value=""; renderCreate(); persist(); toast("種下了");
+}
+
+/* ================================================================
+   REFLECT 回望自己
+   ================================================================ */
+let reflectAnchor=new Date();
+let reflectWeekAnchor=new Date();
+let reflectMode="month";
+
+document.querySelector(".reflect-mode").addEventListener("click",e=>{
+  const t=e.target.closest(".view-tab"); if(!t) return;
+  reflectMode=t.dataset.rmode;
+  document.querySelectorAll(".reflect-mode .view-tab").forEach(x=>x.classList.toggle("on",x===t));
+  document.getElementById("reflectMonthView").style.display=reflectMode==="month"?"block":"none";
+  document.getElementById("reflectWeekView").style.display=reflectMode==="week"?"block":"none";
+  renderReflect();
+});
+function renderReflect(){ if(reflectMode==="month") renderReflectMonth(); else renderReflectWeek(); }
+
+function renderReflectMonth(){
+  const y=reflectAnchor.getFullYear(), m=reflectAnchor.getMonth(); const mk=ym(reflectAnchor);
+  document.getElementById("reflectMonth").textContent=y+" 年 "+(m+1)+" 月";
+  const days=new Date(y,m+1,0).getDate();
+  let written=0; const moods={}; const words={};
+  for(let dd=1;dd<=days;dd++){
+    const key=y+"-"+pad(m+1)+"-"+pad(dd); const j=DATA.journal[key];
+    if(j&&j.text&&j.text.trim()){ written++; if(j.mood) moods[j.mood]=(moods[j.mood]||0)+1; collectWords(j.text,words); }
+  }
+  document.getElementById("statWritten").textContent=written;
+  document.getElementById("statBlank").textContent=Math.max(days-written,0);
+
+  const mm=document.getElementById("moodMonth"); const max=Math.max(1,...Object.values(moods));
+  const palette={ "🌤️":"var(--season-soft)","☁️":"var(--paper-deep)","🌧️":"var(--rose-soft)","🌙":"var(--coffee)","🌱":"var(--sage)" };
+  mm.innerHTML=MOODS.map(x=>{ const h=Math.round((moods[x]||0)/max*100); return `<div class="mood-bar" style="height:${Math.max(h,6)}%;background:${palette[x]}" title="${x} ${moods[x]||0}"></div>`; }).join("");
+  const topMood=Object.entries(moods).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById("moodSummary").textContent= written ? `這個月，你留下了 ${written} 天的生活${topMood?"，大多數時候是 "+topMood[0]:""}。` : "這個月還沒有記錄，隨時可以開始。";
+
+  // 本機關鍵詞摘要
+  renderLocalSummary(words, written);
+
+  const hs=document.getElementById("highlightStrip");
+  const keys=Object.keys(DATA.journal).filter(k=>k.startsWith(mk)&&DATA.journal[k].text&&DATA.journal[k].text.trim()).sort().reverse().slice(0,6);
+  hs.innerHTML=keys.length?keys.map(k=>{ const t=DATA.journal[k]; const txt=(t.title||t.text).replace(/\n/g," "); return `<div class="hl"><div class="hl-d">${fmtShort(k)}</div><div class="hl-t">${escapeHtml(txt.length>28?txt.slice(0,28)+"…":txt)}</div></div>`; }).join(""):`<div class="empty-note" style="padding:14px;">還沒有精選，寫下幾天就會出現。</div>`;
+
+  // 每月回顧問題
+  renderMonthReflectQuestions(mk);
+}
+
+/* 本機關鍵詞統計（簡易：抓 2 字以上詞的高頻） */
+/* 常見無意義詞（虛詞、連接詞、代名詞等），過濾掉以減少雜訊。這只是本機粗略統計，非斷詞引擎。 */
+const STOP_WORDS = new Set([
+  "然後","可是","但是","因為","所以","如果","雖然","不過","還有","而且","或者","這個","那個","一個","一點",
+  "自己","什麼","怎麼","這樣","那樣","這些","那些","已經","還是","就是","可以","應該","覺得","有點","真的",
+  "今天","明天","昨天","現在","時候","一直","有些","的話","起來","下來","出來","過來","知道","沒有","很多","一些",
+  "他們","我們","你們","它們","這裡","那裡","地方","一下","的時","候我","得很"
+]);
+function collectWords(text,acc){
+  // 以標點與空白切段，再取「2 字」中文片段做粗略計數（中文最有意義的多半是雙字詞）
+  const cleaned=text.replace(/[，。、！？：；「」『』（）〈〉《》—…～\s\n.,!?()"']/g," ");
+  const segs=cleaned.split(" ").filter(w=>w.length>=2);
+  segs.forEach(w=>{
+    for(let i=0;i+2<=w.length;i++){
+      const g=w.slice(i,i+2);
+      if(/^[\u4e00-\u9fa5]{2}$/.test(g) && !STOP_WORDS.has(g)) acc[g]=(acc[g]||0)+1;
+    }
+  });
+}
+function renderLocalSummary(words, written){
+  const el=document.getElementById("localSummary");
+  if(!written){ el.textContent="這個月還沒有文字，寫下幾天，這裡就會悄悄浮現。"; return; }
+  const top=Object.entries(words).filter(([w,c])=>c>=2).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
+  if(!top.length){ el.textContent="這個月的文字還很少，再多寫幾天，就能看出一點軌跡。"; return; }
+  el.textContent=`這個月，你經常寫到「${top.join("」、「")}」。看起來，你正在把日子，一天天地放進同一張紙上。`;
+}
+
+function renderMonthReflectQuestions(mk){
+  const box=document.getElementById("reflectMonthQuestions"); box.innerHTML="";
+  const r=DATA.reflect[mk]||{}; DATA.reflect[mk]=r;
+  // 保留 v1 的 q1/q2（相容）
+  const legacy=[["q1","這個月，有哪個瞬間讓你想停下來？"],["q2","如果用一個詞形容這個月，會是——"]];
+  legacy.concat(MONTH_REFLECT_FIELDS).forEach(([k,q])=>{
+    const div=document.createElement("div"); div.className="prompt-box";
+    div.innerHTML=`<p class="prompt-q">${q}</p><textarea data-mr="${k}" placeholder="慢慢寫…">${escapeHtml(r[k]||"")}</textarea>`;
+    box.appendChild(div);
+  });
+  box.querySelectorAll("[data-mr]").forEach(t=>{ autoGrow(t); t.addEventListener("input",()=>{ r[t.dataset.mr]=t.value; autoGrow(t); autosave(); }); });
+}
+
+document.getElementById("reflectPrev").onclick=()=>{ reflectAnchor.setMonth(reflectAnchor.getMonth()-1); renderReflectMonth(); };
+document.getElementById("reflectNext").onclick=()=>{ reflectAnchor.setMonth(reflectAnchor.getMonth()+1); renderReflectMonth(); };
+
+function renderReflectWeek(){
+  const start=startOfWeek(reflectWeekAnchor); const wk=ymd(start);
+  const lastD=new Date(start); lastD.setDate(lastD.getDate()+6);
+  document.getElementById("reflectWeekLabel").textContent=fmtShort(wk)+" – "+fmtShort(ymd(lastD));
+  const r=DATA.reflectWeek[wk]||{}; DATA.reflectWeek[wk]=r;
+  const box=document.getElementById("reflectWeekQuestions"); box.innerHTML="";
+  WEEK_REFLECT_FIELDS.forEach(([k,q])=>{
+    const div=document.createElement("div"); div.className="prompt-box";
+    div.innerHTML=`<p class="prompt-q">${q}</p><textarea data-wr="${k}" placeholder="慢慢寫…">${escapeHtml(r[k]||"")}</textarea>`;
+    box.appendChild(div);
+  });
+  box.querySelectorAll("[data-wr]").forEach(t=>{ autoGrow(t); t.addEventListener("input",()=>{ r[t.dataset.wr]=t.value; autoGrow(t); autosave(); }); });
+}
+document.getElementById("reflectWkPrev").onclick=()=>{ reflectWeekAnchor.setDate(reflectWeekAnchor.getDate()-7); renderReflectWeek(); };
+document.getElementById("reflectWkNext").onclick=()=>{ reflectWeekAnchor.setDate(reflectWeekAnchor.getDate()+7); renderReflectWeek(); };
+
+/* ================================================================
+   JSON 匯出 / 匯入（合併 / 覆蓋 / 取消）
+   ================================================================ */
+document.getElementById("btnExport").onclick=()=>{
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob); const a=document.createElement("a");
+  a.href=url; a.download="18-living-backup-"+todayKey()+".json";
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  toast("已匯出備份");
+};
+document.getElementById("btnImport").onclick=()=>document.getElementById("importFile").click();
+
+/* 深拷貝（用於匯入前快照，失敗可完整回復） */
+function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+/* 粗略判斷是不是「像」本系統的備份：至少要有其中一個已知容器 */
+function looksLikeBackup(o){
+  if(!isPlainObject(o)) return false;
+  return ["today","journal","week","wishes","scraps","reflect","monthDesign"].some(k=> k in o);
+}
+
+document.getElementById("importFile").addEventListener("change",e=>{
+  const input=e.target;
+  const file=input.files[0]; if(!file){ return; }
+  const reader=new FileReader();
+  reader.onerror=()=>{ toast("這個檔案讀不進來"); input.value=""; };
+  reader.onload=()=>{
+    input.value="";  // 立即釋放，允許重選同檔
+    let incoming;
+    try{ incoming=JSON.parse(reader.result); }
+    catch(err){ toast("這不是有效的備份檔"); return; }
+    if(!looksLikeBackup(incoming)){ toast("這份檔案看起來不是 18 Living 的備份"); return; }
+
+    modalBox.innerHTML=`
+      <h3>要怎麼帶入這份備份？</h3>
+      <p>「合併」會保留你現在的資料，只補上備份裡沒衝突的內容；相同日期的日記會問你留哪一版。<br>「覆蓋」會用備份完全取代目前資料。</p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="mCancel">取消</button>
+        <button class="btn" id="mOverwrite">覆蓋</button>
+        <button class="btn sage" id="mMerge">合併</button>
+      </div>`;
+    overlay.classList.add("show");
+    document.getElementById("mCancel").onclick=closeModal;
+    document.getElementById("mOverwrite").onclick=()=>{
+      closeModal();
+      confirmDelete("目前的資料會被備份完全取代",()=>{
+        const snapshot=deepClone(DATA);           // 匯入前快照
+        DATA=migrate(incoming);
+        if(persist()){ go("home"); toast("已用備份取代"); }
+        else{ DATA=snapshot; persist(); go("home"); toast("備份太大無法儲存，已保留原本資料"); }
       });
     };
-    reader.readAsText(file);
-    e.target.value = "";
-  });
+    document.getElementById("mMerge").onclick=()=>{ closeModal(); startMerge(migrate(incoming)); };
+  };
+  reader.readAsText(file);
+});
 
-  /* ---------------- 初始化 ---------------- */
-  function init(){
-    loadEntries();
-    initCover();
-    renderPickers();
-    $("#date-input").value = todayStr();
-    $("#weekday-badge").textContent = weekdayOf(todayStr());
-    var existingToday = getEntryByDate(todayStr());
-    if(existingToday){ loadEntryIntoForm(existingToday); }
-    restoreDraftIfAny();
-    renderCalendar();
+/* 匯入合併總管：先快照，再進入實際合併；任何失敗都回復快照 */
+let MERGE_SNAPSHOT=null;
+function startMerge(incoming){
+  MERGE_SNAPSHOT=deepClone(DATA);   // 記憶體快照，供失敗或中途取消回復
+  mergeData(incoming);
+}
+function finishMerge(){
+  if(persist()){ MERGE_SNAPSHOT=null; go("home"); toast("合併完成"); }
+  else{ // 儲存失敗：回復到匯入前
+    if(MERGE_SNAPSHOT){ DATA=MERGE_SNAPSHOT; MERGE_SNAPSHOT=null; persist(); }
+    go("home"); toast("合併後太大無法儲存，已回復原本資料");
   }
-  init();
+}
 
-})();
+/* 合併：逐鍵補齊，日記衝突逐一詢問 */
+function mergeData(incoming){
+  // 先合併非日記的容器（以現有為主，補上缺的）
+  ["today","week","weekMeta","reflect","reflectWeek","monthDesign"].forEach(coll=>{
+    const src=incoming[coll]; if(!isPlainObject(src)) return;
+    Object.keys(src).forEach(k=>{ if(!(k in DATA[coll])) DATA[coll][k]=src[k]; });
+  });
+  // 陣列類：以 id / 文字去重後併入（來源可能缺這些欄位）
+  (Array.isArray(incoming.wishes)?incoming.wishes:[]).forEach(w=>{ if(isPlainObject(w) && !DATA.wishes.some(x=>x.id===w.id||x.text===w.text)) DATA.wishes.push(w); });
+  (Array.isArray(incoming.scraps)?incoming.scraps:[]).forEach(s=>{ if(isPlainObject(s) && !DATA.scraps.some(x=>x.id===s.id)) DATA.scraps.push(s); });
+  if(Array.isArray(incoming.lifeItems) && !DATA.lifeItems) DATA.lifeItems=incoming.lifeItems;
+
+  const inJournal = isPlainObject(incoming.journal) ? incoming.journal : {};
+  // 日記：找出衝突鍵
+  const conflicts=Object.keys(inJournal).filter(k=> DATA.journal[k] && DATA.journal[k].text && DATA.journal[k].text.trim() && inJournal[k].text && inJournal[k].text.trim() && DATA.journal[k].text!==inJournal[k].text );
+  // 無衝突的先補進來
+  Object.keys(inJournal).forEach(k=>{ if(!conflicts.includes(k) && !(DATA.journal[k]&&DATA.journal[k].text&&DATA.journal[k].text.trim())) DATA.journal[k]=inJournal[k]; });
+
+  if(!conflicts.length){ finishMerge(); return; }
+  resolveConflicts(conflicts, inJournal, 0);
+}
+function resolveConflicts(list, incoming, i){
+  if(i>=list.length){ finishMerge(); return; }
+  const k=list[i]; const mine=DATA.journal[k]; const theirs=incoming[k];
+  const newer = (theirs.updated||0) > (mine.updated||0);
+  modalBox.innerHTML=`
+    <h3>${fmtShort(k)} 有兩個版本</h3>
+    <p>這一天在你目前的手帳和備份裡都有內容，想留哪一版？${newer?"（備份的看起來比較新）":"（目前的看起來比較新）"}</p>
+    <div style="background:var(--paper-warm);border-radius:10px;padding:12px;margin-bottom:10px;font-family:var(--font-serif);font-size:14px;">目前：${escapeHtml(mine.text.slice(0,60))}…</div>
+    <div style="background:var(--paper-warm);border-radius:10px;padding:12px;margin-bottom:6px;font-family:var(--font-serif);font-size:14px;">備份：${escapeHtml(theirs.text.slice(0,60))}…</div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="keepMine">留目前</button>
+      <button class="btn sage" id="keepTheirs">用備份</button>
+    </div>`;
+  overlay.classList.add("show");
+  document.getElementById("keepMine").onclick=()=>{ closeModal(); resolveConflicts(list,incoming,i+1); };
+  document.getElementById("keepTheirs").onclick=()=>{ DATA.journal[k]=theirs; closeModal(); resolveConflicts(list,incoming,i+1); };
+}
+
+/* ================================================================
+   小工具
+   ================================================================ */
+function autoGrow(t){ if(!t) return; t.style.height="auto"; t.style.height=t.scrollHeight+"px"; }
+function escapeHtml(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+/* 只允許我們自己產生的 data:image dataURL 當作 <img> 來源；其餘（含匯入時被塞入的惡意字串）一律拒絕。 */
+function safePhotoSrc(p){ return (typeof p==="string" && /^data:image\//.test(p)) ? p : ""; }
+function escapeAttr(s){ return escapeHtml(s).replace(/'/g,"&#39;"); }
+
+window.addEventListener("beforeunload",()=>{ clearTimeout(SAVE_TIMER); persist(); });
+document.addEventListener("visibilitychange",()=>{ if(document.hidden){ clearTimeout(SAVE_TIMER); persist(); } });
+
+/* ================================================================
+   第一次使用示範資料
+   ================================================================ */
+function seed(){
+  const d=emptyData(); const t=new Date(); const k0=ymd(t);
+  const before=n=>{ const x=new Date(t); x.setDate(x.getDate()-n); return ymd(x); };
+  d.today[k0]={ mood:"🌤️",energy:3,todos:[{t:"給自己泡一杯溫的",done:true},{t:"傍晚去巷口走走",done:false},{t:"寫幾句今天的心情",done:false}],quick:"",notForce:["不因為晚起而責怪自己"],life:["好好吃飯","喝水"],fragments:{},becoming:"" };
+  d.journal[before(1)]={ title:"把冬天收起來", text:"整理了一整天的房間，把冬天的衣服收起來。原來清空了一些東西，心也跟著鬆開一點。", mood:"🌤️", tags:["日常","療癒"], photo:null, updated:Date.now() };
+  d.journal[before(3)]={ title:"窗邊的雨", text:"今天什麼都沒做，就是坐在窗邊看雨。這樣的一天，好像也很好。", mood:"🌙", tags:["心情"], photo:null, updated:Date.now() };
+  d.journal[before(5)]={ title:"薄荷冒新芽", text:"陽台的薄荷冒新芽了。小小一片，卻讓我開心了整個早上。", mood:"🌱", tags:["小確幸","身體"], photo:null, updated:Date.now() };
+  d.week[k0]=[{text:"巷口散步",cat:"sage"},{text:"寫片段",cat:"rose"}];
+  d.wishes=[{id:1,text:"去看看那間新開的舊書店",tag:"一個人",done:false},{id:2,text:"學會煮一鍋像樣的湯",tag:"照顧自己",done:false},{id:3,text:"寫一封信給三年後的自己",tag:"慢慢來",done:false}];
+  d.scraps=[
+    {id:11,title:"慢下來的力量",text:"慢慢來，比較快。",note:"",tag:"喜歡的句子",state:"seed",platform:"18 Living",format:"一句話",publishDate:"",created:Date.now()},
+    {id:12,title:"安靜的早晨",text:"想試試看用手沖咖啡，配一個安靜的早晨。不趕時間的那種。",note:"可以拍一組生活照",tag:"生活",state:"sprout",platform:"IG 貼文",format:"生活紀錄",publishDate:"",created:Date.now()},
+    {id:13,title:"",text:"留白，也是一種豐盛。",note:"",tag:"喜歡的句子",state:"ready",platform:"Threads",format:"療癒文字",publishDate:"",created:Date.now()}
+  ];
+  d.meta.lastSaved=Date.now();
+  localStorage.setItem(STORE_KEY, JSON.stringify(d));
+  return d;
+}
+
+/* ================================================================
+   啟動
+   ================================================================ */
+applySeason(new Date().getMonth());   // 依當月套用季節 accent
+renderHome();
+updateSaveStatus(false);
+
 </script>
 </body>
 </html>
