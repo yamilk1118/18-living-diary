@@ -1317,16 +1317,19 @@ const MONTH_REFLECT_FIELDS = [
    頁面切換
    ================================================================ */
 const stage=document.getElementById("stage");
-function go(id){
+function go(id, preserveScroll){
+  const prevTop = stage.scrollTop;   // 記住目前捲動位置
   document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
   document.querySelectorAll("[data-go]").forEach(b=>b.classList.toggle("on",b.dataset.go===id));
-  stage.scrollTop=0;
   if(id==="home") renderHome();
   if(id==="today") renderToday();
   if(id==="planner") renderPlanner();
   if(id==="journal") renderJournal();
   if(id==="create") renderCreate();
   if(id==="reflect") renderReflect();
+  // 使用者主動切頁 → 回到頂端；若只是原地重繪（例如雲端同步）→ 保持原本位置，避免畫面亂跳
+  if(preserveScroll) stage.scrollTop = prevTop;
+  else stage.scrollTop = 0;
 }
 document.querySelectorAll("[data-go]").forEach(b=> b.addEventListener("click",()=>go(b.dataset.go)) );
 
@@ -2253,7 +2256,7 @@ function applyCloudData(incoming){
   try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){}
   updateSaveStatus(false);
   applySeason(new Date().getMonth());
-  go(currentPageId());   // 重繪目前頁面
+  go(currentPageId(), true);   // 原地重繪，保留捲動位置（不跳回頂端）
 }
 // 讓同步模組讀到目前資料
 function getData(){ return DATA; }
@@ -2434,8 +2437,12 @@ updateSaveStatus(false);
     if(t && (t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable)) lastTypeAt=Date.now();
   }, true);
   document.addEventListener("keydown", function(){ lastTypeAt=Date.now(); }, true);
-  // 是否「正在打字」：距離上次實際輸入不到 3.5 秒才算。
-  // （只是游標停在輸入框、但已停手，不算正在打字，才不會讓同步永遠卡住。）
+  // 點選（心情、標籤、勾選等）也算「正在操作」，短時間內不套用雲端更新，避免畫面跳動
+  document.addEventListener("click", function(e){
+    const t=e.target;
+    if(t && t.closest && t.closest(".mood,.life-chip,.feel-chip,.tag-pill,.dot,.energy-dot,.chip,.day-col,.view-tab,.collection,.wish,.scrap")) lastTypeAt=Date.now();
+  }, true);
+  // 是否「正在操作」：距離上次輸入／點選不到 3.5 秒才算。
   function isTyping(){
     return (Date.now()-lastTypeAt) < 3500;
   }
