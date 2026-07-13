@@ -1030,7 +1030,7 @@ function emptyData(){
 function load(){
   try{
     const raw = localStorage.getItem(STORE_KEY);
-    if(!raw) return seed();
+    if(!raw) return firstRun();
     const parsed = JSON.parse(raw);
     const migrated = migrate(parsed);
     // 若版本較舊，遷移後立即寫回一次，讓本機儲存的結構與新版一致（不動既有內容）
@@ -2231,22 +2231,11 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden){ clearTim
 /* ================================================================
    第一次使用示範資料
    ================================================================ */
-function seed(){
-  const d=emptyData(); const t=new Date(); const k0=ymd(t);
-  const before=n=>{ const x=new Date(t); x.setDate(x.getDate()-n); return ymd(x); };
-  d.today[k0]={ mood:"🌤️",energy:3,todos:[{t:"給自己泡一杯溫的",done:true},{t:"傍晚去巷口走走",done:false},{t:"寫幾句今天的心情",done:false}],quick:"",notForce:["不因為晚起而責怪自己"],life:["好好吃飯","喝水"],fragments:{},becoming:"" };
-  d.journal[before(1)]={ title:"把冬天收起來", text:"整理了一整天的房間，把冬天的衣服收起來。原來清空了一些東西，心也跟著鬆開一點。", mood:"🌤️", tags:["日常","療癒"], photo:null, updated:Date.now() };
-  d.journal[before(3)]={ title:"窗邊的雨", text:"今天什麼都沒做，就是坐在窗邊看雨。這樣的一天，好像也很好。", mood:"🌙", tags:["心情"], photo:null, updated:Date.now() };
-  d.journal[before(5)]={ title:"薄荷冒新芽", text:"陽台的薄荷冒新芽了。小小一片，卻讓我開心了整個早上。", mood:"🌱", tags:["小確幸","身體"], photo:null, updated:Date.now() };
-  d.week[k0]=[{text:"巷口散步",cat:"sage"},{text:"寫片段",cat:"rose"}];
-  d.wishes=[{id:1,text:"去看看那間新開的舊書店",tag:"一個人",done:false},{id:2,text:"學會煮一鍋像樣的湯",tag:"照顧自己",done:false},{id:3,text:"寫一封信給三年後的自己",tag:"慢慢來",done:false}];
-  d.scraps=[
-    {id:11,title:"慢下來的力量",text:"慢慢來，比較快。",note:"",tag:"喜歡的句子",state:"seed",platform:"18 Living",format:"一句話",publishDate:"",created:Date.now()},
-    {id:12,title:"安靜的早晨",text:"想試試看用手沖咖啡，配一個安靜的早晨。不趕時間的那種。",note:"可以拍一組生活照",tag:"生活",state:"sprout",platform:"IG 貼文",format:"生活紀錄",publishDate:"",created:Date.now()},
-    {id:13,title:"",text:"留白，也是一種豐盛。",note:"",tag:"喜歡的句子",state:"ready",platform:"Threads",format:"療癒文字",publishDate:"",created:Date.now()}
-  ];
+/* 第一次使用：直接給乾淨的空白手帳，不再放示範資料。 */
+function firstRun(){
+  const d=emptyData();
   d.meta.lastSaved=Date.now();
-  localStorage.setItem(STORE_KEY, JSON.stringify(d));
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(d)); }catch(e){}
   return d;
 }
 
@@ -2268,6 +2257,16 @@ function applyCloudData(incoming){
 }
 // 讓同步模組讀到目前資料
 function getData(){ return DATA; }
+// 清空所有資料，回到乾淨空白手帳（會觸發上傳，讓雲端也一起清空）
+function clearAllData(){
+  DATA = emptyData();
+  DATA.meta.lastSaved = Date.now();
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){}
+  if(window.CloudSync) window.CloudSync.schedulePush();  // 同步清空到雲端
+  updateSaveStatus(false);
+  go("home");
+  toast("已清空，重新開始");
+}
 
 /* ================================================================
    啟動
@@ -2512,15 +2511,19 @@ updateSaveStatus(false);
       modalBox.innerHTML=
         '<h3>雲端同步</h3>'+
         '<p>目前登入：'+escapeSafe(user.email||"（匿名）")+'<br>這台裝置會和登入同一帳號的其他裝置自動同步。</p>'+
-        '<div class="modal-actions">'+
+        '<div class="modal-actions" style="flex-wrap:wrap;">'+
         '<button class="btn ghost" id="cClose">關閉</button>'+
         '<button class="btn" id="cPush">立即上傳</button>'+
         '<button class="btn rose" id="cLogout">登出</button>'+
+        '</div>'+
+        '<div style="border-top:1px solid var(--line);margin:16px 0 0;padding-top:14px;">'+
+        '<button class="btn ghost danger" id="cClear" style="width:100%;">清空所有資料，重新開始</button>'+
         '</div>';
       overlay.classList.add("show");
       document.getElementById("cClose").onclick=closeCloud;
       document.getElementById("cPush").onclick=()=>{ pushNow(); closeCloud(); window.toast&&toast("已上傳雲端"); };
       document.getElementById("cLogout").onclick=()=>{ auth.signOut(); closeCloud(); window.toast&&toast("已登出，資料仍在本機"); };
+      document.getElementById("cClear").onclick=confirmClearAll;
     }else{
       modalBox.innerHTML=
         '<h3>登入雲端同步</h3>'+
@@ -2532,11 +2535,15 @@ updateSaveStatus(false);
         '<button class="btn ghost" id="cClose">取消</button>'+
         '<button class="btn" id="cSignup">註冊新帳號</button>'+
         '<button class="btn sage" id="cLogin">登入</button>'+
+        '</div>'+
+        '<div style="border-top:1px solid var(--line);margin:16px 0 0;padding-top:14px;">'+
+        '<button class="btn ghost danger" id="cClear" style="width:100%;">清空這台的所有資料</button>'+
         '</div>';
       overlay.classList.add("show");
       const email=()=>document.getElementById("cEmail").value.trim();
       const pass=()=>document.getElementById("cPass").value;
       const err=(m)=>{ document.getElementById("cErr").textContent=m||""; };
+      document.getElementById("cClear").onclick=confirmClearAll;
       document.getElementById("cClose").onclick=closeCloud;
       document.getElementById("cLogin").onclick=()=>{
         err(""); auth.signInWithEmailAndPassword(email(),pass())
@@ -2551,6 +2558,26 @@ updateSaveStatus(false);
     }
   }
   function closeCloud(){ const o=document.getElementById("overlay"); o.classList.remove("show"); document.getElementById("modal").innerHTML=""; }
+
+  /* 清空所有資料的確認視窗（需要再次確認，避免誤按） */
+  function confirmClearAll(){
+    const modalBox=document.getElementById("modal");
+    document.getElementById("overlay").classList.add("show");
+    modalBox.innerHTML=
+      '<h3>要清空所有資料嗎？</h3>'+
+      '<p>這會清掉這台的所有日記、計畫、靈感與回顧，讓手帳回到全新的空白狀態。'+
+      (user?'<br>因為已登入雲端，雲端那份也會一起被清空（其他裝置下次同步後也會變空）。':'')+
+      '<br><br>這個動作沒辦法復原，確定要繼續嗎？</p>'+
+      '<div class="modal-actions">'+
+      '<button class="btn ghost" id="clrCancel">先不要</button>'+
+      '<button class="btn rose danger" id="clrYes">清空，重新開始</button>'+
+      '</div>';
+    document.getElementById("clrCancel").onclick=closeCloud;
+    document.getElementById("clrYes").onclick=function(){
+      closeCloud();
+      if(window.clearAllData) window.clearAllData();
+    };
+  }
 
   function friendlyErr(e){
     const c=(e&&e.code)||"";
