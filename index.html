@@ -2426,7 +2426,36 @@ updateSaveStatus(false);
     return out;
   }
 
-  /* 即時監聽雲端：別的裝置改了，這台自動拉下來 */
+  /* ---- 打字偵測：使用者正在輸入時，暫緩套用雲端更新，避免打斷 ---- */
+  let lastTypeAt = 0;
+  let pendingRemote = null;   // 打字期間先暫存最新的雲端資料，等停手再套用
+  let pendingTimer = null;
+  document.addEventListener("input", function(e){
+    const t=e.target;
+    if(t && (t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable)) lastTypeAt=Date.now();
+  }, true);
+  document.addEventListener("keydown", function(){ lastTypeAt=Date.now(); }, true);
+  // 是否「正在打字」：距離上次實際輸入不到 3.5 秒才算。
+  // （只是游標停在輸入框、但已停手，不算正在打字，才不會讓同步永遠卡住。）
+  function isTyping(){
+    return (Date.now()-lastTypeAt) < 3500;
+  }
+  // 套用暫存的雲端資料（等打字停了才會真的套用）
+  function flushPendingRemote(){
+    if(!pendingRemote) return;
+    if(isTyping()){ // 還在打字 → 稍後再試，不打斷
+      clearTimeout(pendingTimer);
+      pendingTimer=setTimeout(flushPendingRemote, 1200);
+      return;
+    }
+    const data=pendingRemote; pendingRemote=null;
+    applyingRemote=true;
+    window.applyCloudData(data);
+    applyingRemote=false;
+    setBtn("on");
+  }
+
+  /* 即時監聽雲端：別的裝置改了，這台自動拉下來（但不會打斷你打字） */
   function startListening(){
     if(unsub) unsub();
     unsub = docRef.onSnapshot(snap=>{
@@ -2434,10 +2463,17 @@ updateSaveStatus(false);
       if(snap.metadata.hasPendingWrites) return;  // 這是自己剛寫的，略過
       const d=snap.data();
       if(d && d.data){
-        applyingRemote=true;
-        window.applyCloudData(d.data);
-        applyingRemote=false;
-        setBtn("on");
+        if(isTyping()){
+          // 正在打字：先把最新雲端資料暫存起來，等停手再套用，避免游標被打斷
+          pendingRemote=d.data;
+          clearTimeout(pendingTimer);
+          pendingTimer=setTimeout(flushPendingRemote, 1200);
+        }else{
+          applyingRemote=true;
+          window.applyCloudData(d.data);
+          applyingRemote=false;
+          setBtn("on");
+        }
       }
     }, err=>{ console.warn("監聽錯誤",err); setBtn("error"); });
   }
@@ -2453,13 +2489,19 @@ updateSaveStatus(false);
     }catch(e){ console.warn("上傳失敗",e); setBtn("error"); }
   }
 
-  /* 防抖上傳：本機存檔後呼叫（persist 內會叫這個） */
+  /* 防抖上傳：本機存檔後呼叫（persist 內會叫這個）。
+     打字時延後上傳，等停手約 2.5 秒才傳，減少兩台互相打斷。 */
   CloudSync.schedulePush = function(){
     if(!ready||!user||!docRef) return;   // 沒登入就純本機
     if(applyingRemote) return;
     clearTimeout(pushTimer);
     setBtn("syncing");
-    pushTimer=setTimeout(pushNow, 900);
+    const delay = isTyping() ? 2500 : 1000;  // 正在打字就等久一點
+    pushTimer=setTimeout(function(){
+      // 上傳前如果又開始打字了，再延一下
+      if(isTyping()){ CloudSync.schedulePush(); return; }
+      pushNow();
+    }, delay);
   };
 
   /* 同步面板：登入 / 登出 */
